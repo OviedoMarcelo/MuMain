@@ -117,11 +117,11 @@
     <comment>legacy_id=28,29</comment>
   </data>
   <data name="Lorencia" xml:space="preserve">
-    <value>lorencia</value>
+    <value>Lorencia</value>
     <comment>legacy_id=30</comment>
   </data>
   <data name="Dungeon" xml:space="preserve">
-    <value>Mazmorra</value>
+    <value>Dungeon</value>
     <comment>legacy_id=31</comment>
   </data>
   <data name="Devias" xml:space="preserve">
@@ -133,7 +133,7 @@
     <comment>legacy_id=33</comment>
   </data>
   <data name="Lost Tower" xml:space="preserve">
-    <value>Torre perdida</value>
+    <value>Lost Tower</value>
     <comment>legacy_id=34</comment>
   </data>
   <data name="A place of exile" xml:space="preserve">
@@ -145,7 +145,7 @@
     <comment>legacy_id=36,1141</comment>
   </data>
   <data name="Atlans" xml:space="preserve">
-    <value>atlans</value>
+    <value>Atlans</value>
     <comment>legacy_id=37</comment>
   </data>
   <data name="Tarkan" xml:space="preserve">
@@ -169,7 +169,7 @@
     <comment>legacy_id=42</comment>
   </data>
   <data name="Very Slow" xml:space="preserve">
-    <value>muy lento</value>
+    <value>Muy lento</value>
     <comment>legacy_id=43</comment>
   </data>
   <data name="Slow" xml:space="preserve">
@@ -185,7 +185,7 @@
     <comment>legacy_id=46</comment>
   </data>
   <data name="Very Fast" xml:space="preserve">
-    <value>muy rapido</value>
+    <value>Muy rapido</value>
     <comment>legacy_id=47</comment>
   </data>
   <data name="Ice" xml:space="preserve">
@@ -197,7 +197,7 @@
     <comment>legacy_id=49</comment>
   </data>
   <data name="Lightning" xml:space="preserve">
-    <value>Iluminación</value>
+    <value>Rayo</value>
     <comment>legacy_id=50,2644</comment>
   </data>
   <data name="Fire" xml:space="preserve">
@@ -313,35 +313,35 @@
     <comment>legacy_id=78</comment>
   </data>
   <data name="Wizardry Dmg %d%% rise" xml:space="preserve">
-    <value>Wizardry Dmg %d%% aumento</value>
+    <value>Daño mágico +%d%%</value>
     <comment>legacy_id=79</comment>
   </data>
   <data name="Defend skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de defensa (Mana:%d)</value>
+    <value>Habilidad de Defend (Maná: %d)</value>
     <comment>legacy_id=80</comment>
   </data>
   <data name="Falling Slash skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte que cae (Mana:%d)</value>
+    <value>Habilidad de Falling Slash (Maná: %d)</value>
     <comment>legacy_id=81</comment>
   </data>
   <data name="Lunge skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de estocada (Mana:%d)</value>
+    <value>Habilidad de Lunge (Maná: %d)</value>
     <comment>legacy_id=82</comment>
   </data>
   <data name="Uppercut skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de gancho (Mana:%d)</value>
+    <value>Habilidad de Uppercut (Maná: %d)</value>
     <comment>legacy_id=83</comment>
   </data>
   <data name="Cyclone Cutting skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte de ciclón (Mana:%d)</value>
+    <value>Habilidad de Cyclone Cutting (Maná: %d)</value>
     <comment>legacy_id=84</comment>
   </data>
   <data name="Slashing skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte (Mana:%d)</value>
+    <value>Habilidad de Slashing (Maná: %d)</value>
     <comment>legacy_id=85</comment>
   </data>
   <data name="Triple Shot skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad Triple Disparo (Mana:%d)</value>
+    <value>Habilidad de Triple Shot (Maná: %d)</value>
     <comment>legacy_id=86</comment>
   </data>
   <data name="Luck (success rate of Jewel of Soul +25%%)" xml:space="preserve">
@@ -389,7 +389,7 @@
     <comment>legacy_id=97</comment>
   </data>
   <data name="Power Slash Skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte de poder (Mana:%d)</value>
+    <value>Habilidad de Power Slash (Maná: %d)</value>
     <comment>legacy_id=98</comment>
   </data>
   <data name="Combo" xml:space="preserve">
@@ -2826,7 +2826,7 @@
     <comment>legacy_id=744</comment>
   </data>
   <data name="Raid Skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de incursión (Mana:%d)</value>
+    <value>Habilidad de Raid (Maná: %d)</value>
     <comment>legacy_id=745</comment>
   </data>
   <data name="Parrying 10%% increased" xml:space="preserve">
@@ -3430,11 +3430,11 @@
     <comment>legacy_id=919</comment>
   </data>
   <data name="4 shot skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de 4 disparos (Mana: %d)</value>
+    <value>Habilidad de 4 Shot (Maná: %d)</value>
     <comment>legacy_id=920</comment>
   </data>
   <data name="5 shot skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de 5 disparos (Mana: %d)</value>
+    <value>Habilidad de 5 Shot (Maná: %d)</value>
     <comment>legacy_id=921</comment>
   </data>
   <data name="Ring of Warrior" xml:space="preserve">
@@ -3670,7 +3670,7 @@
     <comment>legacy_id=984</comment>
   </data>
   <data name="Set option" xml:space="preserve">
-    <value>Establecer opción</value>
+    <value>Set Option</value>
     <comment>legacy_id=989</comment>
   </data>
   <data name="My Friend" xml:space="preserve">
@@ -4418,7 +4418,7 @@
     <comment>legacy_id=1185</comment>
   </data>
   <data name="Force wave skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de onda de fuerza (mana:%d)</value>
+    <value>Habilidad de Force Wave (Maná: %d)</value>
     <comment>legacy_id=1186</comment>
   </data>
   <data name="Dark horse" xml:space="preserve">
@@ -4430,7 +4430,7 @@
     <comment>legacy_id=1188</comment>
   </data>
   <data name="Earth shake skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de sacudir la tierra (mana:%d)</value>
+    <value>Habilidad de Earth Shake (Maná: %d)</value>
     <comment>legacy_id=1189</comment>
   </data>
   <data name="View detailed information" xml:space="preserve">
@@ -4510,7 +4510,7 @@
     <comment>legacy_id=1209</comment>
   </data>
   <data name="Long spear skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de lanza larga (mana:%d)</value>
+    <value>Habilidad de Long Spear (Maná: %d)</value>
     <comment>legacy_id=1210</comment>
   </data>
   <data name="Drop the item and exit." xml:space="preserve">
@@ -6326,7 +6326,7 @@
     <comment>legacy_id=1694</comment>
   </data>
   <data name="Explosion Skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de explosión (Maná: %d)</value>
+    <value>Habilidad de Explosion (Maná: %d)</value>
     <comment>legacy_id=1695</comment>
   </data>
   <data name="Requiem (Mana: %d)" xml:space="preserve">
@@ -6690,7 +6690,7 @@
     <comment>legacy_id=1788</comment>
   </data>
   <data name="Pollution skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de contaminación (Mana: %d)</value>
+    <value>Habilidad de Pollution (Maná: %d)</value>
     <comment>legacy_id=1789</comment>
   </data>
   <data name="Dismantle jewel" xml:space="preserve">
@@ -7146,7 +7146,7 @@
     <comment>legacy_id=1927</comment>
   </data>
   <data name="Plasma storm skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad Tormenta de plasma (Mana:%d)</value>
+    <value>Habilidad de Plasma Storm (Maná: %d)</value>
     <comment>legacy_id=1928</comment>
   </data>
   <data name="Skills will improve through upgrading." xml:space="preserve">
@@ -9302,7 +9302,7 @@
     <comment>legacy_id=2650</comment>
   </data>
   <data name="Socket option" xml:space="preserve">
-    <value>Opción de enchufe</value>
+    <value>Socket Option</value>
     <comment>legacy_id=2651</comment>
   </data>
   <data name="No item application" xml:space="preserve">
