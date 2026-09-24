@@ -772,7 +772,7 @@
     <comment>legacy_id=189</comment>
   </data>
   <data name="Party" xml:space="preserve">
-    <value>Fiesta</value>
+    <value>Party</value>
     <comment>legacy_id=190,944,3515,3554</comment>
   </data>
   <data name="Type /party with the mouse cursor on" xml:space="preserve">
@@ -908,7 +908,7 @@
     <comment>legacy_id=225</comment>
   </data>
   <data name="Trade" xml:space="preserve">
-    <value>Comercio</value>
+    <value>Comerciar</value>
     <comment>legacy_id=226,943,3465</comment>
   </data>
   <data name="Zen Trade" xml:space="preserve">
@@ -3494,7 +3494,7 @@
     <comment>legacy_id=937</comment>
   </data>
   <data name="Command Window" xml:space="preserve">
-    <value>Ventana de comando</value>
+    <value>Comandos</value>
     <comment>legacy_id=938</comment>
   </data>
   <data name="Command (D)" xml:space="preserve">
@@ -3514,7 +3514,7 @@
     <comment>legacy_id=942</comment>
   </data>
   <data name="Whisper" xml:space="preserve">
-    <value>Susurro</value>
+    <value>Susurrar</value>
     <comment>legacy_id=945</comment>
   </data>
   <data name="Add Friend" xml:space="preserve">
@@ -4910,11 +4910,11 @@
     <comment>legacy_id=1320</comment>
   </data>
   <data name="Hostility guild" xml:space="preserve">
-    <value>Gremio de hostilidad</value>
+    <value>Gremio rival</value>
     <comment>legacy_id=1321</comment>
   </data>
   <data name="Suspend hostilities" xml:space="preserve">
-    <value>Dar tregua</value>
+    <value>Quitar rival</value>
     <comment>legacy_id=1322,3437</comment>
   </data>
   <data name="Guild announcement" xml:space="preserve">
@@ -12907,5 +12907,8 @@
   </data>
   <data name="QuestTitleIntoTheDarknessZone" xml:space="preserve">
     <value>Dentro de la zona de la 'Oscuridad'</value>
+  </data>
+  <data name="SpecialCommands" xml:space="preserve">
+    <value>Especial</value>
   </data>
 </root>
