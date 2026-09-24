@@ -1284,7 +1284,7 @@
     <comment>legacy_id=353</comment>
   </data>
   <data name="Dinorant" xml:space="preserve">
-    <value>dinorante</value>
+    <value>Dinorant</value>
     <comment>legacy_id=354</comment>
   </data>
   <data name="Uniria" xml:space="preserve">
@@ -4422,7 +4422,7 @@
     <comment>legacy_id=1186</comment>
   </data>
   <data name="Dark horse" xml:space="preserve">
-    <value>caballo oscuro</value>
+    <value>Dark Horse</value>
     <comment>legacy_id=1187</comment>
   </data>
   <data name="Increase %d possible attack distance" xml:space="preserve">
@@ -4526,7 +4526,7 @@
     <comment>legacy_id=1213</comment>
   </data>
   <data name="Dark Raven" xml:space="preserve">
-    <value>Cuervo oscuro</value>
+    <value>Dark Raven</value>
     <comment>legacy_id=1214</comment>
   </data>
   <data name="Used in Dark Horse resurrection" xml:space="preserve">
@@ -4538,7 +4538,7 @@
     <comment>legacy_id=1216</comment>
   </data>
   <data name="Pet" xml:space="preserve">
-    <value>Mascota</value>
+    <value>Mascotas</value>
     <comment>legacy_id=1217</comment>
   </data>
   <data name="Commands" xml:space="preserve">
@@ -6938,7 +6938,7 @@
     <comment>legacy_id=1870</comment>
   </data>
   <data name="Golden Fenrir" xml:space="preserve">
-    <value>Fenrir dorado</value>
+    <value>Golden Fenrir</value>
     <comment>legacy_id=1871</comment>
   </data>
   <data name="Exclusive edition only given to MU Heroes" xml:space="preserve">
@@ -12886,5 +12886,26 @@
   </data>
   <data name="DefaultFont" xml:space="preserve">
     <value>Predeterminado</value>
+  </data>
+  <data name="QuestTitleFindTheScrollOfEmperor" xml:space="preserve">
+    <value>¡Encuentra el 'Rollo del Emperador'!</value>
+  </data>
+  <data name="QuestTitleThreeTreasuresOfMu" xml:space="preserve">
+    <value>Tres Tesoros de Mu</value>
+  </data>
+  <data name="QuestTitleGainHeroStatus" xml:space="preserve">
+    <value>¡Obtén el 'Estado de Héroe'!</value>
+  </data>
+  <data name="QuestTitleSecretOfDarkStone" xml:space="preserve">
+    <value>Secreto de la 'Piedra Oscura'</value>
+  </data>
+  <data name="QuestTitleEvidenceOfStrength" xml:space="preserve">
+    <value>Evidencia de Fuerza</value>
+  </data>
+  <data name="QuestTitleInfiltrateBalgassBarrack" xml:space="preserve">
+    <value>Infíltrate en el Cuartel de Balgass</value>
+  </data>
+  <data name="QuestTitleIntoTheDarknessZone" xml:space="preserve">
+    <value>Dentro de la zona de la 'Oscuridad'</value>
   </data>
 </root>

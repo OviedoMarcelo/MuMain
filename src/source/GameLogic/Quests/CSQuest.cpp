@@ -126,6 +126,36 @@ namespace
         QUEST_CLASS_ACT     QuestAct[MAX_QUEST_CONDITION];
         QUEST_CLASS_REQUEST QuestRequest[MAX_QUEST_REQUEST];
     };
+
+    // Quest_*.bmd only carries the English quest titles, so they are mapped to
+    // I18N strings here to follow the selected UI language.
+    struct QuestTitleTranslation
+    {
+        const wchar_t* englishTitle;
+        const wchar_t* const* localizedTitle;
+    };
+
+    const std::array<QuestTitleTranslation, 7> kQuestTitleTranslations{{
+        { L"Find the 'Scroll of Emperor'!", &I18N::Game::QuestTitleFindTheScrollOfEmperor },
+        { L"Three Treasures of Mu", &I18N::Game::QuestTitleThreeTreasuresOfMu },
+        { L"Gain'Hero status'!", &I18N::Game::QuestTitleGainHeroStatus },
+        { L"Secret of'Dark Stone'", &I18N::Game::QuestTitleSecretOfDarkStone },
+        { L"Evidence of Strength", &I18N::Game::QuestTitleEvidenceOfStrength },
+        { L"Infiltrate into Balgass Barrack", &I18N::Game::QuestTitleInfiltrateBalgassBarrack },
+        { L"Into the 'Darkness' zone", &I18N::Game::QuestTitleIntoTheDarknessZone },
+    }};
+
+    const wchar_t* LocalizeQuestTitle(const wchar_t* title)
+    {
+        for (const auto& entry : kQuestTitleTranslations)
+        {
+            if (std::wcscmp(entry.englishTitle, title) == 0)
+            {
+                return *entry.localizedTitle;
+            }
+        }
+        return title;
+    }
 }
 
 static CSQuest g_csQuestSingleton;
@@ -197,19 +227,19 @@ const wchar_t* CSQuest::GetNPCName(BYTE byQuestIndex)
     return getMonsterName(int(m_Quest[byQuestIndex].wNpcType));
 }
 
-wchar_t* CSQuest::getQuestTitle()
+const wchar_t* CSQuest::getQuestTitle()
 {
-    return m_Quest[m_byCurrQuestIndex].strQuestName;
+    return LocalizeQuestTitle(m_Quest[m_byCurrQuestIndex].strQuestName);
 }
 
-wchar_t* CSQuest::getQuestTitle(BYTE byQuestIndex)
+const wchar_t* CSQuest::getQuestTitle(BYTE byQuestIndex)
 {
-    return m_Quest[byQuestIndex].strQuestName;
+    return LocalizeQuestTitle(m_Quest[byQuestIndex].strQuestName);
 }
 
-wchar_t* CSQuest::getQuestTitleWindow()
+const wchar_t* CSQuest::getQuestTitleWindow()
 {
-    return m_Quest[m_byCurrQuestIndexWnd].strQuestName;
+    return LocalizeQuestTitle(m_Quest[m_byCurrQuestIndexWnd].strQuestName);
 }
 
 void CSQuest::SetEventCount(std::uint8_t type, std::uint8_t count)
