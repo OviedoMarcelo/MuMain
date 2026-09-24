@@ -360,6 +360,10 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
     g_pRenderText->SetBgColor(0, 0, 0, 0);
     g_pRenderText->RenderText(m_Pos.x + 18, m_Pos.y + 58, strLevel);
 
+    // Keep the points label clear of the level text when a translation makes it longer.
+    const int levelTextWidth = g_pRenderText->MeasureText(strLevel, static_cast<int>(wcslen(strLevel))).cx;
+    const int pointsTextX = std::max(110, 18 + levelTextWidth + 6);
+
     if (CharacterAttribute->LevelUpPoint > 0)
     {
         wchar_t strLevelUpPoint[128];
@@ -373,7 +377,7 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
         g_pRenderText->SetFont(g_hFontBold);
         g_pRenderText->SetTextColor(255, 138, 0, 255);
         g_pRenderText->SetBgColor(0, 0, 0, 0);
-        g_pRenderText->RenderText(m_Pos.x + 110, m_Pos.y + 58, strLevelUpPoint);
+        g_pRenderText->RenderText(m_Pos.x + pointsTextX, m_Pos.y + 58, strLevelUpPoint);
     }
 
     g_pRenderText->SetFont(g_hFont);

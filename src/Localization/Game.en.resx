@@ -12970,4 +12970,25 @@
   <data name="ChatCommandsUnknownCommand" xml:space="preserve">
     <value>This command is not available anymore.</value>
   </data>
+  <data name="QuestTitleFindTheScrollOfEmperor" xml:space="preserve">
+    <value>Find the 'Scroll of Emperor'!</value>
+  </data>
+  <data name="QuestTitleThreeTreasuresOfMu" xml:space="preserve">
+    <value>Three Treasures of Mu</value>
+  </data>
+  <data name="QuestTitleGainHeroStatus" xml:space="preserve">
+    <value>Gain'Hero status'!</value>
+  </data>
+  <data name="QuestTitleSecretOfDarkStone" xml:space="preserve">
+    <value>Secret of'Dark Stone'</value>
+  </data>
+  <data name="QuestTitleEvidenceOfStrength" xml:space="preserve">
+    <value>Evidence of Strength</value>
+  </data>
+  <data name="QuestTitleInfiltrateBalgassBarrack" xml:space="preserve">
+    <value>Infiltrate into Balgass Barrack</value>
+  </data>
+  <data name="QuestTitleIntoTheDarknessZone" xml:space="preserve">
+    <value>Into the 'Darkness' zone</value>
+  </data>
 </root>

@@ -2110,6 +2110,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nC
     {
         std::wstring uiLocaleW = GameConfig::GetInstance().GetUILocale();
         std::string uiLocale(uiLocaleW.begin(), uiLocaleW.end());
+        // Only English and Spanish are offered; fall back for configs saved with another locale.
+        if (uiLocale != "en" && uiLocale != "es")
+            uiLocale = "en";
         I18N::SetLocale(uiLocale.c_str());
     }
 

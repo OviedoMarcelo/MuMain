@@ -81,35 +81,35 @@
     <comment>legacy_id=19</comment>
   </data>
   <data name="Dark Wizard" xml:space="preserve">
-    <value>Mago Oscuro</value>
+    <value>Dark Wizard</value>
     <comment>legacy_id=20</comment>
   </data>
   <data name="Dark Knight" xml:space="preserve">
-    <value>caballero oscuro</value>
+    <value>Dark Knight</value>
     <comment>legacy_id=21</comment>
   </data>
   <data name="Elf" xml:space="preserve">
-    <value>Duende</value>
+    <value>Elf</value>
     <comment>legacy_id=22</comment>
   </data>
   <data name="Magic Gladiator" xml:space="preserve">
-    <value>Gladiador mágico</value>
+    <value>Magic Gladiator</value>
     <comment>legacy_id=23</comment>
   </data>
   <data name="Dark Lord" xml:space="preserve">
-    <value>señor oscuro</value>
+    <value>Dark Lord</value>
     <comment>legacy_id=24</comment>
   </data>
   <data name="Soul Master" xml:space="preserve">
-    <value>Maestro del alma</value>
+    <value>Soul Master</value>
     <comment>legacy_id=25</comment>
   </data>
   <data name="Blade Knight" xml:space="preserve">
-    <value>Caballero de la espada</value>
+    <value>Blade Knight</value>
     <comment>legacy_id=26</comment>
   </data>
   <data name="Muse Elf" xml:space="preserve">
-    <value>Musa elfa</value>
+    <value>Muse Elf</value>
     <comment>legacy_id=27</comment>
   </data>
   <data name="Reserve : Job" xml:space="preserve">
@@ -117,11 +117,11 @@
     <comment>legacy_id=28,29</comment>
   </data>
   <data name="Lorencia" xml:space="preserve">
-    <value>lorencia</value>
+    <value>Lorencia</value>
     <comment>legacy_id=30</comment>
   </data>
   <data name="Dungeon" xml:space="preserve">
-    <value>Mazmorra</value>
+    <value>Dungeon</value>
     <comment>legacy_id=31</comment>
   </data>
   <data name="Devias" xml:space="preserve">
@@ -133,7 +133,7 @@
     <comment>legacy_id=33</comment>
   </data>
   <data name="Lost Tower" xml:space="preserve">
-    <value>Torre perdida</value>
+    <value>Lost Tower</value>
     <comment>legacy_id=34</comment>
   </data>
   <data name="A place of exile" xml:space="preserve">
@@ -145,7 +145,7 @@
     <comment>legacy_id=36,1141</comment>
   </data>
   <data name="Atlans" xml:space="preserve">
-    <value>atlans</value>
+    <value>Atlans</value>
     <comment>legacy_id=37</comment>
   </data>
   <data name="Tarkan" xml:space="preserve">
@@ -169,7 +169,7 @@
     <comment>legacy_id=42</comment>
   </data>
   <data name="Very Slow" xml:space="preserve">
-    <value>muy lento</value>
+    <value>Muy lento</value>
     <comment>legacy_id=43</comment>
   </data>
   <data name="Slow" xml:space="preserve">
@@ -185,7 +185,7 @@
     <comment>legacy_id=46</comment>
   </data>
   <data name="Very Fast" xml:space="preserve">
-    <value>muy rapido</value>
+    <value>Muy rapido</value>
     <comment>legacy_id=47</comment>
   </data>
   <data name="Ice" xml:space="preserve">
@@ -197,7 +197,7 @@
     <comment>legacy_id=49</comment>
   </data>
   <data name="Lightning" xml:space="preserve">
-    <value>Iluminación</value>
+    <value>Rayo</value>
     <comment>legacy_id=50,2644</comment>
   </data>
   <data name="Fire" xml:space="preserve">
@@ -313,35 +313,35 @@
     <comment>legacy_id=78</comment>
   </data>
   <data name="Wizardry Dmg %d%% rise" xml:space="preserve">
-    <value>Wizardry Dmg %d%% aumento</value>
+    <value>Daño mágico +%d%%</value>
     <comment>legacy_id=79</comment>
   </data>
   <data name="Defend skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de defensa (Mana:%d)</value>
+    <value>Habilidad de Defend (Maná: %d)</value>
     <comment>legacy_id=80</comment>
   </data>
   <data name="Falling Slash skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte que cae (Mana:%d)</value>
+    <value>Habilidad de Falling Slash (Maná: %d)</value>
     <comment>legacy_id=81</comment>
   </data>
   <data name="Lunge skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de estocada (Mana:%d)</value>
+    <value>Habilidad de Lunge (Maná: %d)</value>
     <comment>legacy_id=82</comment>
   </data>
   <data name="Uppercut skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de gancho (Mana:%d)</value>
+    <value>Habilidad de Uppercut (Maná: %d)</value>
     <comment>legacy_id=83</comment>
   </data>
   <data name="Cyclone Cutting skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte de ciclón (Mana:%d)</value>
+    <value>Habilidad de Cyclone Cutting (Maná: %d)</value>
     <comment>legacy_id=84</comment>
   </data>
   <data name="Slashing skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte (Mana:%d)</value>
+    <value>Habilidad de Slashing (Maná: %d)</value>
     <comment>legacy_id=85</comment>
   </data>
   <data name="Triple Shot skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad Triple Disparo (Mana:%d)</value>
+    <value>Habilidad de Triple Shot (Maná: %d)</value>
     <comment>legacy_id=86</comment>
   </data>
   <data name="Luck (success rate of Jewel of Soul +25%%)" xml:space="preserve">
@@ -389,7 +389,7 @@
     <comment>legacy_id=97</comment>
   </data>
   <data name="Power Slash Skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de corte de poder (Mana:%d)</value>
+    <value>Habilidad de Power Slash (Maná: %d)</value>
     <comment>legacy_id=98</comment>
   </data>
   <data name="Combo" xml:space="preserve">
@@ -752,15 +752,15 @@
     <comment>legacy_id=184</comment>
   </data>
   <data name="Type /guild in front of" xml:space="preserve">
-    <value>Escribe /gremio delante de</value>
+    <value>Escribe /gremio frente al</value>
     <comment>legacy_id=185</comment>
   </data>
   <data name="the guild master you want to join" xml:space="preserve">
-    <value>el maestro del gremio al que quieres unirte</value>
+    <value>maestro del gremio elegido</value>
     <comment>legacy_id=186</comment>
   </data>
   <data name="and you can join the guild." xml:space="preserve">
-    <value>y puedes unirte al gremio.</value>
+    <value>para unirte a su gremio.</value>
     <comment>legacy_id=187</comment>
   </data>
   <data name="Disband" xml:space="preserve">
@@ -772,7 +772,7 @@
     <comment>legacy_id=189</comment>
   </data>
   <data name="Party" xml:space="preserve">
-    <value>Fiesta</value>
+    <value>Party</value>
     <comment>legacy_id=190,944,3515,3554</comment>
   </data>
   <data name="Type /party with the mouse cursor on" xml:space="preserve">
@@ -876,7 +876,7 @@
     <comment>legacy_id=216</comment>
   </data>
   <data name="Point: %d" xml:space="preserve">
-    <value>Punto: %d</value>
+    <value>Puntos: %d</value>
     <comment>legacy_id=217</comment>
   </data>
   <data name="Explanation" xml:space="preserve">
@@ -908,7 +908,7 @@
     <comment>legacy_id=225</comment>
   </data>
   <data name="Trade" xml:space="preserve">
-    <value>Comercio</value>
+    <value>Comerciar</value>
     <comment>legacy_id=226,943,3465</comment>
   </data>
   <data name="Zen Trade" xml:space="preserve">
@@ -1284,7 +1284,7 @@
     <comment>legacy_id=353</comment>
   </data>
   <data name="Dinorant" xml:space="preserve">
-    <value>dinorante</value>
+    <value>Dinorant</value>
     <comment>legacy_id=354</comment>
   </data>
   <data name="Uniria" xml:space="preserve">
@@ -1392,11 +1392,11 @@
     <comment>legacy_id=380</comment>
   </data>
   <data name="Exit Game" xml:space="preserve">
-    <value>Salir del juego</value>
+    <value>Salir</value>
     <comment>legacy_id=381</comment>
   </data>
   <data name="Select Server" xml:space="preserve">
-    <value>Seleccionar servidor</value>
+    <value>Servidores</value>
     <comment>legacy_id=382</comment>
   </data>
   <data name="Switch Character" xml:space="preserve">
@@ -1404,7 +1404,7 @@
     <comment>legacy_id=383</comment>
   </data>
   <data name="Option385" xml:space="preserve">
-    <value>Opción</value>
+    <value>Opciones</value>
     <comment>legacy_id=385,2343</comment>
   </data>
   <data name="Automatic Attack" xml:space="preserve">
@@ -1434,7 +1434,7 @@
     <value>Modo ventana</value>
   </data>
   <data name="Close388" xml:space="preserve">
-    <value>Cerca</value>
+    <value>Cerrar</value>
     <comment>legacy_id=388,1002</comment>
   </data>
   <data name="Volume" xml:space="preserve">
@@ -2158,7 +2158,7 @@
     <comment>legacy_id=575</comment>
   </data>
   <data name="Increase 30%% of attacking &amp; Wizardry Dmg" xml:space="preserve">
-    <value>Aumenta 30% % of ataque y daño de hechicería</value>
+    <value>Aumenta 30%% el ataque y el daño mágico</value>
     <comment>legacy_id=576</comment>
   </data>
   <data name="Increase %d%% of Damage" xml:space="preserve">
@@ -2826,7 +2826,7 @@
     <comment>legacy_id=744</comment>
   </data>
   <data name="Raid Skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad de incursión (Mana:%d)</value>
+    <value>Habilidad de Raid (Maná: %d)</value>
     <comment>legacy_id=745</comment>
   </data>
   <data name="Parrying 10%% increased" xml:space="preserve">
@@ -3430,11 +3430,11 @@
     <comment>legacy_id=919</comment>
   </data>
   <data name="4 shot skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de 4 disparos (Mana: %d)</value>
+    <value>Habilidad de 4 Shot (Maná: %d)</value>
     <comment>legacy_id=920</comment>
   </data>
   <data name="5 shot skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de 5 disparos (Mana: %d)</value>
+    <value>Habilidad de 5 Shot (Maná: %d)</value>
     <comment>legacy_id=921</comment>
   </data>
   <data name="Ring of Warrior" xml:space="preserve">
@@ -3494,7 +3494,7 @@
     <comment>legacy_id=937</comment>
   </data>
   <data name="Command Window" xml:space="preserve">
-    <value>Ventana de comando</value>
+    <value>Comandos</value>
     <comment>legacy_id=938</comment>
   </data>
   <data name="Command (D)" xml:space="preserve">
@@ -3514,7 +3514,7 @@
     <comment>legacy_id=942</comment>
   </data>
   <data name="Whisper" xml:space="preserve">
-    <value>Susurro</value>
+    <value>Susurrar</value>
     <comment>legacy_id=945</comment>
   </data>
   <data name="Add Friend" xml:space="preserve">
@@ -3670,7 +3670,7 @@
     <comment>legacy_id=984</comment>
   </data>
   <data name="Set option" xml:space="preserve">
-    <value>Establecer opción</value>
+    <value>Set Option</value>
     <comment>legacy_id=989</comment>
   </data>
   <data name="My Friend" xml:space="preserve">
@@ -4418,11 +4418,11 @@
     <comment>legacy_id=1185</comment>
   </data>
   <data name="Force wave skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de onda de fuerza (mana:%d)</value>
+    <value>Habilidad de Force Wave (Maná: %d)</value>
     <comment>legacy_id=1186</comment>
   </data>
   <data name="Dark horse" xml:space="preserve">
-    <value>caballo oscuro</value>
+    <value>Dark Horse</value>
     <comment>legacy_id=1187</comment>
   </data>
   <data name="Increase %d possible attack distance" xml:space="preserve">
@@ -4430,7 +4430,7 @@
     <comment>legacy_id=1188</comment>
   </data>
   <data name="Earth shake skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de sacudir la tierra (mana:%d)</value>
+    <value>Habilidad de Earth Shake (Maná: %d)</value>
     <comment>legacy_id=1189</comment>
   </data>
   <data name="View detailed information" xml:space="preserve">
@@ -4510,7 +4510,7 @@
     <comment>legacy_id=1209</comment>
   </data>
   <data name="Long spear skill (mana:%d)" xml:space="preserve">
-    <value>Habilidad de lanza larga (mana:%d)</value>
+    <value>Habilidad de Long Spear (Maná: %d)</value>
     <comment>legacy_id=1210</comment>
   </data>
   <data name="Drop the item and exit." xml:space="preserve">
@@ -4526,7 +4526,7 @@
     <comment>legacy_id=1213</comment>
   </data>
   <data name="Dark Raven" xml:space="preserve">
-    <value>Cuervo oscuro</value>
+    <value>Dark Raven</value>
     <comment>legacy_id=1214</comment>
   </data>
   <data name="Used in Dark Horse resurrection" xml:space="preserve">
@@ -4538,7 +4538,7 @@
     <comment>legacy_id=1216</comment>
   </data>
   <data name="Pet" xml:space="preserve">
-    <value>Mascota</value>
+    <value>Mascotas</value>
     <comment>legacy_id=1217</comment>
   </data>
   <data name="Commands" xml:space="preserve">
@@ -4910,11 +4910,11 @@
     <comment>legacy_id=1320</comment>
   </data>
   <data name="Hostility guild" xml:space="preserve">
-    <value>Gremio de hostilidad</value>
+    <value>Gremio rival</value>
     <comment>legacy_id=1321</comment>
   </data>
   <data name="Suspend hostilities" xml:space="preserve">
-    <value>Dar tregua</value>
+    <value>Quitar rival</value>
     <comment>legacy_id=1322,3437</comment>
   </data>
   <data name="Guild announcement" xml:space="preserve">
@@ -6218,23 +6218,23 @@
     <comment>legacy_id=1667</comment>
   </data>
   <data name="Blade Master" xml:space="preserve">
-    <value>Maestro de la espada</value>
+    <value>Blade Master</value>
     <comment>legacy_id=1668</comment>
   </data>
   <data name="Grand Master" xml:space="preserve">
-    <value>Gran Maestro</value>
+    <value>Grand Master</value>
     <comment>legacy_id=1669</comment>
   </data>
   <data name="High Elf" xml:space="preserve">
-    <value>Alto Elfo</value>
+    <value>High Elf</value>
     <comment>legacy_id=1670</comment>
   </data>
   <data name="Dual Master" xml:space="preserve">
-    <value>Doble Maestro</value>
+    <value>Dual Master</value>
     <comment>legacy_id=1671</comment>
   </data>
   <data name="Lord Emperor" xml:space="preserve">
-    <value>Señor Emperador</value>
+    <value>Lord Emperor</value>
     <comment>legacy_id=1672</comment>
   </data>
   <data name="Return's the enemy's attack power in %d%%" xml:space="preserve">
@@ -6294,15 +6294,15 @@
     <comment>legacy_id=1686</comment>
   </data>
   <data name="Summoner" xml:space="preserve">
-    <value>Invocador</value>
+    <value>Summoner</value>
     <comment>legacy_id=1687</comment>
   </data>
   <data name="Bloody Summoner" xml:space="preserve">
-    <value>Invocador sangriento</value>
+    <value>Bloody Summoner</value>
     <comment>legacy_id=1688</comment>
   </data>
   <data name="Dimension Master" xml:space="preserve">
-    <value>Maestro de dimensiones</value>
+    <value>Dimension Master</value>
     <comment>legacy_id=1689</comment>
   </data>
   <data name="StrongMentalityAndExcellentInsightCreates" xml:space="preserve">
@@ -6326,7 +6326,7 @@
     <comment>legacy_id=1694</comment>
   </data>
   <data name="Explosion Skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de explosión (Maná: %d)</value>
+    <value>Habilidad de Explosion (Maná: %d)</value>
     <comment>legacy_id=1695</comment>
   </data>
   <data name="Requiem (Mana: %d)" xml:space="preserve">
@@ -6690,7 +6690,7 @@
     <comment>legacy_id=1788</comment>
   </data>
   <data name="Pollution skill (Mana: %d)" xml:space="preserve">
-    <value>Habilidad de contaminación (Mana: %d)</value>
+    <value>Habilidad de Pollution (Maná: %d)</value>
     <comment>legacy_id=1789</comment>
   </data>
   <data name="Dismantle jewel" xml:space="preserve">
@@ -6938,7 +6938,7 @@
     <comment>legacy_id=1870</comment>
   </data>
   <data name="Golden Fenrir" xml:space="preserve">
-    <value>Fenrir dorado</value>
+    <value>Golden Fenrir</value>
     <comment>legacy_id=1871</comment>
   </data>
   <data name="Exclusive edition only given to MU Heroes" xml:space="preserve">
@@ -7146,7 +7146,7 @@
     <comment>legacy_id=1927</comment>
   </data>
   <data name="Plasma storm skill (Mana:%d)" xml:space="preserve">
-    <value>Habilidad Tormenta de plasma (Mana:%d)</value>
+    <value>Habilidad de Plasma Storm (Maná: %d)</value>
     <comment>legacy_id=1928</comment>
   </data>
   <data name="Skills will improve through upgrading." xml:space="preserve">
@@ -9302,7 +9302,7 @@
     <comment>legacy_id=2650</comment>
   </data>
   <data name="Socket option" xml:space="preserve">
-    <value>Opción de enchufe</value>
+    <value>Socket Option</value>
     <comment>legacy_id=2651</comment>
   </data>
   <data name="No item application" xml:space="preserve">
@@ -11018,11 +11018,11 @@
     <comment>legacy_id=3149</comment>
   </data>
   <data name="Rage Fighter" xml:space="preserve">
-    <value>Luchador de ira</value>
+    <value>Rage Fighter</value>
     <comment>legacy_id=3150</comment>
   </data>
   <data name="Fist Master" xml:space="preserve">
-    <value>Maestro del puño</value>
+    <value>Fist Master</value>
     <comment>legacy_id=3151</comment>
   </data>
   <data name="LegitimateBearersOfTheKarutanRoyal" xml:space="preserve">
@@ -12878,7 +12878,7 @@
     <comment>legacy_id=3809</comment>
   </data>
   <data name="Level: %u | Resets: %u" xml:space="preserve">
-    <value>Nivel: %u | Restablecimientos: %u</value>
+    <value>Nivel: %u | Resets: %u</value>
     <comment>legacy_id=3810</comment>
   </data>
   <data name="Font" xml:space="preserve">
@@ -12886,5 +12886,29 @@
   </data>
   <data name="DefaultFont" xml:space="preserve">
     <value>Predeterminado</value>
+  </data>
+  <data name="QuestTitleFindTheScrollOfEmperor" xml:space="preserve">
+    <value>¡Encuentra el 'Rollo del Emperador'!</value>
+  </data>
+  <data name="QuestTitleThreeTreasuresOfMu" xml:space="preserve">
+    <value>Tres Tesoros de Mu</value>
+  </data>
+  <data name="QuestTitleGainHeroStatus" xml:space="preserve">
+    <value>¡Obtén el 'Estado de Héroe'!</value>
+  </data>
+  <data name="QuestTitleSecretOfDarkStone" xml:space="preserve">
+    <value>Secreto de la 'Piedra Oscura'</value>
+  </data>
+  <data name="QuestTitleEvidenceOfStrength" xml:space="preserve">
+    <value>Evidencia de Fuerza</value>
+  </data>
+  <data name="QuestTitleInfiltrateBalgassBarrack" xml:space="preserve">
+    <value>Infíltrate en el Cuartel de Balgass</value>
+  </data>
+  <data name="QuestTitleIntoTheDarknessZone" xml:space="preserve">
+    <value>Dentro de la zona de la 'Oscuridad'</value>
+  </data>
+  <data name="SpecialCommands" xml:space="preserve">
+    <value>Especial</value>
   </data>
 </root>

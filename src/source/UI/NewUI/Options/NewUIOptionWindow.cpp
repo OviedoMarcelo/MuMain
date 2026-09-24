@@ -80,23 +80,14 @@ int UI::Options::FindClosestDisplayResolutionIndex(const std::vector<DisplayReso
 }
 
 // I18N locale codes (ASCII) paired with the language's display name in that
-// language. The set mirrors what ResxGen emits and what I18N::GetAvailableLocales()
-// returns at runtime; held here as wide strings so the CNewUIComboBox can show
-// them without per-frame UTF-8 -> wide conversions.
+// language; held here as wide strings so the CNewUIComboBox can show them
+// without per-frame UTF-8 -> wide conversions. MU Cyber only offers English and
+// Spanish, even though ResxGen still emits the other locales.
 static const struct { const char* code; const wchar_t* label; } s_Languages[] = {
     { "en",    L"English" },
     // Non-ASCII characters use universal-character-name escapes so MSVC reads
     // the wide-string literals correctly regardless of source charset.
-    { "de",    L"Deutsch" },
     { "es",    L"Espa\u00f1ol" },                                                  // Español
-    { "id",    L"Bahasa Indonesia" },
-    { "ja",    L"\u65E5\u672C\u8A9E" },                                       // 日本語
-    { "pl",    L"Polski" },
-    { "pt",    L"Portugu\u00eas" },                                                // Português
-    { "ru",    L"\u0420\u0443\u0441\u0441\u043a\u0438\u0439" },                   // Русский
-    { "tl",    L"Tagalog" },
-    { "uk",    L"\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430" }, // Українська
-    { "zh-TW", L"\u7e41\u9ad4\u4e2d\u6587" },                                      // 繁體中文
 };
 static const int s_NumLanguages = sizeof(s_Languages) / sizeof(s_Languages[0]);
 
