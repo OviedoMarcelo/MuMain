@@ -81,35 +81,35 @@
     <comment>legacy_id=19</comment>
   </data>
   <data name="Dark Wizard" xml:space="preserve">
-    <value>Mago Oscuro</value>
+    <value>Dark Wizard</value>
     <comment>legacy_id=20</comment>
   </data>
   <data name="Dark Knight" xml:space="preserve">
-    <value>caballero oscuro</value>
+    <value>Dark Knight</value>
     <comment>legacy_id=21</comment>
   </data>
   <data name="Elf" xml:space="preserve">
-    <value>Duende</value>
+    <value>Elf</value>
     <comment>legacy_id=22</comment>
   </data>
   <data name="Magic Gladiator" xml:space="preserve">
-    <value>Gladiador mágico</value>
+    <value>Magic Gladiator</value>
     <comment>legacy_id=23</comment>
   </data>
   <data name="Dark Lord" xml:space="preserve">
-    <value>señor oscuro</value>
+    <value>Dark Lord</value>
     <comment>legacy_id=24</comment>
   </data>
   <data name="Soul Master" xml:space="preserve">
-    <value>Maestro del alma</value>
+    <value>Soul Master</value>
     <comment>legacy_id=25</comment>
   </data>
   <data name="Blade Knight" xml:space="preserve">
-    <value>Caballero de la espada</value>
+    <value>Blade Knight</value>
     <comment>legacy_id=26</comment>
   </data>
   <data name="Muse Elf" xml:space="preserve">
-    <value>Musa elfa</value>
+    <value>Muse Elf</value>
     <comment>legacy_id=27</comment>
   </data>
   <data name="Reserve : Job" xml:space="preserve">
@@ -6218,23 +6218,23 @@
     <comment>legacy_id=1667</comment>
   </data>
   <data name="Blade Master" xml:space="preserve">
-    <value>Maestro de la espada</value>
+    <value>Blade Master</value>
     <comment>legacy_id=1668</comment>
   </data>
   <data name="Grand Master" xml:space="preserve">
-    <value>Gran Maestro</value>
+    <value>Grand Master</value>
     <comment>legacy_id=1669</comment>
   </data>
   <data name="High Elf" xml:space="preserve">
-    <value>Alto Elfo</value>
+    <value>High Elf</value>
     <comment>legacy_id=1670</comment>
   </data>
   <data name="Dual Master" xml:space="preserve">
-    <value>Doble Maestro</value>
+    <value>Dual Master</value>
     <comment>legacy_id=1671</comment>
   </data>
   <data name="Lord Emperor" xml:space="preserve">
-    <value>Señor Emperador</value>
+    <value>Lord Emperor</value>
     <comment>legacy_id=1672</comment>
   </data>
   <data name="Return's the enemy's attack power in %d%%" xml:space="preserve">
@@ -6294,15 +6294,15 @@
     <comment>legacy_id=1686</comment>
   </data>
   <data name="Summoner" xml:space="preserve">
-    <value>Invocador</value>
+    <value>Summoner</value>
     <comment>legacy_id=1687</comment>
   </data>
   <data name="Bloody Summoner" xml:space="preserve">
-    <value>Invocador sangriento</value>
+    <value>Bloody Summoner</value>
     <comment>legacy_id=1688</comment>
   </data>
   <data name="Dimension Master" xml:space="preserve">
-    <value>Maestro de dimensiones</value>
+    <value>Dimension Master</value>
     <comment>legacy_id=1689</comment>
   </data>
   <data name="StrongMentalityAndExcellentInsightCreates" xml:space="preserve">
@@ -11018,11 +11018,11 @@
     <comment>legacy_id=3149</comment>
   </data>
   <data name="Rage Fighter" xml:space="preserve">
-    <value>Luchador de ira</value>
+    <value>Rage Fighter</value>
     <comment>legacy_id=3150</comment>
   </data>
   <data name="Fist Master" xml:space="preserve">
-    <value>Maestro del puño</value>
+    <value>Fist Master</value>
     <comment>legacy_id=3151</comment>
   </data>
   <data name="LegitimateBearersOfTheKarutanRoyal" xml:space="preserve">
