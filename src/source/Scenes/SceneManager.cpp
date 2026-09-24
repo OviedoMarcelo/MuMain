@@ -480,8 +480,13 @@ void UpdateSceneState()
  */
 static void UpdateLoginAndCharacterScenes()
 {
-    double dDeltaTick = g_pTimer->GetTimeElapsed();
-    dDeltaTick = MIN(dDeltaTick, 200.0 * FPS_ANIMATION_FACTOR);
+    // g_pTimer is never reset, so GetTimeElapsed() is the time since startup, not the
+    // frame delta. Track the previous sample to get the real elapsed time per frame.
+    static double s_lastUiTick = g_pTimer->GetTimeElapsed();
+    const double now = g_pTimer->GetTimeElapsed();
+    double dDeltaTick = now - s_lastUiTick;
+    s_lastUiTick = now;
+    dDeltaTick = MIN(dDeltaTick, 200.0);
 
     CInput::Instance().Update();
     CUIMng::Instance().Update(dDeltaTick);
