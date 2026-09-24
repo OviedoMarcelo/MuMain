@@ -876,7 +876,7 @@
     <comment>legacy_id=216</comment>
   </data>
   <data name="Point: %d" xml:space="preserve">
-    <value>Punto: %d</value>
+    <value>Puntos: %d</value>
     <comment>legacy_id=217</comment>
   </data>
   <data name="Explanation" xml:space="preserve">
@@ -1392,11 +1392,11 @@
     <comment>legacy_id=380</comment>
   </data>
   <data name="Exit Game" xml:space="preserve">
-    <value>Salir del juego</value>
+    <value>Salir</value>
     <comment>legacy_id=381</comment>
   </data>
   <data name="Select Server" xml:space="preserve">
-    <value>Seleccionar servidor</value>
+    <value>Servidores</value>
     <comment>legacy_id=382</comment>
   </data>
   <data name="Switch Character" xml:space="preserve">
@@ -1404,7 +1404,7 @@
     <comment>legacy_id=383</comment>
   </data>
   <data name="Option385" xml:space="preserve">
-    <value>Opción</value>
+    <value>Opciones</value>
     <comment>legacy_id=385,2343</comment>
   </data>
   <data name="Automatic Attack" xml:space="preserve">
@@ -1434,7 +1434,7 @@
     <value>Modo ventana</value>
   </data>
   <data name="Close388" xml:space="preserve">
-    <value>Cerca</value>
+    <value>Cerrar</value>
     <comment>legacy_id=388,1002</comment>
   </data>
   <data name="Volume" xml:space="preserve">
