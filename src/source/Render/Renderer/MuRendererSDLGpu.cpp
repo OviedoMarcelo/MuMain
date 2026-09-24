@@ -1703,9 +1703,13 @@ public:
         s_swapH = 0u;
         s_swapchainTexture = nullptr;
 
-        if (!SDL_AcquireGPUSwapchainTexture(s_cmdBuf, s_window, &s_swapchainTexture, &s_swapW, &s_swapH))
+        // Blocking acquire: with VSync this is what paces the game loop. The non-blocking
+        // SDL_AcquireGPUSwapchainTexture returns a null texture whenever every swapchain image
+        // is still in flight, which silently skipped the frame while the game logic kept
+        // running uncapped (hundreds of loop iterations per presented frame).
+        if (!SDL_WaitAndAcquireGPUSwapchainTexture(s_cmdBuf, s_window, &s_swapchainTexture, &s_swapW, &s_swapH))
         {
-            mu::log::Get("render")->error("SDL_gpu -- SDL_AcquireGPUSwapchainTexture failed: {}", SDL_GetError());
+            mu::log::Get("render")->error("SDL_gpu -- SDL_WaitAndAcquireGPUSwapchainTexture failed: {}", SDL_GetError());
             SDL_CancelGPUCommandBuffer(s_cmdBuf);
             s_cmdBuf = nullptr;
             FailPendingFrameReadback();
