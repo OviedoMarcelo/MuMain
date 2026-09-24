@@ -2158,7 +2158,7 @@
     <comment>legacy_id=575</comment>
   </data>
   <data name="Increase 30%% of attacking &amp; Wizardry Dmg" xml:space="preserve">
-    <value>Aumenta 30% % of ataque y daño de hechicería</value>
+    <value>Aumenta 30%% el ataque y el daño mágico</value>
     <comment>legacy_id=576</comment>
   </data>
   <data name="Increase %d%% of Damage" xml:space="preserve">
