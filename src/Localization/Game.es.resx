@@ -752,15 +752,15 @@
     <comment>legacy_id=184</comment>
   </data>
   <data name="Type /guild in front of" xml:space="preserve">
-    <value>Escribe /gremio delante de</value>
+    <value>Escribe /gremio frente al</value>
     <comment>legacy_id=185</comment>
   </data>
   <data name="the guild master you want to join" xml:space="preserve">
-    <value>el maestro del gremio al que quieres unirte</value>
+    <value>maestro del gremio elegido</value>
     <comment>legacy_id=186</comment>
   </data>
   <data name="and you can join the guild." xml:space="preserve">
-    <value>y puedes unirte al gremio.</value>
+    <value>para unirte a su gremio.</value>
     <comment>legacy_id=187</comment>
   </data>
   <data name="Disband" xml:space="preserve">
