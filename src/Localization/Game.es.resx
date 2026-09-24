@@ -12878,7 +12878,7 @@
     <comment>legacy_id=3809</comment>
   </data>
   <data name="Level: %u | Resets: %u" xml:space="preserve">
-    <value>Nivel: %u | Restablecimientos: %u</value>
+    <value>Nivel: %u | Resets: %u</value>
     <comment>legacy_id=3810</comment>
   </data>
   <data name="Font" xml:space="preserve">
