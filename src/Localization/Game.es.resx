@@ -12911,4 +12911,31 @@
   <data name="SpecialCommands" xml:space="preserve">
     <value>Especial</value>
   </data>
+  <data name="WeeklyQuestsTitle" xml:space="preserve">
+    <value>Quests semanales</value>
+  </data>
+  <data name="WeeklyQuestsNone" xml:space="preserve">
+    <value>No hay quests semanales esta semana.</value>
+  </data>
+  <data name="WeeklyQuestsProgress" xml:space="preserve">
+    <value>Progreso: %u / %u</value>
+  </data>
+  <data name="WeeklyQuestsRewards" xml:space="preserve">
+    <value>Premios:</value>
+  </data>
+  <data name="WeeklyQuestsCompleted" xml:space="preserve">
+    <value>Completada</value>
+  </data>
+  <data name="WeeklyQuestsRewardPending" xml:space="preserve">
+    <value>Premio pendiente: liberá espacio en el inventario.</value>
+  </data>
+  <data name="WeeklyQuestsResetIn" xml:space="preserve">
+    <value>Reinicio en %dd %dh %dm</value>
+  </data>
+  <data name="WeeklyQuestsClickHint" xml:space="preserve">
+    <value>Hacé clic en una quest para ver el detalle.</value>
+  </data>
+  <data name="YToggleWeeklyQuests" xml:space="preserve">
+    <value>Y : Quests semanales On/Off</value>
+  </data>
 </root>

@@ -12970,6 +12970,33 @@
   <data name="ChatCommandsUnknownCommand" xml:space="preserve">
     <value>This command is not available anymore.</value>
   </data>
+  <data name="WeeklyQuestsTitle" xml:space="preserve">
+    <value>Weekly Quests</value>
+  </data>
+  <data name="WeeklyQuestsNone" xml:space="preserve">
+    <value>There are no weekly quests this week.</value>
+  </data>
+  <data name="WeeklyQuestsProgress" xml:space="preserve">
+    <value>Progress: %u / %u</value>
+  </data>
+  <data name="WeeklyQuestsRewards" xml:space="preserve">
+    <value>Rewards:</value>
+  </data>
+  <data name="WeeklyQuestsCompleted" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="WeeklyQuestsRewardPending" xml:space="preserve">
+    <value>Reward pending: free some inventory space.</value>
+  </data>
+  <data name="WeeklyQuestsResetIn" xml:space="preserve">
+    <value>Reset in %dd %dh %dm</value>
+  </data>
+  <data name="WeeklyQuestsClickHint" xml:space="preserve">
+    <value>Click a quest to see its details.</value>
+  </data>
+  <data name="YToggleWeeklyQuests" xml:space="preserve">
+    <value>Y : Weekly Quests On/Off</value>
+  </data>
   <data name="QuestTitleFindTheScrollOfEmperor" xml:space="preserve">
     <value>Find the 'Scroll of Emperor'!</value>
   </data>

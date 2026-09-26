@@ -89,6 +89,7 @@ UI::Scaling::LayoutMode UI::Layout::ForInterface(std::uint32_t interfaceKey)
     case INTERFACE_MUHELPER_EXT:
     case INTERFACE_MUHELPER_SKILL_LIST:
     case INTERFACE_COMMAND_LIST:
+    case INTERFACE_WEEKLY_QUESTS:
     case INTERFACE_ITEM_ENDURANCE_INFO:
     case INTERFACE_PARTY_INFO_WINDOW:
         return LayoutMode::DockRight;
