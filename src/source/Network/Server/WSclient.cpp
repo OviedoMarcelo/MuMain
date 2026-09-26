@@ -14201,6 +14201,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         {
             GameLogic::Quests::WeeklyQuests().AddFromPacket(ReceiveBuffer, Size);
         }
+        else if (subcode == 0x03)
+        {
+            GameLogic::Quests::WeeklyQuests().AddDetailsFromPacket(ReceiveBuffer, Size);
+        }
         else
         {
             g_ConsoleDebug->Write(MCD_RECEIVE, L"Recv [0xF5][0x%02x] (unknown)", subcode);

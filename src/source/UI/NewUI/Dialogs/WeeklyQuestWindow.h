@@ -9,15 +9,17 @@
 #include "UI/NewUI/Widgets/NewUIButton.h"
 #include "UI/Scaling/UITransform.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
+#include "UI/Quests/QuestList.h"
 
 #include <string>
 #include <vector>
 
 namespace SEASON3B
 {
-// Shows the weekly quests which the server told us about, with the progress
-// of the character. The first page lists the quests, a click on one shows
-// its description and rewards.
+// Shows the quests which the server told us about, with the progress of the
+// character. The first page lists the quests grouped by category (story,
+// daily, weekly, class, zone), a click on one shows its description, the
+// checklist of its steps and its rewards.
 //
 // It uses the frame and the size of the chat commands window, so that both
 // look alike when they are docked at the same place.
@@ -93,11 +95,17 @@ public:
     enum eDETAIL_STYLE
     {
         STYLE_TITLE,
+        // The type of the quest and when it resets, below the name.
+        STYLE_TYPE,
         STYLE_DESCRIPTION,
         STYLE_HEADING,
         STYLE_VALUE,
         STYLE_COMPLETED,
         STYLE_PENDING,
+        // The steps of the checklist: done, the one to do now, and the ones after it.
+        STYLE_STEP_DONE,
+        STYLE_STEP_CURRENT,
+        STYLE_STEP_LATER,
     };
 
     static constexpr float LayerDepth = UI::Layout::ForegroundPanelLayerDepth;
@@ -123,14 +131,19 @@ public:
     void ClosingProcess();
 
 private:
+    const UI::Quests::QuestListRow* GetRowAt(int row) const;
     const GameLogic::Quests::WeeklyQuest* GetQuestAt(int row) const;
     const GameLogic::Quests::WeeklyQuest* GetSelectedQuest() const;
+    // The rows are built again only when the quests changed, not every frame.
+    void RefreshRows();
 
     void ShowPage(ePAGE page);
     void PickQuest(int row);
     // The texts are wrapped once when the page is entered, because measuring
     // them against the font is too much work for every frame.
     void WrapDetailsOfSelected();
+    void AddProgressLines(const GameLogic::Quests::WeeklyQuest& quest);
+    void AddStepLines(const GameLogic::Quests::WeeklyQuest& quest);
     void AddDetailLines(const std::wstring& text, eDETAIL_STYLE style);
     void WrapHint();
     int GetScrollableRowCount() const;
@@ -148,6 +161,7 @@ private:
     void RenderTitle();
     void RenderListPage();
     void RenderQuestRow(const GameLogic::Quests::WeeklyQuest& quest, int y);
+    void RenderHeadingRow(GameLogic::Quests::QuestCategory category, int y);
     void RenderRowHighlight(int y);
     void RenderPanel(int height);
     void RenderHint();
@@ -159,10 +173,17 @@ private:
     POINT m_Pos;
 
     ePAGE m_page;
-    int m_selectedRow;
+    // The quest is remembered by its id, because its row moves when the list is built again.
+    std::wstring m_selectedQuestId;
     int m_scrollOffset;
     // The revision of the catalog which the details page shows.
     uint32_t m_shownRevision;
+
+    std::vector<UI::Quests::QuestListRow> m_rows;
+    // The revision of the catalog which the rows were built from.
+    uint32_t m_rowsRevision;
+    // The quest whose reset is shown below the list; NoQuest when nothing resets.
+    int m_resetQuestIndex;
 
     // The lines of the details page: the name, the description, the progress and the rewards.
     struct DetailLine
