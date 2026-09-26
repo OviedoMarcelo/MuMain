@@ -54,6 +54,13 @@ mu_add_test(
         ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Commands/ChatCommandCatalog.cpp
 )
 
+mu_add_test(
+    NAME test_weekly_quest_catalog
+    SOURCES
+        test_weekly_quest_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Quests/WeeklyQuestCatalog.cpp
+)
+
 if(DOTNET_EXECUTABLE)
     add_test(
         NAME login_diagnostics_contract

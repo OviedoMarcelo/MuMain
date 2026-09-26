@@ -41,6 +41,7 @@
 #include "GameLogic/Items/InventoryUtils.h"
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "UI/Legacy/UIMng.h"
 #include "GameLogic/Events/Cinematic/CDirection.h"
 #include "Character/CSParts.h"
@@ -1253,6 +1254,8 @@ BOOL ReceiveJoinMapServer(std::span<const BYTE> ReceiveBuffer)
     // The commands belong to the character which just entered, so forget the
     // ones of a previous character before asking for them again.
     GameLogic::Commands::Catalog().Reset();
+    // The server sends the weekly quests of the new character with its answer to the request below.
+    GameLogic::Quests::WeeklyQuests().Reset();
     GameLogic::Commands::Catalog().RequestOnce();
 
     g_ConsoleDebug->Write(MCD_RECEIVE, L"0x03 [ReceiveJoinMapServer]");
@@ -14193,6 +14196,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         if (subcode == 0x01)
         {
             GameLogic::Commands::Catalog().AddFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x02)
+        {
+            GameLogic::Quests::WeeklyQuests().AddFromPacket(ReceiveBuffer, Size);
         }
         else
         {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "I18N/All.h"
 
 #include "UI/NewUI/HUD/NewUIHotKey.h"
@@ -273,6 +274,17 @@ bool SEASON3B::CNewUIHotKey::UpdateKeyEvent()
         if (GameLogic::Commands::Catalog().IsAvailable())
         {
             g_pNewUISystem->Toggle(SEASON3B::INTERFACE_COMMAND_LIST);
+            PlayBuffer(SOUND_CLICK01);
+        }
+
+        return false;
+    }
+    else if (SEASON3B::IsPress('Y') == true)
+    {
+        // Only servers which offer weekly quests have something to show.
+        if (GameLogic::Quests::WeeklyQuests().IsAvailable())
+        {
+            g_pNewUISystem->Toggle(SEASON3B::INTERFACE_WEEKLY_QUESTS);
             PlayBuffer(SOUND_CLICK01);
         }
 
