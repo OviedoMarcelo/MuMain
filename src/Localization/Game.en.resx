@@ -12971,10 +12971,10 @@
     <value>This command is not available anymore.</value>
   </data>
   <data name="WeeklyQuestsTitle" xml:space="preserve">
-    <value>Weekly Quests</value>
+    <value>Quests</value>
   </data>
   <data name="WeeklyQuestsNone" xml:space="preserve">
-    <value>There are no weekly quests this week.</value>
+    <value>There are no quests available.</value>
   </data>
   <data name="WeeklyQuestsProgress" xml:space="preserve">
     <value>Progress: %u / %u</value>
@@ -12989,13 +12989,55 @@
     <value>Reward pending: free some inventory space.</value>
   </data>
   <data name="WeeklyQuestsResetIn" xml:space="preserve">
-    <value>Reset in %dd %dh %dm</value>
+    <value>Weekly reset in %dd %dh %dm</value>
   </data>
   <data name="WeeklyQuestsClickHint" xml:space="preserve">
     <value>Click a quest to see its details.</value>
   </data>
   <data name="YToggleWeeklyQuests" xml:space="preserve">
-    <value>Y : Weekly Quests On/Off</value>
+    <value>Y : Quests On/Off</value>
+  </data>
+  <data name="QuestCategoryMain" xml:space="preserve">
+    <value>Story</value>
+  </data>
+  <data name="QuestCategoryDaily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="QuestCategoryWeekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="QuestCategoryClass" xml:space="preserve">
+    <value>Class</value>
+  </data>
+  <data name="QuestCategoryZone" xml:space="preserve">
+    <value>Zone</value>
+  </data>
+  <data name="QuestSteps" xml:space="preserve">
+    <value>Steps:</value>
+  </data>
+  <data name="QuestDailyResetIn" xml:space="preserve">
+    <value>Daily reset in %dh %dm</value>
+  </data>
+  <data name="QuestResetIn" xml:space="preserve">
+    <value>Resets in %dd %dh %dm</value>
+  </data>
+  <data name="QuestNoReset" xml:space="preserve">
+    <value>Never resets</value>
+  </data>
+  <data name="QuestTypeMain" xml:space="preserve">
+    <value>Story</value>
+  </data>
+  <data name="QuestTypeDaily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="QuestTypeWeekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="QuestTypeClass" xml:space="preserve">
+    <value>Class</value>
+  </data>
+  <data name="QuestTypeZone" xml:space="preserve">
+    <value>Zone</value>
   </data>
   <data name="QuestTitleFindTheScrollOfEmperor" xml:space="preserve">
     <value>Find the 'Scroll of Emperor'!</value>

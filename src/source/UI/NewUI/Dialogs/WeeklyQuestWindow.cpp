@@ -15,8 +15,12 @@
 #include <chrono>
 
 using namespace SEASON3B;
+using GameLogic::Quests::QuestCategory;
+using GameLogic::Quests::QuestPeriod;
 using GameLogic::Quests::WeeklyQuest;
+using GameLogic::Quests::WeeklyQuestCatalog;
 using GameLogic::Quests::WeeklyQuests;
+using UI::Quests::QuestListRow;
 
 namespace
 {
@@ -47,6 +51,10 @@ constexpr TextColor HoveredColor = {255, 255, 0};
 constexpr TextColor QuestNameColor = {36, 242, 252};
 constexpr TextColor QuestTextColor = {255, 255, 255};
 constexpr TextColor QuestHeadingColor = {255, 255, 0};
+// The steps which come after the current one of a sequential quest stay in the background.
+constexpr TextColor LaterStepColor = {150, 150, 150};
+// The heading of a category in the list, like the title of the frame.
+constexpr TextColor CategoryColor = {255, 220, 120};
 
 // The background of the quest row under the mouse, as ARGB: a translucent gold
 // tint, so that the yellow text of the row stays readable on it.
@@ -64,14 +72,25 @@ using DetailStyle = CWeeklyQuestWindow::eDETAIL_STYLE;
 
 bool IsBold(DetailStyle style)
 {
-    return style != CWeeklyQuestWindow::STYLE_DESCRIPTION && style != CWeeklyQuestWindow::STYLE_VALUE;
+    switch (style)
+    {
+    case CWeeklyQuestWindow::STYLE_DESCRIPTION:
+    case CWeeklyQuestWindow::STYLE_VALUE:
+    case CWeeklyQuestWindow::STYLE_STEP_DONE:
+    case CWeeklyQuestWindow::STYLE_STEP_LATER:
+    case CWeeklyQuestWindow::STYLE_TYPE:
+        return false;
+    default:
+        return true;
+    }
 }
 
 // The name and the description are centered like in the quest window of the
 // original client, the headings and their values start at the left.
 int GetSort(DetailStyle style)
 {
-    const bool isCentered = style == CWeeklyQuestWindow::STYLE_TITLE || style == CWeeklyQuestWindow::STYLE_DESCRIPTION;
+    const bool isCentered = style == CWeeklyQuestWindow::STYLE_TITLE || style == CWeeklyQuestWindow::STYLE_DESCRIPTION ||
+                            style == CWeeklyQuestWindow::STYLE_TYPE;
     return isCentered ? RT3_SORT_CENTER : RT3_SORT_LEFT;
 }
 
@@ -84,11 +103,45 @@ const TextColor& GetColor(DetailStyle style)
     case CWeeklyQuestWindow::STYLE_HEADING:
         return QuestHeadingColor;
     case CWeeklyQuestWindow::STYLE_COMPLETED:
+    case CWeeklyQuestWindow::STYLE_STEP_DONE:
         return CompletedColor;
     case CWeeklyQuestWindow::STYLE_PENDING:
         return PendingColor;
+    case CWeeklyQuestWindow::STYLE_STEP_LATER:
+        return LaterStepColor;
+    case CWeeklyQuestWindow::STYLE_TYPE:
+        return DescriptionColor;
     default:
         return QuestTextColor;
+    }
+}
+
+// In a sequential quest, the steps after the current one are only a preview.
+DetailStyle GetStepStyle(const WeeklyQuest& quest, size_t step)
+{
+    if (quest.Objectives[step].IsDone)
+    {
+        return CWeeklyQuestWindow::STYLE_STEP_DONE;
+    }
+
+    const bool isLater = quest.IsSequential && step > quest.CurrentStep;
+    return isLater ? CWeeklyQuestWindow::STYLE_STEP_LATER : CWeeklyQuestWindow::STYLE_STEP_CURRENT;
+}
+
+const wchar_t* GetCategoryName(QuestCategory category)
+{
+    switch (category)
+    {
+    case QuestCategory::Main:
+        return I18N::Game::QuestCategoryMain;
+    case QuestCategory::Daily:
+        return I18N::Game::QuestCategoryDaily;
+    case QuestCategory::Class:
+        return I18N::Game::QuestCategoryClass;
+    case QuestCategory::Zone:
+        return I18N::Game::QuestCategoryZone;
+    default:
+        return I18N::Game::QuestCategoryWeekly;
     }
 }
 
@@ -147,18 +200,62 @@ std::wstring FormatProgressLine(const WeeklyQuest& quest)
     return text;
 }
 
-std::wstring FormatTimeUntilReset()
+// Formats a remaining time with a format which takes days, hours and minutes.
+std::wstring FormatDaysHoursMinutes(const wchar_t* format, std::chrono::seconds remaining)
 {
     constexpr int HoursPerDay = 24;
     constexpr int MinutesPerHour = 60;
-    const auto remaining = WeeklyQuests().GetTimeUntilReset();
     const auto totalHours = static_cast<int>(std::chrono::duration_cast<std::chrono::hours>(remaining).count());
     const auto totalMinutes = static_cast<int>(std::chrono::duration_cast<std::chrono::minutes>(remaining).count());
 
     wchar_t text[FormattedTextLength] = {};
-    mu_swprintf_s(text, I18N::Game::WeeklyQuestsResetIn, totalHours / HoursPerDay, totalHours % HoursPerDay,
-                  totalMinutes % MinutesPerHour);
+    mu_swprintf_s(text, format, totalHours / HoursPerDay, totalHours % HoursPerDay, totalMinutes % MinutesPerHour);
     return text;
+}
+
+// Formats a remaining time of less than a day with a format which takes hours and minutes.
+std::wstring FormatHoursMinutes(const wchar_t* format, std::chrono::seconds remaining)
+{
+    constexpr int MinutesPerHour = 60;
+    const auto totalMinutes = static_cast<int>(std::chrono::duration_cast<std::chrono::minutes>(remaining).count());
+
+    wchar_t text[FormattedTextLength] = {};
+    mu_swprintf_s(text, format, totalMinutes / MinutesPerHour, totalMinutes % MinutesPerHour);
+    return text;
+}
+
+const wchar_t* GetTypeName(QuestCategory category)
+{
+    switch (category)
+    {
+    case QuestCategory::Main:
+        return I18N::Game::QuestTypeMain;
+    case QuestCategory::Daily:
+        return I18N::Game::QuestTypeDaily;
+    case QuestCategory::Class:
+        return I18N::Game::QuestTypeClass;
+    case QuestCategory::Zone:
+        return I18N::Game::QuestTypeZone;
+    default:
+        return I18N::Game::QuestTypeWeekly;
+    }
+}
+
+// Without details (an older server), every quest is a weekly one which resets with the week.
+std::chrono::seconds GetTimeUntilResetOf(const WeeklyQuest& quest)
+{
+    return quest.HasDetails ? WeeklyQuestCatalog::GetTimeUntilReset(quest) : WeeklyQuests().GetTimeUntilReset();
+}
+
+// The line below the name of a quest, e.g. "Weekly · Resets in 1d 0h 24m" or "Story · Never resets".
+std::wstring FormatTypeAndReset(const WeeklyQuest& quest)
+{
+    constexpr const wchar_t* Separator = L" · ";
+    std::wstring line = GetTypeName(quest.Category);
+    line += Separator;
+    line += quest.Period == QuestPeriod::Once ? std::wstring(I18N::Game::QuestNoReset)
+                                               : FormatDaysHoursMinutes(I18N::Game::QuestResetIn, GetTimeUntilResetOf(quest));
+    return line;
 }
 } // namespace
 
@@ -168,9 +265,10 @@ SEASON3B::CWeeklyQuestWindow::CWeeklyQuestWindow()
     m_Pos.x = 0;
     m_Pos.y = 0;
     m_page = PAGE_LIST;
-    m_selectedRow = -1;
     m_scrollOffset = 0;
     m_shownRevision = 0;
+    m_rowsRevision = 0;
+    m_resetQuestIndex = QuestListRow::NoQuest;
 }
 
 SEASON3B::CWeeklyQuestWindow::~CWeeklyQuestWindow()
@@ -240,7 +338,8 @@ float SEASON3B::CWeeklyQuestWindow::GetKeyEventOrder()
 
 void SEASON3B::CWeeklyQuestWindow::OpenningProcess()
 {
-    m_selectedRow = -1;
+    m_selectedQuestId.clear();
+    RefreshRows();
     WrapHint();
     ShowPage(PAGE_LIST);
 }
@@ -250,20 +349,47 @@ void SEASON3B::CWeeklyQuestWindow::ClosingProcess()
     m_detailLines.clear();
 }
 
-const WeeklyQuest* SEASON3B::CWeeklyQuestWindow::GetQuestAt(int row) const
+void SEASON3B::CWeeklyQuestWindow::RefreshRows()
 {
-    const auto& quests = WeeklyQuests().GetQuests();
-    if (row < 0 || static_cast<size_t>(row) >= quests.size())
+    m_rows = UI::Quests::BuildListRows(WeeklyQuests().GetQuests());
+    m_resetQuestIndex = UI::Quests::FindQuestOfListReset(WeeklyQuests().GetQuests());
+    m_rowsRevision = WeeklyQuests().GetRevision();
+}
+
+const QuestListRow* SEASON3B::CWeeklyQuestWindow::GetRowAt(int row) const
+{
+    if (row < 0 || static_cast<size_t>(row) >= m_rows.size())
     {
         return nullptr;
     }
 
-    return &quests[row];
+    return &m_rows[row];
+}
+
+const WeeklyQuest* SEASON3B::CWeeklyQuestWindow::GetQuestAt(int row) const
+{
+    const auto* listRow = GetRowAt(row);
+    if (listRow == nullptr || listRow->IsHeading())
+    {
+        return nullptr;
+    }
+
+    const auto& quests = WeeklyQuests().GetQuests();
+    const auto index = static_cast<size_t>(listRow->QuestIndex);
+    return index < quests.size() ? &quests[index] : nullptr;
 }
 
 const WeeklyQuest* SEASON3B::CWeeklyQuestWindow::GetSelectedQuest() const
 {
-    return GetQuestAt(m_selectedRow);
+    if (m_selectedQuestId.empty())
+    {
+        return nullptr;
+    }
+
+    const auto& quests = WeeklyQuests().GetQuests();
+    const auto selected = std::find_if(quests.begin(), quests.end(),
+                                       [this](const WeeklyQuest& quest) { return quest.Id == m_selectedQuestId; });
+    return selected == quests.end() ? nullptr : &*selected;
 }
 
 void SEASON3B::CWeeklyQuestWindow::ShowPage(ePAGE page)
@@ -279,11 +405,14 @@ void SEASON3B::CWeeklyQuestWindow::ShowPage(ePAGE page)
 
 void SEASON3B::CWeeklyQuestWindow::PickQuest(int row)
 {
-    m_selectedRow = row;
-    if (GetSelectedQuest() != nullptr)
+    const auto* quest = GetQuestAt(row);
+    if (quest == nullptr)
     {
-        ShowPage(PAGE_DETAILS);
+        return;
     }
+
+    m_selectedQuestId = quest->Id;
+    ShowPage(PAGE_DETAILS);
 }
 
 void SEASON3B::CWeeklyQuestWindow::WrapDetailsOfSelected()
@@ -298,23 +427,46 @@ void SEASON3B::CWeeklyQuestWindow::WrapDetailsOfSelected()
     }
 
     AddDetailLines(quest->Name, STYLE_TITLE);
+    AddDetailLines(FormatTypeAndReset(*quest), STYLE_TYPE);
     m_detailLines.push_back({});
     AddDetailLines(quest->Description, STYLE_DESCRIPTION);
     m_detailLines.push_back({});
 
-    AddDetailLines(FormatProgressLine(*quest), STYLE_HEADING);
-    if (quest->IsRewardPending())
-    {
-        AddDetailLines(I18N::Game::WeeklyQuestsRewardPending, STYLE_PENDING);
-    }
-    else if (quest->IsCompleted)
-    {
-        AddDetailLines(I18N::Game::WeeklyQuestsCompleted, STYLE_COMPLETED);
-    }
+    AddProgressLines(*quest);
 
     m_detailLines.push_back({});
     AddDetailLines(I18N::Game::WeeklyQuestsRewards, STYLE_HEADING);
     AddDetailLines(quest->Rewards, STYLE_VALUE);
+}
+
+void SEASON3B::CWeeklyQuestWindow::AddProgressLines(const WeeklyQuest& quest)
+{
+    if (quest.HasSteps())
+    {
+        AddStepLines(quest);
+    }
+    else
+    {
+        AddDetailLines(FormatProgressLine(quest), STYLE_HEADING);
+    }
+
+    if (quest.IsRewardPending())
+    {
+        AddDetailLines(I18N::Game::WeeklyQuestsRewardPending, STYLE_PENDING);
+    }
+    else if (quest.IsCompleted)
+    {
+        AddDetailLines(I18N::Game::WeeklyQuestsCompleted, STYLE_COMPLETED);
+    }
+}
+
+void SEASON3B::CWeeklyQuestWindow::AddStepLines(const WeeklyQuest& quest)
+{
+    AddDetailLines(I18N::Game::QuestSteps, STYLE_HEADING);
+    for (size_t step = 0; step < quest.Objectives.size(); ++step)
+    {
+        AddDetailLines(UI::Quests::FormatObjectiveLine(quest.Objectives[step]), GetStepStyle(quest, step));
+    }
 }
 
 void SEASON3B::CWeeklyQuestWindow::AddDetailLines(const std::wstring& text, eDETAIL_STYLE style)
@@ -346,7 +498,7 @@ int SEASON3B::CWeeklyQuestWindow::GetScrollableRowCount() const
         return static_cast<int>(m_detailLines.size());
     }
 
-    return static_cast<int>(WeeklyQuests().GetQuests().size());
+    return static_cast<int>(m_rows.size());
 }
 
 int SEASON3B::CWeeklyQuestWindow::GetVisibleRowCount() const
@@ -418,9 +570,16 @@ bool SEASON3B::CWeeklyQuestWindow::UpdateListPageMouseEvent()
     for (int row = 0; row < VISIBLE_ROWS; ++row)
     {
         const auto index = m_scrollOffset + row;
-        if (GetQuestAt(index) == nullptr)
+        const auto* listRow = GetRowAt(index);
+        if (listRow == nullptr)
         {
             break;
+        }
+
+        // A heading only names its category, there is nothing behind it.
+        if (listRow->IsHeading())
+        {
+            continue;
         }
 
         if (IsRowHovered(m_Pos.y + CONTENT_TOP + row * ROW_HEIGHT) && IsRelease(VK_LBUTTON))
@@ -474,6 +633,18 @@ bool SEASON3B::CWeeklyQuestWindow::UpdateKeyEvent()
 
 bool SEASON3B::CWeeklyQuestWindow::Update()
 {
+    if (m_rowsRevision != WeeklyQuests().GetRevision())
+    {
+        RefreshRows();
+    }
+
+    if (m_page == PAGE_LIST)
+    {
+        // The list may have become shorter, e.g. after the weekly reset.
+        const auto lastOffset = std::max(0, GetScrollableRowCount() - GetVisibleRowCount());
+        m_scrollOffset = std::min(m_scrollOffset, lastOffset);
+    }
+
     if (m_page != PAGE_DETAILS || m_shownRevision == WeeklyQuests().GetRevision())
     {
         return true;
@@ -566,14 +737,31 @@ void SEASON3B::CWeeklyQuestWindow::RenderListPage()
 
     for (int row = 0; row < VISIBLE_ROWS; ++row)
     {
-        const auto* quest = GetQuestAt(m_scrollOffset + row);
-        if (quest == nullptr)
+        const auto index = m_scrollOffset + row;
+        const auto* listRow = GetRowAt(index);
+        if (listRow == nullptr)
         {
             break;
         }
 
-        RenderQuestRow(*quest, m_Pos.y + CONTENT_TOP + row * ROW_HEIGHT);
+        const auto y = m_Pos.y + CONTENT_TOP + row * ROW_HEIGHT;
+        if (listRow->IsHeading())
+        {
+            RenderHeadingRow(listRow->Category, y);
+        }
+        else if (const auto* quest = GetQuestAt(index))
+        {
+            RenderQuestRow(*quest, y);
+        }
     }
+}
+
+void SEASON3B::CWeeklyQuestWindow::RenderHeadingRow(QuestCategory category, int y)
+{
+    g_pRenderText->SetFont(g_hFontBold);
+    UseTextColor(CategoryColor);
+    RenderLine(m_Pos.x + CONTENT_LEFT, y, GetCategoryName(category), CONTENT_WIDTH);
+    g_pRenderText->SetFont(g_hFont);
 }
 
 void SEASON3B::CWeeklyQuestWindow::RenderQuestRow(const WeeklyQuest& quest, int y)
@@ -651,13 +839,19 @@ void SEASON3B::CWeeklyQuestWindow::RenderDetailsPage()
 
 void SEASON3B::CWeeklyQuestWindow::RenderTimeUntilReset()
 {
-    if (!WeeklyQuests().IsAvailable())
+    const auto& quests = WeeklyQuests().GetQuests();
+    if (!WeeklyQuests().IsAvailable() || m_resetQuestIndex < 0 || static_cast<size_t>(m_resetQuestIndex) >= quests.size())
     {
         return;
     }
 
+    const auto& quest = quests[m_resetQuestIndex];
+    const auto remaining = GetTimeUntilResetOf(quest);
+    const bool isDaily = quest.HasDetails && quest.Period == QuestPeriod::Daily;
+    const auto text = isDaily ? FormatHoursMinutes(I18N::Game::QuestDailyResetIn, remaining)
+                              : FormatDaysHoursMinutes(I18N::Game::WeeklyQuestsResetIn, remaining);
+
     UseTextColor(DescriptionColor);
-    const auto text = FormatTimeUntilReset();
     RenderLine(m_Pos.x + CONTENT_LEFT, m_Pos.y + RESET_ROW_Y, text.c_str(), CONTENT_WIDTH, 0, RT3_SORT_CENTER);
 }
 

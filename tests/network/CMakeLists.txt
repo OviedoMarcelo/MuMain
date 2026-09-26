@@ -59,6 +59,7 @@ mu_add_test(
     SOURCES
         test_weekly_quest_catalog.cpp
         ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Quests/WeeklyQuestCatalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/UI/Quests/QuestList.cpp
 )
 
 if(DOTNET_EXECUTABLE)
