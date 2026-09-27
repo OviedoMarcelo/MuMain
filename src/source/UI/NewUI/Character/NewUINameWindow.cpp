@@ -105,50 +105,36 @@ void SetLevelTextColor(int monsterLevel)
     }
 }
 
-// The name of the selected monster, centered on centerX, with its level in front
-// of it when the server sent it.
-void DrawSelectedMonsterName(int centerX, int topY, const CHARACTER* c)
+// The name of a monster in bold, with its level in front of it when the server sent
+// it, centered on centerX. The label sits on topY, or ends on topY when
+// aboveTopY is set. bgAlpha is the opacity of its dark red background.
+void DrawMonsterLabel(int centerX, int topY, bool aboveTopY, BYTE bgAlpha, const CHARACTER* c)
 {
-    g_pRenderText->SetBgColor(100, 0, 0, 255);
+    g_pRenderText->SetFont(g_hFontBold);
+    g_pRenderText->SetBgColor(100, 0, 0, bgAlpha);
 
+    wchar_t levelText[32] = L"";
     const int level = FindMonsterLevel(c);
-    if (level < 0)
+    if (level >= 0)
     {
-        g_pRenderText->SetTextColor(255, 230, 200, 255);
-        g_pRenderText->RenderText(centerX, topY, c->ID, 0, 0, RT3_WRITE_CENTER);
-        return;
+        mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
+        wcscat_s(levelText, L" ");
     }
 
-    wchar_t levelText[32];
-    mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
-    wcscat_s(levelText, L" ");
     const SIZE levelSize = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
     const SIZE nameSize = g_pRenderText->MeasureText(c->ID, static_cast<int>(wcslen(c->ID)));
     const int x = centerX - (levelSize.cx + nameSize.cx) / 2;
+    const int y = aboveTopY ? topY - nameSize.cy - 1 : topY;
 
-    SetLevelTextColor(level);
-    g_pRenderText->RenderText(x, topY, levelText);
+    if (level >= 0)
+    {
+        SetLevelTextColor(level);
+        g_pRenderText->RenderText(x, y, levelText);
+    }
+
     g_pRenderText->SetTextColor(255, 230, 200, 255);
-    g_pRenderText->RenderText(x + levelSize.cx, topY, c->ID);
-}
-
-// The level of a monster, centered just above its overhead health bar.
-void DrawOverheadMonsterLevel(int barCenterX, int barTopY, const CHARACTER* c)
-{
-    const int level = FindMonsterLevel(c);
-    if (level < 0)
-        return;
-
-    wchar_t levelText[32];
-    mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
-    const SIZE size = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
-
-    const int x = barCenterX - size.cx / 2;
-    const int y = barTopY - size.cy - 1;
-
-    g_pRenderText->SetBgColor(0, 0, 0, 0);
-    SetLevelTextColor(level);
-    g_pRenderText->RenderText(x, y, levelText);
+    g_pRenderText->RenderText(x + levelSize.cx, y, c->ID);
+    g_pRenderText->SetFont(g_hFont);
 }
 }
 
@@ -279,7 +265,7 @@ void SEASON3B::CNewUINameWindow::RenderName()
             OBJECT* o = &c->Object;
             if (o->Kind == KIND_MONSTER)
             {
-                DrawSelectedMonsterName(320, 2, c);
+                DrawMonsterLabel(320, 2, false, 255, c);
 
                 if (UI::Combat::HealthBar::ShouldRenderSelected(c->HealthStatus))
                 {
@@ -366,7 +352,7 @@ void SEASON3B::CNewUINameWindow::RenderMonsterHealthBars()
         // Bar fixed at ~3/7 of the original width, with 8 segments so each one
         // stays close to the original thickness (see DrawHealthBar for geometry).
         DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, 3.f / 7.f);
-        DrawOverheadMonsterLevel(ScreenX, ScreenY, c);
+        DrawMonsterLabel(ScreenX, ScreenY, true, 150, c);
     }
 }
 
