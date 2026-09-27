@@ -13063,4 +13063,7 @@
   <data name="MonsterLevelD" xml:space="preserve">
     <value>Lv. %d</value>
   </data>
+  <data name="KeepFlightEquipmentInIcarus" xml:space="preserve">
+    <value>In Icarus you cannot take off your last wings or flying mount.</value>
+  </data>
 </root>
