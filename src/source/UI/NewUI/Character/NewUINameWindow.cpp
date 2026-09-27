@@ -18,6 +18,9 @@
 #include "Camera/CameraProjection.h"
 #include "Camera/CameraState.h"
 #include "UI/Combat/MonsterHealthBar.h"
+#include "Engine/Object/ZzzInfomation.h"
+#include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
+#include "I18N/All.h"
 
 // DevEditor forward declarations (must be at global scope)
 #ifdef _EDITOR
@@ -73,6 +76,65 @@ void DrawHealthBar(int centerX, int topY, float health, int steps, float scale)
             0xFFFA0A00u);
     }
     DisableAlphaBlend();
+}
+
+// The level of the monster as the server sent it, or -1 if it's unknown.
+int FindMonsterLevel(const CHARACTER* c)
+{
+    return GameLogic::Monsters::ServerMonsterLevels().Find(static_cast<int>(c->MonsterIndex));
+}
+
+// Colors the level text by how hard the monster is for the hero.
+void SetLevelTextColor(int monsterLevel)
+{
+    using GameLogic::Monsters::LevelDifficulty;
+    switch (GameLogic::Monsters::GetLevelDifficulty(monsterLevel, CharacterAttribute->Level))
+    {
+    case LevelDifficulty::Trivial:
+        g_pRenderText->SetTextColor(150, 150, 150, 255);
+        break;
+    case LevelDifficulty::Even:
+        g_pRenderText->SetTextColor(255, 255, 255, 255);
+        break;
+    case LevelDifficulty::Hard:
+        g_pRenderText->SetTextColor(255, 210, 60, 255);
+        break;
+    case LevelDifficulty::Deadly:
+        g_pRenderText->SetTextColor(255, 70, 50, 255);
+        break;
+    }
+}
+
+// The name of a monster in bold, with its level in front of it when the server sent
+// it, centered on centerX. The label sits on topY, or ends on topY when
+// aboveTopY is set. bgAlpha is the opacity of its dark red background.
+void DrawMonsterLabel(int centerX, int topY, bool aboveTopY, BYTE bgAlpha, const CHARACTER* c)
+{
+    g_pRenderText->SetFont(g_hFontBold);
+    g_pRenderText->SetBgColor(100, 0, 0, bgAlpha);
+
+    wchar_t levelText[32] = L"";
+    const int level = FindMonsterLevel(c);
+    if (level >= 0)
+    {
+        mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
+        wcscat_s(levelText, L" ");
+    }
+
+    const SIZE levelSize = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
+    const SIZE nameSize = g_pRenderText->MeasureText(c->ID, static_cast<int>(wcslen(c->ID)));
+    const int x = centerX - (levelSize.cx + nameSize.cx) / 2;
+    const int y = aboveTopY ? topY - nameSize.cy - 1 : topY;
+
+    if (level >= 0)
+    {
+        SetLevelTextColor(level);
+        g_pRenderText->RenderText(x, y, levelText);
+    }
+
+    g_pRenderText->SetTextColor(255, 230, 200, 255);
+    g_pRenderText->RenderText(x + levelSize.cx, y, c->ID);
+    g_pRenderText->SetFont(g_hFont);
 }
 }
 
@@ -203,9 +265,7 @@ void SEASON3B::CNewUINameWindow::RenderName()
             OBJECT* o = &c->Object;
             if (o->Kind == KIND_MONSTER)
             {
-                g_pRenderText->SetTextColor(255, 230, 200, 255);
-                g_pRenderText->SetBgColor(100, 0, 0, 255);
-                g_pRenderText->RenderText(320, 2, c->ID, 0, 0, RT3_WRITE_CENTER);
+                DrawMonsterLabel(320, 2, false, 255, c);
 
                 if (UI::Combat::HealthBar::ShouldRenderSelected(c->HealthStatus))
                 {
@@ -292,6 +352,7 @@ void SEASON3B::CNewUINameWindow::RenderMonsterHealthBars()
         // Bar fixed at ~3/7 of the original width, with 8 segments so each one
         // stays close to the original thickness (see DrawHealthBar for geometry).
         DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, 3.f / 7.f);
+        DrawMonsterLabel(ScreenX, ScreenY, true, 150, c);
     }
 }
 

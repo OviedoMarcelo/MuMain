@@ -12980,4 +12980,7 @@
   <data name="QuestTypeZone" xml:space="preserve">
     <value>De zona</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Nv. %d</value>
+  </data>
 </root>

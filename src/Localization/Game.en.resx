@@ -13060,4 +13060,7 @@
   <data name="QuestTitleIntoTheDarknessZone" xml:space="preserve">
     <value>Into the 'Darkness' zone</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Lv. %d</value>
+  </data>
 </root>

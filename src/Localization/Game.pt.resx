@@ -12887,4 +12887,7 @@
   <data name="DefaultFont" xml:space="preserve">
     <value>Padrão</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Nv. %d</value>
+  </data>
 </root>
