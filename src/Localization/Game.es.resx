@@ -1594,7 +1594,7 @@
     <comment>legacy_id=427</comment>
   </data>
   <data name="Please enter your WEBZEN.COM password." xml:space="preserve">
-    <value>Por favor ingrese su contraseña de WEBZEN.COM.</value>
+    <value>Por favor ingrese la contraseña de su cuenta.</value>
     <comment>legacy_id=428,444,1713</comment>
   </data>
   <data name="You have received an offer to join a guild." xml:space="preserve">
