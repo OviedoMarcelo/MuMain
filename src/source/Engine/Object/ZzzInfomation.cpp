@@ -25,6 +25,7 @@
 #include "Network/Server/SocketSystem.h"
 #include "UI/NewUI/NewUISystem.h"
 #include "Character/CharacterManager.h"
+#include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "GameLogic/Skills/SkillManager.h"
 
 CLASS_ATTRIBUTE     ClassAttribute[MAX_CLASS];
@@ -854,6 +855,17 @@ void CalcRequirements(ITEM* ip, ITEM_ATTRIBUTE* p)
     if (isExcellent && ip->RequireLevel > 0 && !IsWingItem(ip) && ip->Type != ITEM_HORN_OF_FENRIR)
     {
         ip->RequireLevel += 20;
+    }
+
+    // For items which teach a skill, what the server checks to learn it wins over
+    // everything above, including the hardcoded energy of the Orb of Summoning.
+    if (const auto* server = GameLogic::Skills::ServerRequirements().FindItem(ip->Type, ip->Level))
+    {
+        ip->RequireLevel = server->Level;
+        ip->RequireStrength = server->Strength;
+        ip->RequireDexterity = server->Agility;
+        ip->RequireEnergy = server->Energy;
+        ip->RequireCharisma = server->Leadership;
     }
 }
 

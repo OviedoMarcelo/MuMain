@@ -42,6 +42,7 @@
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
+#include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "UI/Legacy/UIMng.h"
 #include "GameLogic/Events/Cinematic/CDirection.h"
 #include "Character/CSParts.h"
@@ -560,6 +561,10 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
     }
     else
     {
+        // A new connection, not a change of the map server: the requirements of the
+        // previous server don't apply anymore. This one sends its own after the login.
+        GameLogic::Skills::ServerRequirements().Reset();
+
         CUIMng& rUIMng = CUIMng::Instance();
 
         switch (Data2->Result)
@@ -14204,6 +14209,17 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x03)
         {
             GameLogic::Quests::WeeklyQuests().AddDetailsFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x04)
+        {
+            if (GameLogic::Skills::ServerRequirements().AddSkillsFromPacket(ReceiveBuffer, Size))
+            {
+                gSkillManager.InvalidateSkillAttributeRequirementsCache();
+            }
+        }
+        else if (subcode == 0x05)
+        {
+            GameLogic::Skills::ServerRequirements().AddItemsFromPacket(ReceiveBuffer, Size);
         }
         else
         {

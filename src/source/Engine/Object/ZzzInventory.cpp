@@ -51,6 +51,7 @@
 
 #include "World/MapInfra/MapManager.h"
 #include "Character/CharacterManager.h"
+#include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "GameLogic/Skills/SkillManager.h"
 #include "Camera/CameraProjection.h"
 
@@ -998,6 +999,16 @@ void ComputeItemInfo(int iHelpItem)
 
         if (p->RequireCharisma)	RequireCharisma = 20 + p->RequireCharisma * (p->Level + Level * 3) * 3 / 100;
         else RequireCharisma = 0;
+
+        // For items which teach a skill, show what the server checks to learn it.
+        if (const auto* server = GameLogic::Skills::ServerRequirements().FindItem(ItemHelp, Level))
+        {
+            RequireLevel = server->Level;
+            RequireStrength = server->Strength;
+            RequireDexterity = server->Agility;
+            RequireEnergy = server->Energy;
+            RequireCharisma = server->Leadership;
+        }
 
         g_iItemInfo[Level][_COLUMN_TYPE_LEVEL] = Level;
         g_iItemInfo[Level][_COLUMN_TYPE_ATTMIN] = DamageMin;

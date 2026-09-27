@@ -7,6 +7,7 @@
 #include "Engine/Object/ZzzCharacter.h"
 #include "Engine/Object/ZzzInfomation.h"
 #include "Engine/Object/ZzzInventory.h"   // PartyNumber, STRP_*
+#include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "GameLogic/Skills/SkillManager.h"
 #include "UI/Legacy/UIJewelHarmony.h"     // StrengthenCapability
 #include "UI/Legacy/UIManager.h"          // g_pUIJewelHarmonyinfo
@@ -479,11 +480,25 @@ void EmitRequirements(Model& m, const BuildOptions& options, int skillType)
         curCha = CharacterAttribute->Charisma + CharacterAttribute->AddCharisma;
     }
 
-    AddRequirementLine(m, SkillAttribute[skillType].Level, curLevel, GLOBAL_TEXT_REQUIRED_LEVEL);
-    AddRequirementLine(m, SkillAttribute[skillType].Strength, curStr, GLOBAL_TEXT_REQUIRED_STRENGTH);
-    AddRequirementLine(m, SkillAttribute[skillType].Dexterity, curDex, GLOBAL_TEXT_REQUIRED_DEXTERITY);
+    int reqCharisma = 0;
+    gSkillManager.GetSkillInformation_Charisma(skillType, &reqCharisma);
+
+    // Show what the server checks, when it told us.
+    int reqLevel = SkillAttribute[skillType].Level;
+    int reqStrength = SkillAttribute[skillType].Strength;
+    int reqDexterity = SkillAttribute[skillType].Dexterity;
+    if (const auto* server = GameLogic::Skills::ServerRequirements().FindSkill(skillType))
+    {
+        reqLevel = server->Level;
+        reqStrength = server->Strength;
+        reqDexterity = server->Agility;
+    }
+
+    AddRequirementLine(m, reqLevel, curLevel, GLOBAL_TEXT_REQUIRED_LEVEL);
+    AddRequirementLine(m, reqStrength, curStr, GLOBAL_TEXT_REQUIRED_STRENGTH);
+    AddRequirementLine(m, reqDexterity, curDex, GLOBAL_TEXT_REQUIRED_DEXTERITY);
     AddRequirementLine(m, reqEnergy, curEnergy, GLOBAL_TEXT_REQUIRED_ENERGY);
-    AddRequirementLine(m, SkillAttribute[skillType].Charisma, curCha, GLOBAL_TEXT_REQUIRED_CHARISMA);
+    AddRequirementLine(m, reqCharisma, curCha, GLOBAL_TEXT_REQUIRED_CHARISMA);
     EndSection(m, before);
 }
 

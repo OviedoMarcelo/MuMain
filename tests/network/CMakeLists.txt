@@ -62,6 +62,13 @@ mu_add_test(
         ${CMAKE_SOURCE_DIR}/src/source/UI/Quests/QuestList.cpp
 )
 
+mu_add_test(
+    NAME test_server_requirement_catalog
+    SOURCES
+        test_server_requirement_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Skills/ServerRequirementCatalog.cpp
+)
+
 if(DOTNET_EXECUTABLE)
     add_test(
         NAME login_diagnostics_contract
