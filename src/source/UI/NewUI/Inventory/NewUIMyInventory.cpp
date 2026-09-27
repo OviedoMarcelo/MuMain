@@ -30,11 +30,15 @@ extern bool SelectFlag;
 #include "GameLogic/Events/Event.h"
 #endif // CSK_FIX_BLUELUCKYBAG_MOVECOMMAND
 #include "GameLogic/Items/ChangeRingManager.h"
+#include "GameLogic/Items/EquipmentRestrictions.h"
 #include "GameLogic/Social/MonkSystem.h"
 #include "Character/CharacterManager.h"
+#include "GameLogic/Items/ItemCategories.h"
 #include "Audio/DSPlaySound.h"
 #include "Engine/Object/ZzzInterface.h"
 #include "UI/Scaling/UITransform.h"
+#include "GameLogic/Items/ShopRestrictions.h"
+#include "GameLogic/Items/TradeRestrictions.h"
 
 using namespace SEASON3B;
 
@@ -363,7 +367,7 @@ bool CNewUIMyInventory::IsEquipable(int iIndex, ITEM* pItem) const
         if ((pItem->Type >= ITEM_HORN_OF_UNIRIA && pItem->Type <= ITEM_DARK_RAVEN_ITEM) || pItem->Type == ITEM_HORN_OF_FENRIR)
             return false;
     }
-    else if ((pItem->Type >= ITEM_HORN_OF_UNIRIA && pItem->Type <= ITEM_DARK_HORSE_ITEM || pItem->Type == ITEM_HORN_OF_FENRIR)
+    else if (GameLogic::Items::IsRideableMount(pItem)
         && Hero->Object.CurrentAction >= PLAYER_SIT1 && Hero->Object.CurrentAction <= PLAYER_SIT_FEMALE2)
     {
         return false;
@@ -495,7 +499,7 @@ bool CNewUIMyInventory::UpdateMouseEvent()
             ResetMouseLButton();
             return false;
         }
-        if (pItemObj && IsHighValueItem(pItemObj) == true)
+        if (pItemObj && GameLogic::Items::IsHighValueItem(pItemObj) == true)
         {
             g_pSystemLogBox->AddText(I18N::Game::YouAreNotAllowedToDropThisExpensiveItem, TYPE_ERROR_MESSAGE);
             CNewUIInventoryCtrl::BackupPickedItem();
@@ -503,7 +507,7 @@ bool CNewUIMyInventory::UpdateMouseEvent()
             ResetMouseLButton();
             return false;
         }
-        if (pItemObj && IsDropBan(pItemObj))
+        if (pItemObj && GameLogic::Items::IsDropBan(pItemObj))
         {
             g_pSystemLogBox->AddText(I18N::Game::ThisItemCannotBeDropped, TYPE_ERROR_MESSAGE);
             CNewUIInventoryCtrl::BackupPickedItem();
@@ -1051,11 +1055,7 @@ void CNewUIMyInventory::CreateEquippingEffect(ITEM* pItem)
             Hero->EtcPart = PARTS_LION;
         }
     }
-    if (pItem->Type == ITEM_WING_OF_RUIN || pItem->Type == ITEM_CAPE_OF_LORD ||
-        pItem->Type == ITEM_WING + 130 ||
-        (pItem->Type >= ITEM_CAPE_OF_FIGHTER && pItem->Type <= ITEM_CAPE_OF_OVERRULE) ||
-        (pItem->Type == ITEM_WING + 135) ||
-        pItem->Type == ITEM_CAPE_OF_EMPEROR)
+    if (GameLogic::Items::IsClothWing(pItem))
     {
         DeleteCloth(Hero, &Hero->Object);
     }
@@ -1068,15 +1068,8 @@ void CNewUIMyInventory::DeleteEquippingEffectBug(ITEM* pItem)
         ThePetProcess().DeletePet(Hero, pItem->Type);
     }
 
-    switch (pItem->Type)
+    if (GameLogic::Items::IsClothWing(pItem))
     {
-    case ITEM_CAPE_OF_LORD:
-    case ITEM_WING_OF_RUIN:
-    case ITEM_CAPE_OF_EMPEROR:
-    case ITEM_WING + 130:
-    case ITEM_CAPE_OF_FIGHTER:
-    case ITEM_CAPE_OF_OVERRULE:
-    case ITEM_WING + 135:
         DeleteCloth(Hero, &Hero->Object);
         return;
     }
@@ -1458,7 +1451,7 @@ bool CNewUIMyInventory::EquipmentWindowProcess()
                     return true;
                 }
 
-                if (IsRepairBan(pEquippedItem) == true)
+                if (GameLogic::Items::IsRepairBan(pEquippedItem) == true)
                 {
                     return true;
                 }
@@ -1476,40 +1469,11 @@ bool CNewUIMyInventory::EquipmentWindowProcess()
             }
 
             ITEM* pEquippedItem = &CharacterMachine->Equipment[m_iPointedSlot];
-            if (pEquippedItem->Type >= 0)
+            if (pEquippedItem->Type >= 0 && CheckTakeOff(m_iPointedSlot))
             {
-                if (gMapManager.WorldActive == WD_10HEAVEN)
+                if (CNewUIInventoryCtrl::CreatePickedItem(nullptr, pEquippedItem))
                 {
-                    const ITEM* pEquippedPetItem = &CharacterMachine->Equipment[EQUIPMENT_HELPER];
-                    bool bPicked = true;
-
-                    if (m_iPointedSlot == EQUIPMENT_HELPER || m_iPointedSlot == EQUIPMENT_WING)
-                    {
-                        if (((m_iPointedSlot == EQUIPMENT_HELPER) && !gCharacterManager.IsEquipedWing()))
-                        {
-                            bPicked = false;
-                        }
-                        else if (((m_iPointedSlot == EQUIPMENT_WING) && !((pEquippedPetItem->Type == ITEM_HORN_OF_DINORANT) || (pEquippedPetItem->Type == ITEM_DARK_HORSE_ITEM) || (pEquippedPetItem->Type == ITEM_HORN_OF_FENRIR)))
-                            )
-                        {
-                            bPicked = false;
-                        }
-                    }
-
-                    if (bPicked == true)
-                    {
-                        if (CNewUIInventoryCtrl::CreatePickedItem(nullptr, pEquippedItem))
-                        {
-                            UnequipItem(m_iPointedSlot);
-                        }
-                    }
-                }
-                else
-                {
-                    if (CNewUIInventoryCtrl::CreatePickedItem(nullptr, pEquippedItem))
-                    {
-                        UnequipItem(m_iPointedSlot);
-                    }
+                    UnequipItem(m_iPointedSlot);
                 }
             }
         }
@@ -1529,22 +1493,21 @@ bool CNewUIMyInventory::EquipmentWindowProcess()
 
             ITEM* pEquippedItem = &CharacterMachine->Equipment[iSourceIndex];
 
-            if (pEquippedItem->Type >= 0)
+            if (pEquippedItem->Type >= 0 && CheckTakeOff(iSourceIndex))
             {
                 const int emptySlotIndex = FindEmptySlot(pEquippedItem);
 
-                if (emptySlotIndex != -1)
+                // Simulates picking the item up and putting it into the free
+                // inventory slot. Without the pick-up nothing is sent, so the
+                // server and the local equipment stay the same.
+                if (emptySlotIndex != -1 && CNewUIInventoryCtrl::CreatePickedItem(nullptr, pEquippedItem))
                 {
-                    // This code looks tricky... it simulates a pick up and click on the inventory slot.
-                    // God knows what happens, when this request to the server goes wrong.
-                    if (CNewUIInventoryCtrl::CreatePickedItem(nullptr, pEquippedItem))
-                    {
-                        CNewUIPickedItem* pPickedItem = CNewUIInventoryCtrl::GetPickedItem();
-                        UnequipItem(iSourceIndex);
-                        pPickedItem->HidePickedItem();
-                    }
-
-                    SendRequestEquipmentItem(STORAGE_TYPE::INVENTORY, iSourceIndex, pEquippedItem, STORAGE_TYPE::INVENTORY, emptySlotIndex);
+                    CNewUIPickedItem* pPickedItem = CNewUIInventoryCtrl::GetPickedItem();
+                    UnequipItem(iSourceIndex);
+                    pPickedItem->HidePickedItem();
+                    // UnequipItem cleared the slot; the picked item has the item's data.
+                    SendRequestEquipmentItem(STORAGE_TYPE::INVENTORY, iSourceIndex, pPickedItem->GetItem(),
+                                             STORAGE_TYPE::INVENTORY, emptySlotIndex);
                     return true;
                 }
             }
@@ -1553,6 +1516,19 @@ bool CNewUIMyInventory::EquipmentWindowProcess()
 
     return false;
 }
+bool CNewUIMyInventory::CheckTakeOff(int equipmentSlot) const
+{
+    if (GameLogic::Items::CanTakeOff(equipmentSlot, gMapManager.WorldActive,
+                                     &CharacterMachine->Equipment[EQUIPMENT_HELPER],
+                                     &CharacterMachine->Equipment[EQUIPMENT_WING]))
+    {
+        return true;
+    }
+
+    g_pSystemLogBox->AddText(I18N::Game::KeepFlightEquipmentInIcarus, TYPE_ERROR_MESSAGE);
+    return false;
+}
+
 bool CNewUIMyInventory::InventoryProcess() const
 {
     if (CheckMouseIn(m_Pos.x, m_Pos.y, INVENTORY_WIDTH, INVENTORY_HEIGHT) == false)
@@ -1678,7 +1654,7 @@ bool CNewUIMyInventory::CanRegisterItemHotKey(int iType)
     case ITEM_ANTIDOTE:
     case ITEM_ALE:
     case ITEM_TOWN_PORTAL_SCROLL:
-    case ITEM_POTION + 20:
+    case ITEM_REMEDY_OF_LOVE:
     case ITEM_SMALL_SHIELD_POTION:
     case ITEM_MEDIUM_SHIELD_POTION:
     case ITEM_LARGE_SHIELD_POTION:
@@ -1690,18 +1666,18 @@ bool CNewUIMyInventory::CanRegisterItemHotKey(int iType)
     case ITEM_JACK_OLANTERN_CRY:
     case ITEM_JACK_OLANTERN_FOOD:
     case ITEM_JACK_OLANTERN_DRINK:
-    case ITEM_POTION + 70:
-    case ITEM_POTION + 71:
-    case ITEM_POTION + 78:
-    case ITEM_POTION + 79:
-    case ITEM_POTION + 80:
-    case ITEM_POTION + 81:
-    case ITEM_POTION + 82:
-    case ITEM_POTION + 94:
+    case ITEM_ELITE_HEALING_POTION:
+    case ITEM_ELITE_MANA_POTION:
+    case ITEM_ELIXIR_OF_STRENGTH:
+    case ITEM_ELIXIR_OF_AGILITY:
+    case ITEM_ELIXIR_OF_HEALTH:
+    case ITEM_ELIXIR_OF_ENERGY:
+    case ITEM_ELIXIR_OF_CONTROL:
+    case ITEM_MEDIUM_ELITE_HEALING_POTION:
     case ITEM_CHERRY_BLOSSOM_WINE:
     case ITEM_CHERRY_BLOSSOM_RICE_CAKE:
     case ITEM_CHERRY_BLOSSOM_FLOWER_PETAL:
-    case ITEM_POTION + 133:
+    case ITEM_ELITE_SD_POTION:
         return true;
     }
 

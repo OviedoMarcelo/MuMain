@@ -43,6 +43,8 @@
 #include "Camera/OrbitalCamera.h"
 #include "Engine/Object/CullingConstants.h"
 #include "Render/Renderer/MuRenderer.h"
+#include "GameLogic/Items/ItemCategories.h"
+#include "Render/Items/ItemDisplay.h"
 
 // DevEditor function declarations
 #ifdef _EDITOR
@@ -5343,7 +5345,7 @@ void ItemObjectAttribute(OBJECT* o)
     case MODEL_SMALL_HEALING_POTION:
         o->Scale = 1.f;
         break;
-    case MODEL_POTION + 21:
+    case MODEL_RENA:
         o->Scale = 0.5f;
         break;
     case MODEL_LIGHTING_SWORD:
@@ -5380,7 +5382,7 @@ void ItemObjectAttribute(OBJECT* o)
     case MODEL_ORB_OF_GREATER_DAMAGE:
     case MODEL_ORB_OF_SUMMONING:
     case MODEL_WING + 20:
-    case MODEL_WING + 132:
+    case MODEL_SMALL_WINGS_OF_ELF:
         o->BlendMesh = 0;
         break;
     case MODEL_SERPENT_SHIELD:
@@ -5392,680 +5394,14 @@ void ItemObjectAttribute(OBJECT* o)
     }
 }
 
-bool ItemAngleRF(OBJECT* o)
-{
-    if (o->Type == MODEL_CAPE_OF_FIGHTER)
-    {
-        o->Angle[0] = 270.0f;
-        o->Angle[1] = 180.0f;
-        o->Angle[2] = 45.0f;
-        o->Scale = 0.7f;
-        return true;
-    }
-
-    if (o->Type == MODEL_CAPE_OF_OVERRULE)
-    {
-        o->Angle[0] = 250.0f;
-        o->Angle[1] = 180.0f;
-        o->Angle[2] = 45.0f;
-        return true;
-    }
-
-    if (o->Type >= MODEL_SACRED_HELM && o->Type <= MODEL_SACRED_HELM + 2)
-    {
-        o->Scale = 1.0f;
-        o->Angle[2] = 45.0f;
-        return true;
-    }
-
-    if (o->Type >= MODEL_CHAIN_DRIVE_PARCHMENT && o->Type <= MODEL_INCREASE_BLOCK_PARCHMENT)
-    {
-        o->Angle[0] = 270.f;
-        o->Scale = 0.8f;
-        return true;
-    }
-
-    return false;
-}
-
+// How a dropped item lies on the ground (Data/Items/Models).
 void ItemAngle(OBJECT* o)
 {
-    Vector(0.f, 0.f, -45.f, o->Angle);
-
-    o->Angle[0] = 0.f;
-
-    if (o->Type >= MODEL_SWORD && o->Type < MODEL_AXE + MAX_ITEM_INDEX)
-    {
-        o->Angle[0] = 60.f;
-        if (o->Type == MODEL_DIVINE_SWORD_OF_ARCHANGEL)
-            o->Scale = 0.7f;
-    }
-    else if (o->Type == MODEL_ARROW_VIPER_BOW || o->Type == MODEL_SYLPH_WIND_BOW || o->Type == MODEL_ALBATROSS_BOW)
-    {
-        o->Angle[0] = 0.f;
-        o->Angle[1] = 0.f;
-    }
-    else if ((o->Type >= MODEL_CROSSBOW && o->Type < MODEL_CELESTIAL_BOW) || (o->Type >= MODEL_DIVINE_CB_OF_ARCHANGEL && o->Type < MODEL_ARROW_VIPER_BOW))
-    {
-        o->Angle[0] = 90.f;
-        o->Angle[1] = 0.f;
-    }
-    else if (o->Type >= MODEL_MACE && o->Type < MODEL_STAFF + MAX_ITEM_INDEX)
-    {
-        o->Angle[0] = 0.f;
-        o->Angle[1] = 270.f;
-    }
-    else if (o->Type >= MODEL_SHIELD && o->Type < MODEL_SHIELD + MAX_ITEM_INDEX)
-    {
-        o->Angle[1] = 270.f;
-        o->Angle[2] = 270.f - 45.f;
-    }
-    else if (MODEL_MISTERY_HELM <= o->Type && MODEL_LILIUM_HELM >= o->Type)
-    {
-        o->Scale = 1.5f;
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type >= MODEL_ARMOR && o->Type < MODEL_GLOVES + MAX_ITEM_INDEX)
-    {
-        o->Angle[0] = 270.f;
-    }
-    else if (o->Type >= MODEL_RED_RIBBON_BOX && o->Type <= MODEL_BLUE_RIBBON_BOX)
-    {
-        o->Scale = 0.3f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_SEED_FIRE && o->Type <= MODEL_SEED_EARTH)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type >= MODEL_SPHERE_MONO && o->Type <= MODEL_SPHERE_5)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type >= MODEL_SEED_SPHERE_FIRE_1 && o->Type <= MODEL_SEED_SPHERE_EARTH_5)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type == MODEL_PUMPKIN_OF_LUCK)
-    {
-        o->Scale = 0.9f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_JACK_OLANTERN_BLESSINGS && o->Type <= MODEL_JACK_OLANTERN_CRY)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_JACK_OLANTERN_FOOD)
-    {
-        o->Scale = 0.9f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_JACK_OLANTERN_DRINK)
-    {
-        o->Scale = 0.26f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_PINK_CHOCOLATE_BOX && o->Type <= MODEL_BLUE_CHOCOLATE_BOX)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_EVENT + 21 && o->Type <= MODEL_EVENT + 23)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 0.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_HELPER + 46 && o->Type <= MODEL_HELPER + 48)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 54)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 58)
-    {
-        o->Scale = 0.3f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 59 || o->Type == MODEL_POTION + 60)
-    {
-        o->Scale = 0.3f;
-        o->Angle[0] = 90.f;
-        o->Angle[1] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 61 || o->Type == MODEL_POTION + 62)
-    {
-        o->Scale = 0.3f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 53)
-    {
-        o->Scale = 0.2f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 43 || o->Type == MODEL_HELPER + 44 || o->Type == MODEL_HELPER + 45)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type >= MODEL_POTION + 70 && o->Type <= MODEL_POTION + 71)
-    {
-        o->Scale = 0.6f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_POTION + 72 && o->Type <= MODEL_POTION + 77)
-    {
-        o->Scale = 0.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 59)
-    {
-        o->Scale = 0.2f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_HELPER + 54 && o->Type <= MODEL_HELPER + 58)
-    {
-        o->Scale = 0.7f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_POTION + 78 && o->Type <= MODEL_POTION + 82)
-    {
-        o->Scale = 0.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 60)
-    {
-        o->Scale = 1.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 61)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 83)
-    {
-        o->Scale = 0.3f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type >= MODEL_POTION + 145 && o->Type <= MODEL_POTION + 150)
-    {
-        o->Scale = 0.3f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type >= MODEL_HELPER + 125 && o->Type <= MODEL_HELPER + 127)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 91)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 92)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 93)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 95)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 94)
-    {
-        o->Scale = 0.6f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_CHERRY_BLOSSOM_PLAYBOX)
-    {
-        o->Scale = 0.8f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_CHERRY_BLOSSOM_WINE)
-    {
-        o->Scale = 0.9f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_CHERRY_BLOSSOM_RICE_CAKE)
-    {
-        o->Scale = 0.7f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_CHERRY_BLOSSOM_FLOWER_PETAL)
-    {
-        o->Scale = 1.3f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 88)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 180.f;
-        o->Angle[1] = 180.f;
-        //o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 89)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 30.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_GOLDEN_CHERRY_BLOSSOM_BRANCH)
-    {
-        o->Scale = 0.7f;
-        o->Angle[0] = 30.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_HELPER + 62 && o->Type <= MODEL_HELPER + 63)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type >= MODEL_POTION + 97 && o->Type <= MODEL_POTION + 98)
-    {
-        o->Scale = 0.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 140)
-    {
-        o->Scale = 0.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 96)
-    {
-        o->Scale = 0.2f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type >= MODEL_DEMON && o->Type <= MODEL_SPIRIT_OF_GUARDIAN)
-    {
-        switch (o->Type)
-        {
-        case MODEL_DEMON: o->Scale = 0.21f; break;
-        case MODEL_SPIRIT_OF_GUARDIAN: o->Scale = 0.5f; break;
-        }
-        o->Angle[2] = 70.f;
-    }
-
-    else if (o->Type == MODEL_OLD_SCROLL)
-    {
-        o->Angle[0] = 90.f;
-        o->Angle[1] = 0.f;
-        o->Scale = 0.3f;
-    }
-    else if (o->Type == MODEL_ILLUSION_SORCERER_COVENANT)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type == MODEL_SCROLL_OF_BLOOD)
-    {
-        o->Angle[0] = 90.f;
-        o->Scale = 0.45f;
-    }
-    else if (o->Type == MODEL_POTION + 64)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 0.8f;
-    }
-    else if (o->Type == MODEL_FLAME_OF_CONDOR)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 1.2f;
-    }
-    else if (o->Type == MODEL_FEATHER_OF_CONDOR)
-    {
-        o->Angle[0] = 0.f;
-        o->Scale = 1.2f;
-    }
-    else if (o->Type == MODEL_FLAME_OF_DEATH_BEAM_KNIGHT)
-    {
-        o->Angle[0] = 90.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type == MODEL_HORN_OF_HELL_MAINE)
-    {
-        o->Angle[0] = 90.f;
-        o->Scale = 0.8f;
-    }
-    else if (o->Type == MODEL_FEATHER_OF_DARK_PHOENIX)
-    {
-        o->Angle[0] = 270.f;
-        o->Scale = 0.8f;
-    }
-    else if (o->Type == MODEL_EYE_OF_ABYSSAL)
-    {
-        o->Angle[2] = -135.f;
-        o->Scale = 0.6f;
-    }
-    else if (o->Type == MODEL_EVENT + 4)
-    {
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_EVENT + 8 || o->Type == MODEL_EVENT + 9)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type == MODEL_EVENT + 10)
-    {
-        o->Scale = .2f;
-    }
-    else if (o->Type == MODEL_EVENT + 5)
-    {
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_SCROLL_OF_EMPEROR_RING_OF_HONOR)
-    {
-        o->Angle[1] = 45.f;
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type == MODEL_BROKEN_SWORD_DARK_STONE)
-    {
-        o->Angle[2] = 45.f;
-    }
-    else if ((o->Type >= MODEL_TEAR_OF_ELF && o->Type < MODEL_POTION + 27) || o->Type == MODEL_LOCHS_FEATHER)
-    {
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type == MODEL_DEVILS_EYE)
-    {
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_FIRECRACKER)
-    {
-        o->Angle[0] = 70.f;
-        o->Scale = 1.5f;
-    }
-    else if (o->Type == MODEL_CHRISTMAS_FIRECRACKER)
-    {
-        o->Angle[0] = 70.f;
-        o->Angle[2] = 0.f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_GM_GIFT)
-    {
-        o->Angle[2] = -10.f;
-        o->Scale = 0.4f;
-    }
-    else if (o->Type == MODEL_DEVILS_KEY)
-    {
-        o->Angle[0] = o->Angle[2] = 270.f;
-    }
-    else if (o->Type == MODEL_DEVILS_INVITATION)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_SYMBOL_OF_KUNDUN)
-    {
-        o->Angle[0] = 90.f;
-        o->Angle[2] = 70.f;
-    }
-    else if (o->Type == MODEL_EVENT + 11)
-    {
-        o->Angle[0] = 115.f;
-        o->Angle[1] = 75.f;
-        o->Angle[2] = 8.f;
-        o->Scale = 0.4f;
-    }
-    else if (o->Type == MODEL_SCROLL_OF_ARCHANGEL || o->Type == MODEL_BLOOD_BONE)
-    {
-        o->Angle[0] = -45.f;
-        o->Angle[1] = -5.f;
-        o->Angle[2] = 18.f;
-        o->Scale = 0.48f;
-    }
-    else if (o->Type == MODEL_INVISIBILITY_CLOAK)
-    {
-        o->Angle[0] = 165.f;
-        o->Angle[1] = -168.f;
-        o->Angle[2] = 198.f;
-        o->Scale = 0.48f;
-    }
-    else if (o->Type == MODEL_CAPE_OF_LORD)
-    {
-        o->Angle[0] = -45.f;
-        o->Angle[1] = 0.f;
-        o->Angle[2] = 45.f;
-        o->Scale = 0.5f;
-    }
-    else if (o->Type == MODEL_EVENT + 16)
-    {
-        o->Angle[2] = 45.f;
-        o->Scale = 0.5f;
-    }
-    else if (o->Type == MODEL_EVENT + 12)
-    {
-        o->Angle[0] = 160.f;
-        o->Angle[1] = -183.f;
-        o->Angle[2] = 198.f;
-        o->Scale = 0.38f;
-    }
-    else if (o->Type == MODEL_EVENT + 13)
-    {
-        o->Angle[0] = 160.f;
-        o->Angle[1] = -183.f;
-        o->Angle[2] = 198.f;
-        o->Scale = 0.54f;
-    }
-    else if (o->Type == MODEL_POTION + 21)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_EVENT + 7)
-    {
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type == MODEL_POTION + 20)
-    {
-        o->Angle[2] = 45.f;
-    }
-    else if (o->Type >= MODEL_RING_OF_FIRE && o->Type <= MODEL_RING_OF_MAGIC)
-    {
-        o->Angle[2] = 20.f;
-    }
-    else if (o->Type == MODEL_BLESS_OF_GUARDIAN)
-    {
-        o->Angle[2] = 45.f;
-        o->Scale = 1.2f;
-    }
-    else if (o->Type == MODEL_CLAW_OF_BEAST)
-    {
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_FRAGMENT_OF_HORN)
-    {
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_BROKEN_HORN)
-    {
-        o->Angle[2] = 90.f;
-        o->Scale = 1.3f;
-    }
-    else if (o->Type == MODEL_HORN_OF_FENRIR)
-    {
-        o->Angle[2] = 180.f;
-    }
-    else if (o->Type == MODEL_JEWEL_OF_LIFE)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = 90.f - 45.f;
-    }
-    else if (o->Type == MODEL_JEWEL_OF_HARMONY)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = -15.f;
-        o->Scale = 1.3f;
-    }
-    else if (o->Type == MODEL_LOWER_REFINE_STONE || o->Type == MODEL_HIGHER_REFINE_STONE)
-    {
-        o->Angle[0] = 270.f;
-        o->Angle[2] = -15.f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type >= MODEL_CHAIN_LIGHTNING_PARCHMENT && o->Type <= MODEL_INNOVATION_PARCHMENT)
-    {
-        o->Angle[0] = 270.f;
-        o->Scale = 0.8f;
-    }
-    else if (o->Type == MODEL_HELPER + 66)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_POTION + 100)
-    {
-        o->Angle[0] = 180.0f;
-        //	o->Angle[2] = 0.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type >= static_cast<int>(MODEL_TYPE_CHARM_MIXWING) + EWS_BEGIN && o->Type <= static_cast<int>(MODEL_TYPE_CHARM_MIXWING) + EWS_END)
-    {
-        o->Scale = 0.5f;
-        o->Angle[2] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 97 || o->Type == MODEL_HELPER + 98 || o->Type == MODEL_POTION + 91)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 99)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_POTION + 110 || o->Type == MODEL_POTION + 111)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 107)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 104)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 105)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 103)
-    {
-        o->Angle[0] = 0.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_POTION + 133)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 109)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 110)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 111)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 112)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 113)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 114)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 115)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_POTION + 112)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_POTION + 113)
-    {
-        o->Angle[0] = 270.0f;
-        o->Scale = 1.0f;
-    }
-    else if (o->Type == MODEL_HELPER + 116)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_HELPER + 121)
-    {
-        o->Scale = 0.5f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_PET_SKELETON)
-    {
-        o->Scale = 0.4f;
-        o->Angle[0] = 30.f;
-    }
-    else if (o->Type >= MODEL_WING && o->Type < MODEL_WING + MAX_ITEM_INDEX)
-    {
-        {
-            o->Angle[0] = 270.f;
-            o->Angle[2] = 90.f - 45.f;
-        }
-    }
-    else if (o->Type >= MODEL_HELPER + 135 && o->Type <= MODEL_HELPER + 145)
-    {
-        o->Scale = 0.2f;
-        o->Angle[0] = 90.f;
-    }
-    else if (o->Type == MODEL_POTION + 160 || o->Type == MODEL_POTION + 161)
-    {
-        o->Scale = 0.2f;
-        o->Angle[0] = 90.f;
-    }
-    else if (Check_LuckyItem(o->Type - MODEL_ITEM))
-    {
-        o->Angle[0] = 250.0f;
-        o->Angle[1] = 180.0f;
-        o->Angle[2] = 45.0f;
+    const Render::Items::Display::GroundDisplay display = Render::Items::Display::GetGroundDisplay(o->Type);
+    Vector(display.rotation[0], display.rotation[1], display.rotation[2], o->Angle);
+    if (display.scale)
+    {
+        o->Scale = *display.scale;
     }
 }
 
@@ -6087,7 +5423,7 @@ void CreateItemDrop(ITEM_t* ip, ItemCreationParams params, vec3_t position, bool
 
     if (isFreshDrop)
     {
-        if (Type == ITEM_JEWEL_OF_BLESS || Type == ITEM_JEWEL_OF_SOUL || Type == ITEM_JEWEL_OF_LIFE || Type == ITEM_JEWEL_OF_CHAOS || Type == ITEM_JEWEL_OF_CREATION || Type == ITEM_JEWEL_OF_GUARDIAN)
+        if (GameLogic::Items::IsJewelItem(n))
             PlayBuffer(SOUND_JEWEL01, &ip->Object);
         else if (Type == ITEM_GEMSTONE)
             PlayBuffer(SOUND_JEWEL02, &ip->Object);
@@ -6138,7 +5474,7 @@ void CreateItemDrop(ITEM_t* ip, ItemCreationParams params, vec3_t position, bool
     {
         o->Type = MODEL_ITEM + Type;
     }
-    if (Type >= ITEM_PINK_CHOCOLATE_BOX && Type <= ITEM_BLUE_CHOCOLATE_BOX)
+    if (GameLogic::Items::IsChocolateBoxType(Type))
     {
         if (n->Level == 1)
         {
@@ -6146,7 +5482,7 @@ void CreateItemDrop(ITEM_t* ip, ItemCreationParams params, vec3_t position, bool
             o->Type = MODEL_EVENT + 21 + Num;
         }
     }
-    else if (Type == (int)(ITEM_POTION + 21))
+    else if (Type == (int)(ITEM_RENA))
     {
         switch (n->Level)
         {
@@ -6399,18 +5735,7 @@ void MoveItems()
 
 void ItemHeight(int Type, BMD* b)
 {
-    if (Type >= MODEL_HELM && Type < MODEL_HELM + MAX_ITEM_INDEX)
-        b->BodyHeight = -160.f;
-    else if (Type >= MODEL_ARMOR && Type < MODEL_ARMOR + MAX_ITEM_INDEX)
-        b->BodyHeight = -100.f;
-    else if (Type >= MODEL_GLOVES && Type < MODEL_GLOVES + MAX_ITEM_INDEX)
-        b->BodyHeight = -70.f;
-    else if (Type >= MODEL_PANTS && Type < MODEL_PANTS + MAX_ITEM_INDEX)
-        b->BodyHeight = -50.f;
-    else if (Type >= MODEL_BOOTS && Type < MODEL_BOOTS + MAX_ITEM_INDEX)
-        b->BodyHeight = 0.f;
-    else
-        b->BodyHeight = 0.f;
+    b->BodyHeight = Render::Items::Display::GetGroundDisplay(Type).bodyHeight;
 }
 
 void RenderZen(int itemIndex, ITEM_t* item, vec3_t light)
@@ -6491,18 +5816,10 @@ void RenderItems()
 
             if (o->Visible)
             {
-                int Type = o->Type;
-                if (o->Type >= MODEL_HELM && o->Type < MODEL_BOOTS + MAX_ITEM_INDEX)
-                    Type = MODEL_PLAYER;
-                else if (o->Type == MODEL_POTION + 12)
-                {
-                    int Level = Items[i].Item.Level;
-                    if (Level == 0)
-                        Type = MODEL_EVENT;
-                    else if (Level == 2)
-                        Type = MODEL_EVENT + 1;
-                }
-                BMD* b = &Models[Type];
+                const int drawnModel = Render::Items::Display::GetDrawnModel(o->Type, Items[i].Item.Level);
+                // Armor is animated on the character skeleton.
+                BMD* b =
+                    &Models[Render::Items::Display::IsDrawnOnCharacterSkeleton(drawnModel) ? MODEL_PLAYER : drawnModel];
                 b->CurrentAction = 0;
                 b->Skin = gCharacterManager.GetBaseClass(Hero->Class); // ???
                 b->CurrentAction = o->CurrentAction;
@@ -6510,9 +5827,6 @@ void RenderItems()
                 ItemHeight(o->Type, b);
                 b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, false);
 
-                if (o->Type >= MODEL_HELM && o->Type < MODEL_BOOTS + MAX_ITEM_INDEX)
-                    Type = o->Type;
-                b = &Models[Type];
                 vec3_t Light;
                 RequestTerrainLight(o->Position[0], o->Position[1], Light);
                 VectorAdd(Light, o->Light, Light);
@@ -7115,7 +6429,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->TransformPosition(BoneTransform[11], vRelativePos, vPos, true);
         CreateSprite(BITMAP_LIGHT, vPos, 0.5f, o->Light, o, 0.5f);
     }
-    else if (o->Type >= MODEL_CHAIN_LIGHTNING_PARCHMENT && o->Type <= MODEL_INNOVATION_PARCHMENT)
+    else if (GameLogic::Items::IsSummonerSkillParchmentModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.0f) * 0.5f;
@@ -7278,7 +6592,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, -(int)WorldTime % 2000 * 0.0005f);
         b->RenderMesh(2, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type >= MODEL_POTION + 55 && Type <= MODEL_POTION + 57)
+    else if (Type >= MODEL_GREEN_CHAOS_BOX && Type <= MODEL_PURPLE_CHAOS_BOX)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_BRIGHT | RENDER_CHROME2, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
@@ -7301,7 +6615,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderBody(RenderType, 0.7f, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 0);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, sine, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
     }
-    else if (Type == MODEL_POTION + 64)
+    else if (Type == MODEL_CURSED_CASTLE_WATER)
     {
         float fLumi = (sinf(WorldTime * 0.001f) + 1.5f) * 0.25f;
 
@@ -7363,60 +6677,60 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_CHROME | RENDER_BRIGHT, 0.2f, -1,
             o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type >= MODEL_HELPER + 46 && Type <= MODEL_HELPER + 48)
+    else if (GameLogic::Items::IsEventTicketModel(Type))
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_FREETICKET_R);
     }
-    else if (Type == MODEL_POTION + 54)
+    else if (Type == MODEL_CHAOS_CARD)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_CHAOSCARD_R);
     }
-    else if (Type == MODEL_POTION + 58)
+    else if (Type == MODEL_RARE_ITEM_TICKET_1)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM1_R);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_POTION + 59)
+    else if (Type == MODEL_RARE_ITEM_TICKET_2)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM2_R);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_POTION + 60)
+    else if (Type == MODEL_RARE_ITEM_TICKET_3)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM3_R);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_POTION + 61)
+    else if (Type == MODEL_RARE_ITEM_TICKET_4)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM4_R);
     }
-    else if (Type == MODEL_POTION + 62)
+    else if (Type == MODEL_RARE_ITEM_TICKET_5)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM5_R);
     }
-    else if (o->Type == MODEL_POTION + 53)
+    else if (o->Type == MODEL_TALISMAN_OF_LUCK)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.5f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_LUCKY_CHARM_EFFECT53);
     }
-    else if (o->Type == MODEL_HELPER + 43
-        || o->Type == MODEL_HELPER + 93
+    else if (o->Type == MODEL_SEAL_OF_ASCENSION
+        || o->Type == MODEL_MASTER_SEAL_OF_ASCENSION
         )
     {
         float fLumi = (sinf(WorldTime * 0.001f) + 1.5f) * 0.25f;
@@ -7424,8 +6738,8 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_LUCKY_SEAL_EFFECT43);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_HELPER + 44
-        || o->Type == MODEL_HELPER + 94
+    else if (o->Type == MODEL_SEAL_OF_WEALTH
+        || o->Type == MODEL_MASTER_SEAL_OF_WEALTH
         || o->Type == MODEL_HELPER + 116
         )
     {
@@ -7434,39 +6748,39 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_LUCKY_SEAL_EFFECT44);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_HELPER + 45)
+    else if (o->Type == MODEL_SEAL_OF_SUSTENANCE)
     {
         float fLumi = (sinf(WorldTime * 0.001f) + 1.5f) * 0.25f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_LUCKY_SEAL_EFFECT45);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= MODEL_POTION + 70 && o->Type <= MODEL_POTION + 71)
+    else if (GameLogic::Items::IsElitePotionModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->RenderMesh(0, RENDER_CHROME4, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= MODEL_POTION + 72 && o->Type <= MODEL_POTION + 77)
+    else if (GameLogic::Items::IsBuffScrollModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (o->Type == MODEL_HELPER + 59)
+    else if (o->Type == MODEL_SEAL_OF_MOBILITY)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (o->Type >= MODEL_HELPER + 54 && o->Type <= MODEL_HELPER + 58)
+    else if (GameLogic::Items::IsResetFruitModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (o->Type >= MODEL_POTION + 78 && o->Type <= MODEL_POTION + 82)
+    else if (GameLogic::Items::IsElixirModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (o->Type == MODEL_HELPER + 60)
+    else if (o->Type == MODEL_INDULGENCE)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (o->Type == MODEL_HELPER + 61)
+    else if (o->Type == MODEL_ILLUSION_TEMPLE_TICKET)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
@@ -7478,89 +6792,89 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM5_R);
     }
-    else if (o->Type == MODEL_POTION + 145)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_7)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM7);
     }
-    else if (o->Type == MODEL_POTION + 146)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_8)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM8);
     }
-    else if (o->Type == MODEL_POTION + 147)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_9)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM9);
     }
-    else if (o->Type == MODEL_POTION + 148)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_10)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM10);
     }
-    else if (o->Type == MODEL_POTION + 149)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_11)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM11);
     }
-    else if (o->Type == MODEL_POTION + 150)
+    else if (o->Type == MODEL_RARE_ITEM_TICKET_12)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.f) * 0.5f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_RAREITEM12);
     }
-    else if (Type == MODEL_HELPER + 125)
+    else if (Type == MODEL_OPEN_ACCESS_TICKET_TO_DOPPELGANGER)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_DOPPLEGANGGER_FREETICKET);
     }
-    else if (Type == MODEL_HELPER + 126)
+    else if (Type == MODEL_OPEN_ACCESS_TICKET_TO_VARKA)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_BARCA_FREETICKET);
     }
-    else if (Type == MODEL_HELPER + 127)
+    else if (Type == MODEL_OPEN_ACCESS_TICKET_TO_VARKA_7)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_BARCA7TH_FREETICKET);
     }
-    else if (Type == MODEL_POTION + 91)
+    else if (Type == MODEL_SUMMONER_CHARACTER_CARD)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_CHARACTERCARD_R);
     }
-    else if (Type == MODEL_POTION + 92)
+    else if (Type == MODEL_CHAOS_CARD_GOLD)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_NEWCHAOSCARD_GOLD_R);
     }
-    else if (Type == MODEL_POTION + 93)
+    else if (Type == MODEL_CHAOS_CARD_RARE)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_NEWCHAOSCARD_RARE_R);
     }
-    else if (Type == MODEL_POTION + 95)
+    else if (Type == MODEL_CHAOS_CARD_MINI)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_TEXTURE | RENDER_BRIGHT, 1.0f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, fLumi, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_NEWCHAOSCARD_MINI_R);
     }
-    else if (Type == MODEL_POTION + 94)
+    else if (Type == MODEL_MEDIUM_ELITE_HEALING_POTION)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
@@ -7580,11 +6894,11 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_POTION + 88)
+    else if (Type == MODEL_WHITE_CHERRY_BLOSSOM_BRANCH)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_POTION + 89)
+    else if (Type == MODEL_RED_CHERRY_BLOSSOM_BRANCH)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
@@ -7592,15 +6906,15 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type >= MODEL_HELPER + 62 && Type <= MODEL_HELPER + 63)
+    else if (GameLogic::Items::IsHealingOrDivinitySealModel(Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type >= MODEL_POTION + 97 && Type <= MODEL_POTION + 98)
+    else if (GameLogic::Items::IsBattleOrStrengthScrollModel(Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type == MODEL_POTION + 96)
+    else if (Type == MODEL_TALISMAN_OF_CHAOS_ASSEMBLY)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.5f) * 0.5f;
 
@@ -7826,19 +7140,19 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
             b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
 #ifdef PBG_ADD_CHARACTERCARD
-    else if (MODEL_HELPER + 97 == Type || MODEL_HELPER + 98 == Type || MODEL_POTION + 91 == Type)
+    else if (GameLogic::Items::IsCharacterCardModel(Type))
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.4f;
         int _R_Type = 0;
         switch (Type)
         {
-        case MODEL_HELPER + 97:
+        case MODEL_MAGIC_GLADIATOR_CHARACTER_CARD:
             _R_Type = BITMAP_CHARACTERCARD_R_MA;
             break;
-        case MODEL_HELPER + 98:
+        case MODEL_DARK_LORD_CHARACTER_CARD:
             _R_Type = BITMAP_CHARACTERCARD_R_DA;
             break;
-        case MODEL_POTION + 91:
+        case MODEL_SUMMONER_CHARACTER_CARD:
             _R_Type = BITMAP_CHARACTERCARD_R;
             break;
         default:
@@ -8085,7 +7399,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         }
         b->EndRender();
     }
-    else if (Type == MODEL_HELPER + 7)
+    else if (Type == MODEL_CONTRACT_SUMMON)
     {
         b->BeginRender(1.f);
         if (o->HiddenMesh == 1)
@@ -8109,7 +7423,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_CHROME | RENDER_BRIGHT, 1.f, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->EndRender();
     }
-    else if (Type == MODEL_BOLT || Type == MODEL_ARROWS)
+    else if (GameLogic::Items::IsAmmunitionModel(Type))
     {
         if (g_isCharacterBuff(o, eBuff_InfinityArrow))
         {
@@ -8149,11 +7463,11 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_METAL, o->Alpha, 1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_FENRIR_THUNDER);
         VectorCopy(Light, b->BodyLight);
     }
-    else if (Type == MODEL_JEWEL_OF_HARMONY || Type == MODEL_LOWER_REFINE_STONE || Type == MODEL_HIGHER_REFINE_STONE)
+    else if (Type == MODEL_JEWEL_OF_HARMONY || GameLogic::Items::IsRefineStoneModel(Type))
     {
         b->RenderBody(RenderType, Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type >= MODEL_SEED_FIRE && Type <= MODEL_SEED_EARTH)
+    else if (GameLogic::Items::IsSocketSeedModel(Type))
     {
         int iCategoryIndex = Type - (MODEL_SEED_FIRE) + 1;
         switch (iCategoryIndex)
@@ -8180,7 +7494,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderBody(RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type >= MODEL_SEED_SPHERE_FIRE_1 && Type <= MODEL_SEED_SPHERE_EARTH_5)
+    else if (GameLogic::Items::IsSocketSeedSphereModel(Type))
     {
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
 
@@ -8209,7 +7523,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
         b->RenderBody(RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1);
     }
-    else if (Type == MODEL_HELPER + 71 || Type == MODEL_HELPER + 72 || Type == MODEL_HELPER + 73 || Type == MODEL_HELPER + 74 || Type == MODEL_HELPER + 75)
+    else if (GameLogic::Items::IsGambleItemModel(Type))
     {
         int _angle = int(b->BodyAngle[1]) % 360;
         float _meshLight1;
@@ -8627,31 +7941,31 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         CreateSprite(BITMAP_SHINY + 1, vPos, 0.9f, vLight, o, -WorldTime * 0.08f);
         CreateSprite(BITMAP_LIGHT + 3, vPos, 0.8f, vLight2, o, WorldTime * 0.3f);
     }
-    else if (Type == MODEL_HELPER + 69)
+    else if (Type == MODEL_TALISMAN_OF_RESURRECTION)
     {
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         float Luminosity = (sinf(WorldTime * 0.003f) + 1) * 0.3f + 0.3f;
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, 0, Luminosity, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type == MODEL_HELPER + 70)
+    else if (Type == MODEL_TALISMAN_OF_MOBILITY)
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type == MODEL_HELPER + 81)
+    else if (Type == MODEL_TALISMAN_OF_GUARDIAN)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_HELPER + 82)
+    else if (Type == MODEL_TALISMAN_OF_ITEM_PROTECTION)
     {
         b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type == MODEL_HELPER + 66)
+    else if (Type == MODEL_INVITATION_TO_SANTA_VILLAGE)
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME4, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
@@ -8663,57 +7977,57 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= static_cast<int>(MODEL_TYPE_CHARM_MIXWING) + EWS_BEGIN && o->Type <= static_cast<int>(MODEL_TYPE_CHARM_MIXWING) + EWS_END)
+    else if (GameLogic::Items::IsWingMixCharmModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type == MODEL_HELPER + 107)
+    else if (Type == MODEL_LETHAL_WIZARDS_RING)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_HELPER + 104)
+    else if (Type == MODEL_MAX_AG_BOOST_AURA)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME, 0.2f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (Type == MODEL_HELPER + 105)
+    else if (Type == MODEL_MAX_SD_BOOST_AURA)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME, 0.2f, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= MODEL_HELPER + 109 && o->Type <= MODEL_HELPER + 112)	// InGameShop 장착 아이템 : 반지 (사파이어, 루비, 토파즈, 자수정)
+    else if (o->Type >= MODEL_SAPPHIRE_RING && o->Type <= MODEL_AMETHYST_RING)	// InGameShop 장착 아이템 : 반지 (사파이어, 루비, 토파즈, 자수정)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= MODEL_HELPER + 113 && o->Type <= MODEL_HELPER + 115)// InGameShop 장착 아이템 : 목걸이 (사파이어, 루비, 에메랄드)
+    else if (o->Type >= MODEL_RUBY_NECKLACE && o->Type <= MODEL_SAPPHIRE_NECKLACE)// InGameShop 장착 아이템 : 목걸이 (사파이어, 루비, 에메랄드)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type >= MODEL_POTION + 112 && o->Type <= MODEL_POTION + 113)
+    else if (GameLogic::Items::IsSilverOrGoldKeyModel(o->Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_POTION + 120)
+    else if (o->Type == MODEL_GOBLIN_GOLD_COIN)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(0, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 0, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_POTION + 121 || o->Type == MODEL_POTION + 122)
+    else if (o->Type == MODEL_SEALED_GOLDEN_BOX || o->Type == MODEL_SEALED_SILVER_BOX)
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_POTION + 123 || o->Type == MODEL_POTION + 124)
+    else if (o->Type == MODEL_GOLDEN_BOX || o->Type == MODEL_SILVER_BOX)
     {
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->RenderMesh(1, RENDER_BRIGHT | RENDER_CHROME, o->Alpha, 1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
         b->RenderMesh(2, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
-    else if (o->Type == MODEL_WING + 130)
+    else if (o->Type == MODEL_SMALL_CAPE_OF_LORD)
     {
         if (b->BodyLight[0] == 1 && b->BodyLight[1] == 1 && b->BodyLight[2] == 1)
         {
@@ -8721,49 +8035,49 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
             b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         }
     }
-    else if (o->Type == MODEL_POTION + 134)
+    else if (o->Type == MODEL_PACKAGE_BOX_A)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_RED);
     }
-    else if (o->Type == MODEL_POTION + 135)
+    else if (o->Type == MODEL_PACKAGE_BOX_B)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_BLUE);
     }
-    else if (o->Type == MODEL_POTION + 136)
+    else if (o->Type == MODEL_PACKAGE_BOX_C)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_GOLD);
     }
-    else if (o->Type == MODEL_POTION + 137)
+    else if (o->Type == MODEL_PACKAGE_BOX_D)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_GREEN);
     }
-    else if (o->Type == MODEL_POTION + 138)
+    else if (o->Type == MODEL_PACKAGE_BOX_E)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_PUPLE);
     }
-    else if (o->Type == MODEL_POTION + 139)
+    else if (o->Type == MODEL_PACKAGE_BOX_F)
     {
         //b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight, o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_PACKAGEBOX_SKY);
     }
-    else if (o->Type >= MODEL_POTION + 114 && o->Type <= MODEL_POTION + 119)
+    else if (GameLogic::Items::IsAccountServiceItemModel(o->Type))
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_INGAMESHOP_PRIMIUM6);
     }
-    else if (o->Type >= MODEL_POTION + 126 && o->Type <= MODEL_POTION + 129)
+    else if (GameLogic::Items::IsDayPassModel(o->Type))
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_INGAMESHOP_COMMUTERTICKET4);
     }
-    else if (o->Type >= MODEL_POTION + 130 && o->Type <= MODEL_POTION + 132)
+    else if (GameLogic::Items::IsHourPassModel(o->Type))
     {
         b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, -1, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, BITMAP_INGAMESHOP_SIZECOMMUTERTICKET3);
     }
-    else if (o->Type == MODEL_HELPER + 121)
+    else if (o->Type == MODEL_OPEN_ACCESS_TICKET_TO_CHAOS_CASTLE)
     {
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.2f) * 0.3f;
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
@@ -8906,7 +8220,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
         b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, (double)(-int(WorldTime) % 1000) * 0.00009f, o->BlendMeshTexCoordV, -1);
         b->RenderMesh(1, RENDER_CHROME | RENDER_BRIGHT, o->Alpha * fLumi, 1, o->BlendMeshLight * fLumi, (double)(-int(WorldTime) % 1000) * 0.00009f, o->BlendMeshTexCoordV, -1);
     }
-    else if (Type == MODEL_CAPE_OF_FIGHTER || Type == MODEL_WING + 135)
+    else if (Type == MODEL_CAPE_OF_FIGHTER || Type == MODEL_LITTLE_WARRIORS_CLOAK)
     {
         b->RenderBody(RenderType, Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
     }
@@ -8948,7 +8262,7 @@ void RenderPartObjectBody(BMD* b, OBJECT* o, int Type, float Alpha, int RenderTy
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
     }
-    else if (Type >= MODEL_CHAIN_DRIVE_PARCHMENT && Type <= MODEL_INCREASE_BLOCK_PARCHMENT)
+    else if (GameLogic::Items::IsRageFighterSkillParchmentModel(Type))
     {
         b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
         float fLumi = (sinf(WorldTime * 0.0015f) + 1.0f) * 0.5f;
@@ -9226,7 +8540,7 @@ void RenderPartObjectBodyColor2(BMD* b, OBJECT* o, int Type, float Alpha, int Re
     {
         b->RenderBody(RenderType, Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 1, Texture);
     }
-    else if (Type == MODEL_POTION + 64)
+    else if (Type == MODEL_CURSED_CASTLE_WATER)
     {
         b->RenderBody(RenderType, Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, 0, Texture);
     }
@@ -9580,7 +8894,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         }
     }
     break;
-    case MODEL_POTION + 20:Level = 9; break;
+    case MODEL_REMEDY_OF_LOVE:Level = 9; break;
     case MODEL_JEWEL_OF_CREATION:Level = 8; break;
     case MODEL_PACKED_JEWEL_OF_CREATION:Level = 8; break;
     case MODEL_TEAR_OF_ELF:Level = 8; break;
@@ -9598,7 +8912,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
     case MODEL_HIGHER_REFINE_STONE:
         Level = 0; break;
     case MODEL_ILLUSION_SORCERER_COVENANT:
-    case MODEL_POTION + 64:
+    case MODEL_CURSED_CASTLE_WATER:
         Level = 0; break;
     case MODEL_FLAME_OF_CONDOR:
     case MODEL_FEATHER_OF_CONDOR:
@@ -9754,9 +9068,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         if (Level > 0)
             Level = 7;
     }
-    else if ((o->Type >= MODEL_SEED_FIRE && o->Type <= MODEL_SEED_EARTH)
-        || (o->Type >= MODEL_SPHERE_MONO && o->Type <= MODEL_SPHERE_5)
-        || (o->Type >= MODEL_SEED_SPHERE_FIRE_1 && o->Type <= MODEL_SEED_SPHERE_EARTH_5))
+    else if (GameLogic::Items::IsSocketSeedOrSphereModel(o->Type))
     {
         Level = 0;
     }
@@ -9902,7 +9214,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         VectorAdd(Position, o->Position, Position);
         CreateSprite(BITMAP_SPARK + 1, Position, Scale, EffLight, o);
     }
-    else if (o->Type == MODEL_POTION + 21)
+    else if (o->Type == MODEL_RENA)
     {
         float Luminosity = (float)sinf((WorldTime) * 0.002f) * 0.25f + 0.75f;
         vec3_t EffLight;
@@ -9938,7 +9250,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         case 1: o->HiddenMesh = 0; break;
         }
     }
-    else if (Type == MODEL_HELPER + 7)
+    else if (Type == MODEL_CONTRACT_SUMMON)
     {
         switch (Level)
         {
@@ -10259,7 +9571,7 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         }
         else if (Level < 3 || o->Type == MODEL_ZEN)
         {
-            if (o->Type == MODEL_POTION + 64)
+            if (o->Type == MODEL_CURSED_CASTLE_WATER)
             {
                 RenderPartObjectBody(b, o, Type, Alpha, RenderType);
                 RenderPartObjectBodyColor2(b, o, Type, 0.5f, RENDER_TEXTURE | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 0.5f);
@@ -10281,21 +9593,21 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
                 RenderPartObjectBodyColor2(b, o, Type, 1.f, RENDER_CHROME4 | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 1.f);
             }
             else
-                if (o->Type == MODEL_HELPER + 43 || o->Type == MODEL_HELPER + 93)
+                if (o->Type == MODEL_SEAL_OF_ASCENSION || o->Type == MODEL_MASTER_SEAL_OF_ASCENSION)
                 {
                     Vector(Light[0] * 0.9f, Light[1] * 0.9f, Light[2] * 0.9f, b->BodyLight);
                     RenderPartObjectBody(b, o, Type, Alpha, RenderType);
                     RenderPartObjectBodyColor2(b, o, Type, 1.5f, RENDER_CHROME2 | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 1.5f);
                     RenderPartObjectBodyColor2(b, o, Type, 1.f, RENDER_CHROME4 | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 1.f);
                 }
-                else if (o->Type == MODEL_HELPER + 44 || o->Type == MODEL_HELPER + 94 || o->Type == MODEL_HELPER + 116)
+                else if (o->Type == MODEL_SEAL_OF_WEALTH || o->Type == MODEL_MASTER_SEAL_OF_WEALTH || o->Type == MODEL_HELPER + 116)
                 {
                     Vector(Light[0] * 0.9f, Light[1] * 0.9f, Light[2] * 0.9f, b->BodyLight);
                     RenderPartObjectBody(b, o, Type, Alpha, RenderType);
                     RenderPartObjectBodyColor2(b, o, Type, 1.5f, RENDER_CHROME2 | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 1.5f);
                     RenderPartObjectBodyColor2(b, o, Type, 1.f, RENDER_CHROME4 | RENDER_BRIGHT | (RenderType & RENDER_EXTRA), 1.f);
                 }
-                else if (o->Type == MODEL_HELPER + 45)
+                else if (o->Type == MODEL_SEAL_OF_SUSTENANCE)
                 {
                     Vector(Light[0] * 0.9f, Light[1] * 0.9f, Light[2] * 0.9f, b->BodyLight);
                     RenderPartObjectBody(b, o, Type, Alpha, RenderType);
@@ -10432,9 +9744,9 @@ void RenderPartObjectEffect(OBJECT* o, int Type, vec3_t Light, float Alpha, int 
         {
             if ((ExcellentFlags & 63) > 0 && (o->Type<MODEL_WING || o->Type>MODEL_WINGS_OF_DARKNESS) && o->Type != MODEL_CAPE_OF_LORD
                 && (o->Type<MODEL_WING_OF_STORM || o->Type>MODEL_WING_OF_DIMENSION)
-                && (o->Type < MODEL_WING + 130 || MODEL_WING + 134 < o->Type)
+                && (o->Type < MODEL_SMALL_CAPE_OF_LORD || MODEL_SMALL_WINGS_OF_SATAN < o->Type)
                 && !(o->Type >= MODEL_CAPE_OF_FIGHTER && o->Type <= MODEL_CAPE_OF_OVERRULE)
-                && (o->Type != MODEL_WING + 135))
+                && (o->Type != MODEL_LITTLE_WARRIORS_CLOAK))
             {
                 Luminosity = sinf(WorldTime * 0.002f) * 0.5f + 0.5f;
                 Vector(Luminosity, Luminosity * 0.3f, 1.f - Luminosity, b->BodyLight);
@@ -10617,19 +9929,7 @@ void RenderPartObject(OBJECT* o, int Type, void* p2, vec3_t Light, float Alpha, 
 
     auto* p = (PART_t*)p2;
 
-    if (Type == MODEL_POTION + 12)
-    {
-        int Level = ItemLevel;
-
-        if (Level == 0)
-        {
-            Type = MODEL_EVENT;
-        }
-        else if (Level == 2)
-        {
-            Type = MODEL_EVENT + 1;
-        }
-    }
+    Type = Render::Items::Display::GetDrawnModel(Type, ItemLevel);
 
     BMD* b = &Models[Type];
     b->HideSkin = HideSkin;
@@ -10719,11 +10019,15 @@ void RenderPartObject(OBJECT* o, int Type, void* p2, vec3_t Light, float Alpha, 
             switch (iCloth)
             {
             case 1:
+                if (!CPhysicsClothMesh::CanCreate(Type, 2, 5, 8))
+                    break;
                 pCloth[0] = new CPhysicsClothMesh;
                 pCloth[0]->Create(o, 2, 17, 0.0f, 9.0f, 7.0f, 5, 8, 45.0f, 85.0f, BITMAP_PANTS_G_SOUL, BITMAP_PANTS_G_SOUL, PCT_MASK_ALPHA | PCT_HEAVY | PCT_STICKED | PCT_SHORT_SHOULDER, Type);
                 pCloth[0]->AddCollisionSphere(0.0f, -15.0f, -20.0f, 30.0f, 2);
                 break;
             case 2:
+                if (!CPhysicsClothMesh::CanCreate(Type, 3))
+                    break;
                 iCount = 1;
                 pCloth[0] = new CPhysicsClothMesh;
                 pCloth[0]->Create(o, 3, 2, PCT_OPT_CORRECTEDFORCE | PCT_HEAVY, Type);
@@ -10734,6 +10038,8 @@ void RenderPartObject(OBJECT* o, int Type, void* p2, vec3_t Light, float Alpha, 
                 pCloth[0]->AddCollisionSphere(0.0f, 0.0f, -69.0f, 26.0f, 2);
                 break;
             case 3:
+                if (!CPhysicsClothMesh::CanCreate(Type, 2, 7, 5))
+                    break;
                 pCloth[0] = new CPhysicsClothMesh;
                 pCloth[0]->Create(o, 2, 17, 0.0f, 9.0f, 7.0f, 7, 5, 50.0f, 100.0f, b->IndexTexture[b->Meshs[2].Texture], b->IndexTexture[b->Meshs[2].Texture], PCT_MASK_ALPHA | PCT_HEAVY | PCT_STICKED | PCT_SHORT_SHOULDER, Type);
                 pCloth[0]->AddCollisionSphere(0.0f, -15.0f, -20.0f, 30.0f, 2);
