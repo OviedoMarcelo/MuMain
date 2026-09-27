@@ -3876,9 +3876,13 @@ void CUISlideHelp::Render(BOOL bForceFadeOut)
 
     EnableAlphaTest();
 
-    RenderColor(0, m_iPos_y - 3, WindowWidth, 1);
-    RenderColor(0, m_iPos_y + m_iFontHeight + 2, WindowWidth, 1);
-    RenderColor(0, m_iPos_y - 2, WindowWidth, m_iFontHeight + 4);
+    // Black translucent band: the edges fade in faster than the body.
+    const int iAlpha = static_cast<int>(m_iAlphaRate);
+    const unsigned int bodyColor = static_cast<unsigned int>(std::max(iAlpha - 25, 0)) << 24;
+    const unsigned int edgeColor = iAlpha > 180 ? static_cast<unsigned int>(iAlpha) << 24 : bodyColor;
+    RenderColorQuadARGB(0, m_iPos_y - 3, WindowWidth, 1, edgeColor);
+    RenderColorQuadARGB(0, m_iPos_y + m_iFontHeight + 2, WindowWidth, 1, edgeColor);
+    RenderColorQuadARGB(0, m_iPos_y - 2, WindowWidth, m_iFontHeight + 4, bodyColor);
 
     EndRenderColor();
 
