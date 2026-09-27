@@ -1594,7 +1594,7 @@
     <comment>legacy_id=427</comment>
   </data>
   <data name="Please enter your WEBZEN.COM password." xml:space="preserve">
-    <value>請輸入您的 WEBZEN.COM 密碼。</value>
+    <value>請輸入您的帳號密碼（若有設定安全碼，請輸入安全碼）。</value>
     <comment>legacy_id=428,444,1713</comment>
   </data>
   <data name="You have received an offer to join a guild." xml:space="preserve">
