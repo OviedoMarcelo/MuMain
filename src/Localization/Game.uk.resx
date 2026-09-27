@@ -12887,4 +12887,7 @@
   <data name="DefaultFont" xml:space="preserve">
     <value>За замовчуванням</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Рів. %d</value>
+  </data>
 </root>

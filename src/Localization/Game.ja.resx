@@ -10965,4 +10965,7 @@
   <data name="DefaultFont" xml:space="preserve">
     <value>デフォルト</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Lv.%d</value>
+  </data>
 </root>

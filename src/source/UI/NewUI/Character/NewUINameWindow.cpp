@@ -20,6 +20,7 @@
 #include "UI/Combat/MonsterHealthBar.h"
 #include "Engine/Object/ZzzInfomation.h"
 #include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
+#include "I18N/All.h"
 
 // DevEditor forward declarations (must be at global scope)
 #ifdef _EDITOR
@@ -118,8 +119,9 @@ void DrawSelectedMonsterName(int centerX, int topY, const CHARACTER* c)
         return;
     }
 
-    wchar_t levelText[16];
-    mu_swprintf(levelText, L"Nv. %d ", level);
+    wchar_t levelText[32];
+    mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
+    wcscat_s(levelText, L" ");
     const SIZE levelSize = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
     const SIZE nameSize = g_pRenderText->MeasureText(c->ID, static_cast<int>(wcslen(c->ID)));
     const int x = centerX - (levelSize.cx + nameSize.cx) / 2;
@@ -130,21 +132,19 @@ void DrawSelectedMonsterName(int centerX, int topY, const CHARACTER* c)
     g_pRenderText->RenderText(x + levelSize.cx, topY, c->ID);
 }
 
-// The level of a monster, right-aligned just left of its overhead health bar.
-void DrawOverheadMonsterLevel(int barCenterX, int barTopY, float barScale, const CHARACTER* c)
+// The level of a monster, centered just above its overhead health bar.
+void DrawOverheadMonsterLevel(int barCenterX, int barTopY, const CHARACTER* c)
 {
     const int level = FindMonsterLevel(c);
     if (level < 0)
         return;
 
-    wchar_t levelText[8];
-    mu_swprintf(levelText, L"%d", level);
+    wchar_t levelText[32];
+    mu_swprintf(levelText, I18N::Game::MonsterLevelD, level);
     const SIZE size = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
 
-    // Same geometry as DrawHealthBar: half of the total bar width, plus a small gap.
-    const int barHalfWidth = static_cast<int>((80.f * barScale + 2.f * barScale) / 2.f);
-    const int x = barCenterX - barHalfWidth - 2 - size.cx;
-    const int y = barTopY + 2 - size.cy / 2;
+    const int x = barCenterX - size.cx / 2;
+    const int y = barTopY - size.cy - 1;
 
     g_pRenderText->SetBgColor(0, 0, 0, 0);
     SetLevelTextColor(level);
@@ -365,9 +365,8 @@ void SEASON3B::CNewUINameWindow::RenderMonsterHealthBars()
 
         // Bar fixed at ~3/7 of the original width, with 8 segments so each one
         // stays close to the original thickness (see DrawHealthBar for geometry).
-        constexpr float barScale = 3.f / 7.f;
-        DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, barScale);
-        DrawOverheadMonsterLevel(ScreenX, ScreenY, barScale, c);
+        DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, 3.f / 7.f);
+        DrawOverheadMonsterLevel(ScreenX, ScreenY, c);
     }
 }
 

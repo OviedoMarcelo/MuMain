@@ -12908,4 +12908,7 @@
   <data name="Retrying in seconds" xml:space="preserve">
     <value>Ponowna próba za %d sekund...</value>
   </data>
+  <data name="MonsterLevelD" xml:space="preserve">
+    <value>Poz. %d</value>
+  </data>
 </root>
