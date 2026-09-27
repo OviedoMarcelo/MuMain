@@ -6,6 +6,7 @@
 #include "Character/CharacterManager.h"
 #include "World/MapInfra/MapManager.h"
 #include "Engine/Object/ZzzCharacter.h"
+#include "GameLogic/Skills/ServerRequirementCatalog.h"
 
 CSkillManager gSkillManager;
 extern bool CheckAttack();
@@ -19,6 +20,13 @@ constexpr int ENERGY_REQ_BASE_DEFAULT = 20;
 constexpr int ENERGY_REQ_BASE_KNIGHT = 10;
 constexpr int ENERGY_REQ_SCALE_DEFAULT_PERCENT = 4;
 constexpr int ENERGY_REQ_SCALE_SUMMON_PERCENT = 3;
+
+// The requirements which the server sent after the login. They win over the
+// data files, because the server is the one which checks them.
+const GameLogic::Skills::SkillRequirement* FindServerRequirement(int skillType)
+{
+    return GameLogic::Skills::ServerRequirements().FindSkill(skillType);
+}
 }
 
 CSkillManager::CSkillManager() // OK
@@ -52,9 +60,10 @@ void CSkillManager::GetSkillInformation(int iType, int iLevel, wchar_t* lpszName
         // int wchars_num = MultiByteToWideChar(CP_UTF8, 0, p->Name, -1, NULL, 0);
         // MultiByteToWideChar(CP_UTF8, 0, p->Name, -1, lpszName, wchars_num);
     }
+    const auto* server = FindServerRequirement(iType);
     if (piMana)
     {
-        *piMana = p->Mana;
+        *piMana = server != nullptr ? server->Mana : p->Mana;
     }
     if (piDistance)
     {
@@ -62,13 +71,20 @@ void CSkillManager::GetSkillInformation(int iType, int iLevel, wchar_t* lpszName
     }
     if (piSkillMana)
     {
-        *piSkillMana = p->AbilityGuage;
+        *piSkillMana = server != nullptr ? server->AbilityGauge : p->AbilityGuage;
     }
 }
 
 void CSkillManager::GetSkillInformation_Energy(int iType, int* piEnergy)
 {
     if (!piEnergy) return;
+
+    // The server sends the total energy it checks, so no formula applies.
+    if (const auto* server = FindServerRequirement(iType))
+    {
+        *piEnergy = server->Energy;
+        return;
+    }
 
     SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
 
@@ -111,7 +127,8 @@ void CSkillManager::GetSkillInformation_Charisma(int iType, int* piCharisma)
 
     if (piCharisma)
     {
-        *piCharisma = p->Charisma;
+        const auto* server = FindServerRequirement(iType);
+        *piCharisma = server != nullptr ? server->Leadership : p->Charisma;
     }
 }
 
@@ -283,14 +300,26 @@ void CSkillManager::RebuildSkillAttributeRequirementsCache()
         }
 
         DemendConditionInfo skillRequirements;
-        skillRequirements.SkillLevel = SkillAttribute[baseSkill].Level;
-        skillRequirements.SkillStrength = SkillAttribute[baseSkill].Strength;
-        skillRequirements.SkillDexterity = SkillAttribute[baseSkill].Dexterity;
+        if (const auto* server = FindServerRequirement(skillType))
+        {
+            // The server checks the requirements of the skill itself, also for master skills.
+            skillRequirements.SkillLevel = server->Level;
+            skillRequirements.SkillStrength = server->Strength;
+            skillRequirements.SkillDexterity = server->Agility;
+            skillRequirements.SkillEnergy = server->Energy;
+            skillRequirements.SkillCharisma = server->Leadership;
+        }
+        else
+        {
+            skillRequirements.SkillLevel = SkillAttribute[baseSkill].Level;
+            skillRequirements.SkillStrength = SkillAttribute[baseSkill].Strength;
+            skillRequirements.SkillDexterity = SkillAttribute[baseSkill].Dexterity;
+            int reqEnergy = 0;
+            GetSkillInformation_Energy(baseSkill, &reqEnergy);
+            skillRequirements.SkillEnergy = static_cast<WORD>(reqEnergy);
+            skillRequirements.SkillCharisma = SkillAttribute[baseSkill].Charisma;
+        }
         skillRequirements.SkillVitality = 0;
-        int reqEnergy = 0;
-        GetSkillInformation_Energy(baseSkill, &reqEnergy);
-        skillRequirements.SkillEnergy = static_cast<WORD>(reqEnergy);
-        skillRequirements.SkillCharisma = SkillAttribute[baseSkill].Charisma;
 
         m_aSkillAttributeRequirementsMet[skillType] = (skillRequirements <= heroCharacterInfo);
     }
