@@ -41,6 +41,7 @@
 #include "GameLogic/Items/InventoryUtils.h"
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "UI/Legacy/UIMng.h"
@@ -561,9 +562,10 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
     }
     else
     {
-        // A new connection, not a change of the map server: the requirements of the
-        // previous server don't apply anymore. This one sends its own after the login.
+        // A new connection, not a change of the map server: the requirements and monster
+        // levels of the previous server don't apply anymore. This one sends its own after the login.
         GameLogic::Skills::ServerRequirements().Reset();
+        GameLogic::Monsters::ServerMonsterLevels().Reset();
 
         CUIMng& rUIMng = CUIMng::Instance();
 
@@ -14220,6 +14222,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x05)
         {
             GameLogic::Skills::ServerRequirements().AddItemsFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x06)
+        {
+            GameLogic::Monsters::ServerMonsterLevels().AddFromPacket(ReceiveBuffer, Size);
         }
         else
         {

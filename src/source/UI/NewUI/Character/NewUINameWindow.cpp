@@ -18,6 +18,8 @@
 #include "Camera/CameraProjection.h"
 #include "Camera/CameraState.h"
 #include "UI/Combat/MonsterHealthBar.h"
+#include "Engine/Object/ZzzInfomation.h"
+#include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
 
 // DevEditor forward declarations (must be at global scope)
 #ifdef _EDITOR
@@ -73,6 +75,80 @@ void DrawHealthBar(int centerX, int topY, float health, int steps, float scale)
             0xFFFA0A00u);
     }
     DisableAlphaBlend();
+}
+
+// The level of the monster as the server sent it, or -1 if it's unknown.
+int FindMonsterLevel(const CHARACTER* c)
+{
+    return GameLogic::Monsters::ServerMonsterLevels().Find(static_cast<int>(c->MonsterIndex));
+}
+
+// Colors the level text by how hard the monster is for the hero.
+void SetLevelTextColor(int monsterLevel)
+{
+    using GameLogic::Monsters::LevelDifficulty;
+    switch (GameLogic::Monsters::GetLevelDifficulty(monsterLevel, CharacterAttribute->Level))
+    {
+    case LevelDifficulty::Trivial:
+        g_pRenderText->SetTextColor(150, 150, 150, 255);
+        break;
+    case LevelDifficulty::Even:
+        g_pRenderText->SetTextColor(255, 255, 255, 255);
+        break;
+    case LevelDifficulty::Hard:
+        g_pRenderText->SetTextColor(255, 210, 60, 255);
+        break;
+    case LevelDifficulty::Deadly:
+        g_pRenderText->SetTextColor(255, 70, 50, 255);
+        break;
+    }
+}
+
+// The name of the selected monster, centered on centerX, with its level in front
+// of it when the server sent it.
+void DrawSelectedMonsterName(int centerX, int topY, const CHARACTER* c)
+{
+    g_pRenderText->SetBgColor(100, 0, 0, 255);
+
+    const int level = FindMonsterLevel(c);
+    if (level < 0)
+    {
+        g_pRenderText->SetTextColor(255, 230, 200, 255);
+        g_pRenderText->RenderText(centerX, topY, c->ID, 0, 0, RT3_WRITE_CENTER);
+        return;
+    }
+
+    wchar_t levelText[16];
+    mu_swprintf(levelText, L"Nv. %d ", level);
+    const SIZE levelSize = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
+    const SIZE nameSize = g_pRenderText->MeasureText(c->ID, static_cast<int>(wcslen(c->ID)));
+    const int x = centerX - (levelSize.cx + nameSize.cx) / 2;
+
+    SetLevelTextColor(level);
+    g_pRenderText->RenderText(x, topY, levelText);
+    g_pRenderText->SetTextColor(255, 230, 200, 255);
+    g_pRenderText->RenderText(x + levelSize.cx, topY, c->ID);
+}
+
+// The level of a monster, right-aligned just left of its overhead health bar.
+void DrawOverheadMonsterLevel(int barCenterX, int barTopY, float barScale, const CHARACTER* c)
+{
+    const int level = FindMonsterLevel(c);
+    if (level < 0)
+        return;
+
+    wchar_t levelText[8];
+    mu_swprintf(levelText, L"%d", level);
+    const SIZE size = g_pRenderText->MeasureText(levelText, static_cast<int>(wcslen(levelText)));
+
+    // Same geometry as DrawHealthBar: half of the total bar width, plus a small gap.
+    const int barHalfWidth = static_cast<int>((80.f * barScale + 2.f * barScale) / 2.f);
+    const int x = barCenterX - barHalfWidth - 2 - size.cx;
+    const int y = barTopY + 2 - size.cy / 2;
+
+    g_pRenderText->SetBgColor(0, 0, 0, 0);
+    SetLevelTextColor(level);
+    g_pRenderText->RenderText(x, y, levelText);
 }
 }
 
@@ -203,9 +279,7 @@ void SEASON3B::CNewUINameWindow::RenderName()
             OBJECT* o = &c->Object;
             if (o->Kind == KIND_MONSTER)
             {
-                g_pRenderText->SetTextColor(255, 230, 200, 255);
-                g_pRenderText->SetBgColor(100, 0, 0, 255);
-                g_pRenderText->RenderText(320, 2, c->ID, 0, 0, RT3_WRITE_CENTER);
+                DrawSelectedMonsterName(320, 2, c);
 
                 if (UI::Combat::HealthBar::ShouldRenderSelected(c->HealthStatus))
                 {
@@ -291,7 +365,9 @@ void SEASON3B::CNewUINameWindow::RenderMonsterHealthBars()
 
         // Bar fixed at ~3/7 of the original width, with 8 segments so each one
         // stays close to the original thickness (see DrawHealthBar for geometry).
-        DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, 3.f / 7.f);
+        constexpr float barScale = 3.f / 7.f;
+        DrawHealthBar(ScreenX, ScreenY, c->HealthStatus, 8, barScale);
+        DrawOverheadMonsterLevel(ScreenX, ScreenY, barScale, c);
     }
 }
 
