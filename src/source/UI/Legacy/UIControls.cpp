@@ -4005,7 +4005,9 @@ void CUISlideHelp::SetScrollSpeed(float fSpeed)
         fSpeed = 2.5f;
     }
 
-    m_fMaxMoveSpeed = fSpeed * g_fScreenRate_x;
+    // The text moves in the 640-wide virtual space (RenderText scales it to the window), so the
+    // speed must not be scaled by the screen rate again: that scrolled 3x faster at 1080p.
+    m_fMaxMoveSpeed = fSpeed;
 }
 
 void CUISlideHelp::AddSlide(int iLoopCount, int iLoopDelay, const wchar_t* pszText, int iType, float fSpeed, DWORD dwTextColor)
