@@ -7484,6 +7484,22 @@ bool IsStrifeMap(int nMapIndex)
 
 unsigned int MarkColor[16];
 
+// MarkColor[] packs each swatch as (A<<24)|(R<<16)|(G<<8)|B, matching the ARGB convention the
+// rest of this file writes it with. RenderColorQuadARGB() (used to draw the color-picker
+// swatches while editing) runs every value through an equivalent R/B swap before handing it to
+// the renderer, because the quad/vertex color path expects the opposite channel order. The
+// texture buffers below (RGBA8, written byte-for-byte via QueueTextureUpdate) need that same
+// swap - without it, the R and B channels land reversed on the actual mark: pick red, and the
+// guild flag or castle mark that gets uploaded comes out blue (and vice versa).
+static inline unsigned int MarkColorToTexturePixel(unsigned int argb)
+{
+    const unsigned int a = (argb >> 24) & 0xffu;
+    const unsigned int r = (argb >> 16) & 0xffu;
+    const unsigned int g = (argb >> 8) & 0xffu;
+    const unsigned int b = argb & 0xffu;
+    return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
 void CreateGuildMark(int nMarkIndex, bool blend)
 {
     // Callers pass Hero->GuildMarkIndex straight through, which is -1 while the
@@ -7568,7 +7584,7 @@ void CreateGuildMark(int nMarkIndex, bool blend)
     {
         for (int j = 0; j < Width; j++)
         {
-            *((unsigned int*)(Buffer)) = MarkColor[MarkBuffer[0]];
+            *((unsigned int*)(Buffer)) = MarkColorToTexturePixel(MarkColor[MarkBuffer[0]]);
             Buffer += 4;
             MarkBuffer++;
         }
@@ -7671,7 +7687,7 @@ void CreateCastleMark(int Type, BYTE* buffer, bool blend)
         {
             if (j >= (Width / 2 - 16) && j < (Width / 2 + 16) && i >= (Height / 2 - 16) && i < (Height / 2 + 16))
             {
-                *((unsigned int*)(Buffer + offset)) = MarkColor[MarkBuffer[offset2]];
+                *((unsigned int*)(Buffer + offset)) = MarkColorToTexturePixel(MarkColor[MarkBuffer[offset2]]);
                 offset2++;
             }
             else if (j<3 || j>(Width - 4) || i<10 || i>(Height - 10))
