@@ -14,6 +14,7 @@ namespace
     constexpr int MAX_NOTICE = 6;
     constexpr int NOTICE_LIFETIME = 300;
     constexpr int NOTICE_TEXT_MAX = 256;
+    constexpr int NOTICE_BLINK_PERIOD = 20; // reference frames per on/off cycle (0.8 s)
 
     struct Notice
     {
@@ -23,7 +24,9 @@ namespace
     };
 
     int    s_count = 0;
-    int    s_time = NOTICE_LIFETIME;
+    // float: as an int, subtracting FPS_ANIMATION_FACTOR (< 1 above 25 FPS) truncated to a whole
+    // frame, so notices expired faster the higher the frame rate.
+    float  s_time = NOTICE_LIFETIME;
     float  s_blinkPhase = 0.f;
     Notice s_notices[MAX_NOTICE];
 
@@ -105,7 +108,7 @@ namespace UI::Notices
             if (n->Color == 0)
             {
                 g_pRenderText->SetBgColor(0, 0, 0, 128);
-                if ((int)s_blinkPhase % 10 < 5)
+                if ((int)s_blinkPhase < NOTICE_BLINK_PERIOD / 2)
                 {
                     g_pRenderText->SetTextColor(255, 200, 80, 128);
                 }
@@ -123,6 +126,7 @@ namespace UI::Notices
             g_pRenderText->RenderText(320, 300 + i * 13, n->Text, 0, 0, RT3_WRITE_CENTER);
         }
 
-        s_blinkPhase += FPS_ANIMATION_FACTOR;
+        // Wrap so the float keeps its precision over long sessions.
+        s_blinkPhase = std::fmod(s_blinkPhase + FPS_ANIMATION_FACTOR, static_cast<float>(NOTICE_BLINK_PERIOD));
     }
 }
