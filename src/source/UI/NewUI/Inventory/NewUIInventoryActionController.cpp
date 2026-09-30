@@ -839,21 +839,30 @@ bool CNewUIInventoryActionController::TryConsumeItem(CNewUIInventoryCtrl* target
             }
         }
 
-        if (bReadBookGem)
+        // Always handled here: returning false would fall through to the right-click drop and put the
+        // scroll on the ground.
+        if (!bReadBookGem)
         {
-            const WORD wStrength = CharacterAttribute->Strength + CharacterAttribute->AddStrength;
-            const WORD wEnergy = CharacterAttribute->Energy + CharacterAttribute->AddEnergy;
-
-            if (CharacterAttribute->Level >= ItemAttribute[pItem->Type].RequireLevel &&
-                wEnergy >= pItem->RequireEnergy && wStrength >= pItem->RequireStrength)
-            {
-                SendRequestUse(iIndex, 0);
-            }
-
+            g_pSystemLogBox->AddText(pItem->Type == ITEM_SCROLL_OF_CHAOTIC_DISEIER ? I18N::Game::LearnSkillRequirementsNotMet
+                                                                                   : I18N::Game::LearnSkillNeedsHeroStatusQuest,
+                                     TYPE_ERROR_MESSAGE);
             return true;
         }
 
-        return false;
+        const WORD wStrength = CharacterAttribute->Strength + CharacterAttribute->AddStrength;
+        const WORD wEnergy = CharacterAttribute->Energy + CharacterAttribute->AddEnergy;
+
+        if (CharacterAttribute->Level >= ItemAttribute[pItem->Type].RequireLevel &&
+            wEnergy >= pItem->RequireEnergy && wStrength >= pItem->RequireStrength)
+        {
+            SendRequestUse(iIndex, 0);
+        }
+        else
+        {
+            g_pSystemLogBox->AddText(I18N::Game::LearnSkillRequirementsNotMet, TYPE_ERROR_MESSAGE);
+        }
+
+        return true;
     }
 
     if (pItem->Type == ITEM_FRUITS)
