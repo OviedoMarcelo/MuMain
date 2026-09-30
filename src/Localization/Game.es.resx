@@ -12983,4 +12983,10 @@
   <data name="MonsterLevelD" xml:space="preserve">
     <value>Nv. %d</value>
   </data>
+  <data name="LearnSkillNeedsHeroStatusQuest" xml:space="preserve">
+    <value>Para aprender esta habilidad primero debes completar la misión 'Estado de Héroe' de Marlon.</value>
+  </data>
+  <data name="LearnSkillRequirementsNotMet" xml:space="preserve">
+    <value>Todavía no cumples los requisitos para aprender esta habilidad.</value>
+  </data>
 </root>

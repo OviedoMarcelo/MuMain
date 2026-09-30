@@ -13066,4 +13066,10 @@
   <data name="KeepFlightEquipmentInIcarus" xml:space="preserve">
     <value>In Icarus you cannot take off your last wings or flying mount.</value>
   </data>
+  <data name="LearnSkillNeedsHeroStatusQuest" xml:space="preserve">
+    <value>To learn this skill you must first complete Marlon's 'Gain Hero Status' quest.</value>
+  </data>
+  <data name="LearnSkillRequirementsNotMet" xml:space="preserve">
+    <value>You don't meet the requirements to learn this skill yet.</value>
+  </data>
 </root>
