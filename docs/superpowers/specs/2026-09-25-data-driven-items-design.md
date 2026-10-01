@@ -26,8 +26,10 @@ code**:
 - Item names are **translatable**; logs always use a stable, language-neutral
   identifier.
 
-Scope: **items only.** Skills, monsters, maps, etc. may follow the same
-pattern later but are not part of this work.
+Scope: **items only.** What goes beyond items (effects and particles,
+skills, monsters and NPCs, and the look format and editing rules they
+share with items) is planned in the
+[roadmap](2026-09-29-data-driven-content-roadmap-design.md).
 
 ## Decisions so far
 
@@ -53,8 +55,10 @@ pattern later but are not part of this work.
 | D18 | Repairing the legacy data | The bmd import recovers names that ran past the 30-byte name field and takes the fields they overwrote from a language whose name did not reach them (defaults when none has them). Names that are not UTF-8 are read as Windows-1252. The changes are listed in the phase 2 PR and in `docs/item-data.md`. |
 | D19 | Editor sync | Every item editor change goes into the database right away (phase 2), so the editor and the database never differ. Moving the editor fully onto the database stays in phase 6. |
 | D22 | Model data files | Model and display data (model file, textures, inventory and ground display, cloth, effects) lives in separate files, `Data/Items/Models/GroupNN_*.json`, one per item group, items by `number`. It is client-only: the item files keep what client and server share, and only those take part in the OpenMU exchange. Separate files also keep the item files small and let the model editor and the stats editor change different files. |
-| D23 | Model slots | Two steps. **Own model slots (phase 4a–4c):** every item keeps its own model slot, `MODEL_ITEM + item type`, as today; the data only says which file is loaded into it, so the ~100 places that compute `+ MODEL_ITEM` / `- MODEL_ITEM` stay unchanged. **Shared models (phase 4d, right after them):** models become entries of their own, and items reference them by name, so several items can share one model (loaded once). The code then asks the item database for an item's model slot, and objects keep their item type instead of computing it back from the model. Phase 12 (level variants as items of their own) then shares models without loading them twice. |
-| D24 | Render effects | The effect code stays code, but which item uses which effect moves into the model data as names: a glow color from the existing palette (`PartObjectColor*`), a render style (`RenderPartObjectBody` recipes; identical recipes share one name) and a list of particle effects (`RenderPartObjectEffect`). Effects that depend on the item level (+7 glow, excellent, ancient) stay generic code, and the entries for monsters and NPCs stay in code. |
+| D23 | Model slots | Two steps. **Own model slots (phase 4a–4c):** every item keeps its own model slot, `MODEL_ITEM + item type`, as today; the data only says which file is loaded into it, so the ~100 places that compute `+ MODEL_ITEM` / `- MODEL_ITEM` stay unchanged. **Shared models (phase 4d, right after them):** models become entries of their own, and items reference them by name, so several items can share one model (loaded once; 4d1, done). The code then asks the item database for an item's model slot, and objects keep their item type instead of computing it back from the model (4d2). Phase 12 (level variants as items of their own) then shares models without loading them twice. |
+| D24 | Render effects | The effect code stays code, but which item uses which effect moves into the model data: the glow as values (color names from a glow color list, `Data/Effects/GlowColors.json`, which has the colors of the old `PartObjectColor*` palettes; the meshes it is drawn on; the level it glows like), a render style (`RenderPartObjectBody` recipes; identical recipes share one name) and an item effect (the item branches of `RenderPartObjectEffect`). Effects that depend on the item level (+7 glow, excellent, ancient) stay generic code, and the entries for monsters and NPCs stay in code. The named looks are code for now; D25 moves what they are made of into data. |
+| D25 | Looks in data | Items keep naming their looks; what a named look is made of moves from code into data (phase 13). Skills, monsters and NPCs use the same look format, so the decision lives in the [roadmap](2026-09-29-data-driven-content-roadmap-design.md). |
+| D26 | Shared definitions | Defined once with a name and referenced by it; editors show where a definition is used and warn with that list before a shared definition changes. The decision lives in the [roadmap](2026-09-29-data-driven-content-roadmap-design.md). |
 | D21 | New item groups | *To discuss again when we reach phase 12.* Items may move into new groups (e.g. 16 = jewels, 17 = orbs) for the new client, while original Season 6 clients keep the old ids. Moved items keep their original id as a legacy id; OpenMU's Season 6 item serializer sends the legacy id, a serializer for the new client sends the new id. Planned after phases 3, 4 and OpenMU PR A, when little code depends on group numbers any more. |
 
 ## Current state
@@ -378,7 +382,8 @@ table:
 | **Requirements** | Level and stat requirements, allowed classes. |
 | **Rules** | Flags as a matrix (items × tradable, droppable, storable, sellable, …) for bulk editing. |
 | **Categories** | Tag-centered view: pick a tag, see and change its items. |
-| **Model and visuals** | Model file picker for `Data\Item\*.bmd` with 3D preview, texture folder, inventory and ground display values, cloth flag, and glow, render style and effects chosen from lists (D24). |
+| **Model and visuals** | Model file picker for `Data\Item\*.bmd` with 3D preview, texture folder, inventory and ground display values, cloth flag, and glow, render style and effects chosen from lists (D24), each with the list of the other items that use the same look. |
+| **Look editor** (phase 13) | The shared look editor of the [roadmap](2026-09-29-data-driven-content-roadmap-design.md), opened for the looks of the selected item: its building blocks with a live preview, bone picking, the items that use a look and the warning before a shared look changes. |
 | **Translations** | Items × languages grid, filter for missing translations. |
 | **OpenMU sync** | Import, diff and export of the exchange file. |
 
@@ -397,11 +402,11 @@ in both repos (as separate PRs, one per repo).
 | 2 | Data file format and names | Client | MuMain | 1 | JSON per group becomes the only item source and the database becomes the source for `ItemAttribute[]`; translated names in the UI locale; loading, writing and validation rules; automated data test; bmd import (with repair) and export in MuEditor; editor edits go into the database right away. |
 | 3 | Rules and categories into data | Client | MuMain | 2 | Flags and tags replace the hardcoded lists; client ↔ OpenMU rule mapping (input for A). |
 | A | Server rule fields and checks | Server | OpenMU | 3 (mapping) | New `ItemDefinition` fields or tables, migration, Season 6 values, update plug-in, enforcement in player actions. |
-| 4 | Models into data | Client | MuMain | 2 | Model files per item group (D22), model slots stay `MODEL_ITEM + type` (D23, own model slots). One PR per part: **4a** model files and textures (`OpenItems()` / `OpenItemTextures()`), **4b** inventory and ground display, **4c** named render effects (D24). |
-| 4d | Shared models | Client | MuMain | 4 | Models as entries of their own that items reference by name, so items can share a model (D23, shared models). |
+| 4 | Models into data | Client | MuMain | 2 | Model files per item group (D22), model slots stay `MODEL_ITEM + type` (D23, own model slots). One PR per part: **4a** model files and textures (`OpenItems()` / `OpenItemTextures()`), **4b** inventory and ground display, **4c** render effects (D24) in three parts: **4c1** glow, **4c2** render styles, **4c3** item effects. |
+| 4d | Shared models | Client | MuMain | 4 | Models as entries of their own that items reference by name, so items can share a model (D23, shared models). Two PRs: **4d1** shared model entries, each file opened once; **4d2** objects keep their item type. |
 | 4e | Clear model loading errors | Client | MuMain | 4 | One message for missing model files and textures of item models that names the item, the model entry, the texture and the searched folders. |
 | 5 | Translation tooling | Client | MuMain | 2, 6 | Translations editor (items × languages), missing-translation warnings. The names themselves moved to phase 2 (D17). |
-| 6 | Editors | Client | MuMain | 2–5 | Focused MuEditor tools (section 9), including add/remove items. |
+| 6 | Editors | Client | MuMain | 2–5 | Focused MuEditor tools (section 9) on the rules of D26, including add/remove items and picking the looks of an item from lists. |
 | 7 | Item sync, client side | Client | MuMain | 2, 6 | MuEditor import/export of the item exchange file, with diff. |
 | B | Item sync, server side | Server | OpenMU | 7 (file format) | Admin panel import/export pages for the item exchange file, with diff. |
 | 8 | Data-driven tooltips | Client | MuMain | 2, 5 | Tooltip JSON converted from the `ItemTooltip*` files; `RenderItemInfo()` reads data; tooltip editor. Moved earlier if needed. |
@@ -411,7 +416,9 @@ in both repos (as separate PRs, one per repo).
 | 11 | Remaining item files | Both (per file) | MuMain, OpenMU as needed | 2 | `ItemAddOption`, `SocketItem`, `Mix`, `pet`, drop settings; one phase each, order decided later. |
 | 12 | New item groups *(to discuss again)* | Both | MuMain + D | 3, 4, 4d, A | Move items into new groups for the new client; level variants become items of their own; legacy ids for the original client (D21). |
 | D | Legacy item ids, server side *(to discuss again)* | Server | OpenMU | 12 | Legacy id on item definitions, mapping tool, Season 6 serializer sends legacy ids, serializer for the new client. |
-| 13 | Cleanup | Client | MuMain | all | Remove this document. |
+| FX1 | Effect catalogue *([roadmap](2026-09-29-data-driven-content-roadmap-design.md))* | Client | MuMain | 4c | Every effect, particle, lightning and sprite type gets a name and its creation values in `Data/Effects/`; behavior stays code. |
+| 13 | Looks in data | Client | MuMain | 4c, 6, FX1 | What the named render styles and effects are made of moves from code into `Data/Effects/` as building blocks (D25), with the look editor in MuEditor (preview, bones, the items that use a look). |
+| 14 | Cleanup | Client | MuMain | all item phases | The glow of the Phoenix Soul inventory model; what later areas still need moves to the roadmap; then remove this document. |
 
 The deferred question Q1 (custom items on the original client) is a
 **Server** topic and must be decided before custom items are used on a
@@ -524,7 +531,8 @@ server with original clients (after phases 6 and B).
    { "number": 5, "file": "Data/Item/Sword06.bmd", "textureFolders": ["Item"],
      "inventory": { "offset": [-0.02, 0.03], "rotation": [180, 270, 15], "scale": 0.0039 },
      "ground": { "rotation": [60, 0, -45], "scale": 1.0 },
-     "glow": "gold", "renderStyle": "chromeMesh0", "effects": ["flameSparks"] }
+     "glow": { "color": "gold", "meshes": [0] },
+     "renderStyle": "chromeMesh0", "itemEffect": "flameSparks" }
    ```
 
    Every item keeps its model slot `MODEL_ITEM + item type` (D23, own model slots). Three
@@ -546,8 +554,73 @@ server with original clients (after phases 6 and B).
      cases that depend on the item level stay in code until phase 12, and
      so does the look of the event models drawn for level variants, a small
      table in `Render/Items/ItemDisplay.cpp`.
-   - **4c Named render effects (D24):** `glow`, `renderStyle` and `effects`
-     select effect code by name.
+   - **4c Render effects (D24)**, three PRs because the drawing code is
+     large (about 3,500 lines):
+     - **4c1 Glow:** `"glow"` holds the level an item glows like (jewels +8,
+       wings +0, or one per item level for arrows, bolts and Devil's Square
+       items), the colors of the level glow, of the shine of items +11 and
+       up and of ancient items (names from `Data/Effects/GlowColors.json`),
+       the meshes they are drawn on, and the excellent glow (off for wings
+       and capes, or on one mesh). It replaces `PartObjectColor`,
+       `PartObjectColor2`, `PartObjectColor3`, the mesh choices of
+       `RenderPartObjectBodyColor(2)` and the item cases of the glow level
+       switch. Still in code: the glow of monsters (area MN of the roadmap:
+       monsters have their own models, data and code), of the event models
+       of level variants (with 4d and phase 12, when they get model entries
+       and the drawing code knows the item), of the inventory model of the
+       Phoenix Soul Armor (see the last step below), and the Deadly Staff's
+       second glow step (a one-off that changes the object, moved in 4c2).
+     - **4c2 Render styles:** `renderStyle` names the `RenderPartObjectBody`
+       recipe of an item. The 174 item branches become 137 styles in
+       `Render/Items/ItemRenderStyles.cpp` (the recipes unchanged; equal
+       recipes share one style, three that drew like the default are gone,
+       styles that only differ in a texture share one recipe with the
+       texture in the list of names), and 346 models name theirs. The
+       display-only item lists of phase 3 that chose a recipe go away.
+       Styles that only apply to some drawings (not for doppelgangers, only
+       held by some monsters, only on the helper NPCs) fall back to the plain
+       drawing, and so do styles that pick a mesh, texture or color per item
+       for other items. A style can also have its own glow pass, which takes
+       the Deadly Staff's glow step out of the glow code. Player
+       transformations, monsters and the other non-item models stay in
+       `RenderPartObjectBody`; the transformations come before the styles,
+       as they came before the branches of the Rage Fighter gloves, which a
+       transformed Rage Fighter draws on its own object. The green, red and
+       purple chaos boxes (14,55–57) have no model entry (the old code never
+       loaded their models); their recipe (textured, then
+       `RENDER_BRIGHT | RENDER_CHROME2`) comes back as a style with their
+       model entries.
+     - **4c3 Item effects:** `itemEffect` names what the model does before it
+       is drawn every frame, from the type chain of `RenderPartObjectEffect`:
+       29 item branches for 81 items; 28 of them become 27 effects for 42
+       items in `Render/Items/ItemEffects.cpp` (moved unchanged; the Siege
+       Potion and the Contract share one). An effect places sprites, particles
+       and lightning on bones, changes values of the drawing (a pulsing glow
+       mesh, a mesh hidden by level, the level potions glow like), or draws
+       the model itself. The socket seeds and spheres (the 39 items of the
+       last branch) and zen need no effect: they glow like level 0 (`"glow":
+       {"level": 0}`), which is what their level checks did. The shine of 10
+       items below +3 (two more shine passes) becomes values of their render
+       style, which the drawing code applies: the seals, the Illusion Sorcerer
+       Covenant and the Cursed Castle water have a style already, the Jewel of
+       Harmony and the Moonstone Pendant get `harmonyShine` (138 styles now).
+       Fixes found while testing, which change the look: the Devil's Eye, Key
+       and Invitation glow like their level up to +6, so +1 and +2, +3 and +4,
+       +5 and +6 look alike, and like +13 from +7 (the original client doubled
+       the level, a frame-rate change of 2023 turned that into `Level *=
+       pow(2, …)` and its fix into `Level /= 2`, which gave +1 to +5 one
+       look); the Blood Bone and the Illusion Sorcerer Covenant glow by their
+       level like the Scroll of Archangel and the Old Scroll (the Blood Bone's
+       own drawing ended the drawing before the level glow; it is the render
+       style `bloodBone` now, which leaves 26 effects for 41 items and 139
+       styles; the Covenant glowed like level 0). The effects of the event
+       models of level variants stay in `RenderPartObjectEffect` (no model
+       entries yet). Which values the effects take (bones, colors, sizes)
+       comes with phase 13, when what the named looks are made of moves into
+       data (D25). MuEditor gets a read-only view of the looks above the item
+       table: for the selected item its model file, glow, render style and
+       effect, and for a look all items that use it (D26). It only reads the
+       model data, so it needs no change to the drawing code.
 
    Verified like phase 3: one-time comparisons of the old and the new code
    (which files and texture folders are loaded for each model; the
@@ -557,16 +630,45 @@ server with original clients (after phases 6 and B).
    Loading stays as it is: all item models and textures are read at
    startup (`OpenBasicData()` on the loading screen). Textures are already
    shared by file name (`Bitmaps.LoadImage` counts references); meshes are
-   not, each model slot opens its own copy of the `.bmd` file. Loading
-   models only when an item is first drawn would be a separate step later.
+   not, each model slot opens its own copy of the `.bmd` file (until 4d1).
+   Loading models only when an item is first drawn would be a separate step
+   later.
 
-   **4d Shared models (D23):** models become entries of their own
-   (`"model": "magicBox"` on the item, the file and display values on the
-   model entry, optionally overridden per item). Each model is loaded once
-   into a slot of its own; the code asks the item database for an item's
-   model slot, and objects (`Weapon[]`, `BodyPart[]`, `Wing`, `Helper`,
-   dropped items) keep their item type instead of computing it back with
-   `- MODEL_ITEM`. Comes right after phase 4, so phase 12 can share models.
+   **4d Shared models (D23)**, in two parts:
+
+   - **4d1 Shared model entries (done):** the model files that several
+     items use (34 files, 145 items: the skill parchments, the socket
+     seeds and spheres, the jewels and their bundles, …) become named
+     models in `Data/Items/Models/SharedModels.json` with the file, texture
+     folders and none-blend meshes. The items name them (`"model":
+     "skillParchment"`) and keep their own inventory, ground, glow, render
+     style and item effect. The first item of a shared model opens the file
+     and loads its textures; the slots of the others use that data
+     (`BMD::ShareFrom`), so each file is read once. Every item keeps its
+     own model slot, so the code that computes `MODEL_ITEM + type` stays as
+     it is. Verified by recording what every item slot has loaded (meshes,
+     bones, actions, vertices, textures, none-blend flags) with the old and
+     the new loading: the same, apart from the numbers of the texture
+     slots (the users of the seed spheres no longer try the `Item` folder
+     first, which used up numbers). A test checks that every file several
+     items use is a shared model. The Looks view of MuEditor shows the
+     shared model and lists its items.
+   - **4d2 Objects keep their item type:** the code asks the item database
+     for an item's model slot, and objects (`Weapon[]`, `BodyPart[]`,
+     `Wing`, `Helper`, dropped items) keep their item type instead of
+     computing it back with `- MODEL_ITEM`. Comes before phase 12, so the
+     level variants can share models. Also from the review of 4d1: the
+     slots that share a model hold the raw pointers of the slot that
+     opened it, which nothing tracks, so releasing or reopening that slot
+     (e.g. reloading models from the editor) would leave them pointing at
+     freed memory; the shared data gets a use count or shared ownership,
+     or each shared model gets one slot once the code asks for an item's
+     model slot. The loaded data becomes read-only for the item slots, so
+     a write through one of them cannot change all items of the model. A
+     test of the loader opens items of one shared model into the model
+     slots: the first opens the file and loads the textures, the others
+     share it, and a first item whose file is missing makes the others
+     report the missing file too.
 
    **4e Clear model loading errors:** a missing model file or texture of an
    item model shows one message after loading instead of one popup per
@@ -583,7 +685,11 @@ server with original clients (after phases 6 and B).
 5. **Translation tooling**: a translations editor (items × languages, with
    a filter for missing translations) and missing-translation warnings.
    The names themselves are part of phase 2 (D17).
-6. **Editors**: the MuEditor tools from section 9, including add/remove.
+6. **Editors**: the MuEditor tools from section 9, including add/remove,
+   on the rules of D26 (one selection, "used by", a warning with the list
+   of users before a shared definition changes, copies for variants). The
+   model tool builds on the read-only look view of 4c3 and picks the looks
+   of an item from lists; the looks themselves are edited from phase 13 on.
 7. **Item sync, client side**: MuEditor import/export of the item exchange
    file and diff.
 
@@ -684,8 +790,59 @@ server with original clients (after phases 6 and B).
 
     Questions for then: the exact new groups and which items move; whether
     the legacy id lives only in OpenMU or also in the client data; the
-    protocol change for the new item encoding.
-13. **Cleanup**: remove this document once the work has landed.
+    protocol change for the new item encoding; and which level variants
+    become items of their own. They are of three kinds:
+    - **Different items** under one id: Box of Luck +1–7 and +13–15 (Star
+      of Sacred Birth, Firecracker, …, Heart of Dark Lord, the Lucky
+      Pouches), Rena +1–3, Loch's Feather +1, Ale +1, Wizard's Ring +1–3,
+      the chocolate boxes +1. Own names, models and uses: split.
+    - **Tiers of one item**: Devil's Eye, Key and Invitation +1–7 (the
+      square), Box of Kundun +1–5 (Box of Luck +8–12), the Blood Castle
+      items +1–8. The level is a real attribute that the server uses (event
+      entry, mixes such as Eye +N and Key +N into Invitation +N); splitting
+      them would multiply items and mix rules. Proposal: keep them as one
+      item each, with per-level values where their look changes (like the
+      glow `level` list). Box of Kundun becomes an item of its own whose
+      levels are the tiers; its legacy id maps with an offset (Box of Luck
+      +8–12 ↔ Box of Kundun +1–5).
+    - **Kinds of one item**: the fruits (+0–4 = energy, stamina, agility,
+      strength, command), the Orb of Summoning (which summon) and the
+      Transformation Ring (which monster). The level chooses a kind, not a
+      tier; to decide then.
+13. **Looks in data** (D25): what the named render styles and effects are
+    made of moves from code into data files in `Data/Effects/`, as lists of
+    building blocks, one look at a time; the item data keeps naming them.
+    Particle and effect types are referenced by their names from the effect
+    catalogue (FX1, roadmap) and stay code until FX2. Effects place sprites
+    and particles on bones of the model, so they follow its animation. Bones
+    are values by number, as in the code (see "Bones" in the roadmap for
+    why); the look editor shows numbers and names together, and the model
+    loader checks that the bones exist. The lists are resolved when loading
+    (textures, bones, particle types), so drawing is not slower. Verified
+    like phase 4c: every look draws and spawns the same things with the same
+    values as its code did, per item and level. The look editor of section 9
+    comes with it.
+14. **Cleanup**, once the work has landed:
+    - The glow of the inventory model of the Phoenix Soul Armor
+      (`MODEL_ARMORINVEN_74`) moves into data. It is the only model drawn
+      for an item that glows differently from its item: only on its first
+      mesh (its item's armor model glows on mesh 2), and the metal pass of
+      +9 and up draws that mesh three times, so it shines brighter than the
+      other inventory models (probably a copy-paste leftover; to keep or to
+      drop then). Left for last because it only shows in the inventory and
+      is easiest to check once everything else is in data.
+    - Whatever later areas still need from this document moves to the
+      roadmap, so it is not lost.
+    - Remove this document.
+
+## Beyond items
+
+Effects and particles, skills, monsters and NPCs are areas of the
+[roadmap](2026-09-29-data-driven-content-roadmap-design.md), each with
+its own design document when its work starts. They share the look format
+(D25), the rules for shared definitions (D26) and the editor parts (look
+editor, effect editor, bones) with the items. Item phase 13 depends on the
+effect catalogue (FX1) there.
 
 ## Open questions
 

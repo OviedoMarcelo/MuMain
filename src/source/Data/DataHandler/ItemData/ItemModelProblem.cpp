@@ -3,6 +3,7 @@
 #include "ItemModelProblem.h"
 #include "ItemJsonStorage.h"
 #include "Data/GameData/ItemData/ItemDatabase.h"
+#include "Data/GameData/ItemData/ItemModelJsonFormat.h"
 #include "Data/GameData/ItemData/ItemTextureFiles.h"
 #include "Data/GameData/ItemData/ItemType.h"
 
@@ -59,26 +60,59 @@ std::string DescribeProblem(const ItemModelProblem& problem)
     case ItemModelProblemType::NoneBlendMeshMissing:
         return "noneBlendMeshes has mesh " + std::to_string(problem.mesh) + ", but " + problem.modelFile + " has " +
                std::to_string(problem.meshCount) + " meshes";
+    case ItemModelProblemType::GlowMeshMissing:
+        return problem.field + " has mesh " + std::to_string(problem.mesh) + ", but " + problem.modelFile + " has " +
+               std::to_string(problem.meshCount) + " meshes";
+    case ItemModelProblemType::RenderStyleUnknown:
+        return "render style " + problem.name + " does not exist; " + problem.modelFile + " is drawn plainly";
+    case ItemModelProblemType::ItemEffectUnknown:
+        return "item effect " + problem.name + " does not exist; " + problem.modelFile + " is drawn without it";
     }
     return {};
 }
 
-std::string GetModelEntry(int group)
+// The problems with the model file, its textures or its meshes, whose values
+// are those of the shared model when the item has one.
+bool IsModelFileProblem(ItemModelProblemType type)
 {
-    return (GetItemModelDataDirectory() / GetItemGroupFileName(group)).generic_string();
+    switch (type)
+    {
+    case ItemModelProblemType::ModelFileMissing:
+    case ItemModelProblemType::TextureMissing:
+    case ItemModelProblemType::TextureTypeUnsupported:
+    case ItemModelProblemType::TextureOutsideFolders:
+    case ItemModelProblemType::NoneBlendMeshMissing:
+        return true;
+    case ItemModelProblemType::GlowMeshMissing:
+    case ItemModelProblemType::RenderStyleUnknown:
+    case ItemModelProblemType::ItemEffectUnknown:
+        return false;
+    }
+    return false;
+}
+
+// Where to fix the problem: the group file of the item, or the shared model.
+std::string GetModelEntry(const ItemModelProblem& problem)
+{
+    if (!problem.sharedModel.empty() && IsModelFileProblem(problem.type))
+    {
+        return (GetItemModelDataDirectory() / SharedItemModelsFileName).generic_string() + ", shared model " +
+               problem.sharedModel + ": all its items are affected";
+    }
+    return (GetItemModelDataDirectory() / GetItemGroupFileName(problem.group)).generic_string();
 }
 } // namespace
 
 std::string ItemModelProblem::ToString(const ItemDatabase& items) const
 {
-    return items.GetLogName(MakeItemType(group, number)) + ": " + DescribeProblem(*this) + " (" + GetModelEntry(group) +
+    return items.GetLogName(MakeItemType(group, number)) + ": " + DescribeProblem(*this) + " (" + GetModelEntry(*this) +
            ")";
 }
 
 std::string ItemModelProblem::ToLogString() const
 {
     return "(" + std::to_string(group) + "," + std::to_string(number) + "): " + DescribeProblem(*this) + " (" +
-           GetModelEntry(group) + ")";
+           GetModelEntry(*this) + ")";
 }
 
 std::string DescribeItemModelErrors(std::span<const ItemModelProblem> problems, const ItemDatabase& items,

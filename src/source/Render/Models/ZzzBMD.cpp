@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include <cstdint>
+#include <cstring>
 #include <cmath>
 #include <cassert>
 #include <set>
@@ -1253,6 +1254,11 @@ int BMD::AddToCoinHeap(int coinIndex, int target_vertex_index)
 
     Mesh_t* m = &Meshs[meshIndex];
 
+    // DXP-20 inc4: RenderZen's Transform() defers skinning, and VertexTransform is shared scratch.
+    // Without this the heap copies whatever mesh 0 another model left there, often the hero's after
+    // its shadow or a skill effect materialized it: an opaque gold plate over the character.
+    EnsureCpuVertices(meshIndex);
+
     for (int j = 0; j < m->NumTriangles; j++)
     {
         const auto triangle = &m->Triangles[j];
@@ -1911,7 +1917,8 @@ void BMD::RenderMeshAlternative(int iRndExtFlag, int iParam, int i, int RenderFl
         vec3_t L = { (float)(cos(WorldTime * 0.001f)), (float)(sin(WorldTime * 0.002f)), 1.f };
         for (int j = 0; j < m->NumNormals; j++)
         {
-            if (j > MAX_VERTICES) break;
+            if (j >= MAX_VERTICES)
+                break;
             float* Normal = NormalTransform[i][j];
 
             if ((RenderFlag & RENDER_CHROME2) == RENDER_CHROME2)
@@ -2457,7 +2464,8 @@ void BMD::RenderMeshTranslate(int i, int RenderFlag, float Alpha, int BlendMesh,
         for (int j = 0; j < m->NumNormals; j++)
         {
             //			Normal_t *np = &m->Normals[j];
-            if (j > MAX_VERTICES) break;
+            if (j >= MAX_VERTICES)
+                break;
             float* Normal = NormalTransform[i][j];
 
             if ((RenderFlag & RENDER_CHROME2) == RENDER_CHROME2)
@@ -2911,8 +2919,46 @@ void BMD::RenderBone(float(*BoneMatrix)[3][4])
     mu::GetRenderer().SetDepthFunc(GL_LEQUAL);
 }
 
+void BMD::ShareFrom(const BMD& owner)
+{
+    Release();
+    // What Open2 reads from the file; the rest is this slot's own.
+    memcpy(Name, owner.Name, sizeof(Name));
+    Version = owner.Version;
+    NumMeshs = owner.NumMeshs;
+    NumBones = owner.NumBones;
+    NumActions = owner.NumActions;
+    Meshs = owner.Meshs;
+    Bones = owner.Bones;
+    Actions = owner.Actions;
+    Textures = owner.Textures;
+    IndexTexture = owner.IndexTexture;
+    m_bSharedData = true;
+    // What Init sets for this slot; the bounding boxes of the bones are the owner's.
+    renderCount = 0;
+    BoneHead = -1;
+    StreamMesh = -1;
+    m_bCompletedAlloc = true;
+}
+
 void BMD::Release()
 {
+    if (m_bSharedData)
+    {
+        // The data is the owner's.
+        Meshs = nullptr;
+        Bones = nullptr;
+        Actions = nullptr;
+        Textures = nullptr;
+        IndexTexture = nullptr;
+        NumBones = 0;
+        NumActions = 0;
+        NumMeshs = 0;
+        m_bSharedData = false;
+        m_bCompletedAlloc = false;
+        return;
+    }
+
     if (Bones)
     {
         for (int i = 0; i < NumBones; ++i)
@@ -3148,8 +3194,10 @@ bool BMD::Open2(const wchar_t* DirName, const wchar_t* ModelFileName, bool bReAl
         //// wprintf(L"[Open2] Version: %d\n", Version);
         // The on-disk size field is 32-bit; `long` is 8 bytes on LP64 (Linux
         // x64), which would read past the field and produce a garbage size.
-        std::int32_t encSize = *(std::int32_t*)(fileData.get() + ptr); ptr += sizeof(std::int32_t);
-        unsigned char* encData = fileData.get() + ptr;
+        std::int32_t encSize = 0;
+        std::memcpy(&encSize, &fileData[ptr], sizeof(encSize));
+        ptr += sizeof(std::int32_t);
+        unsigned char* encData = &fileData[ptr];
         //// wprintf(L"[Open2] Encrypted Size: %ld\n", encSize);
 
         long decSize = MapFileDecrypt(nullptr, encData, encSize);
@@ -3178,7 +3226,7 @@ bool BMD::Open2(const wchar_t* DirName, const wchar_t* ModelFileName, bool bReAl
     }
     else
     {
-        wprintf(L"[Open2] Unknown BMD version: %ld\n in %.64s\n", Version, ModelPath);
+        wprintf(L"[Open2] Unknown BMD version: %d\n in %.64s\n", static_cast<int>(Version), ModelPath);
         m_bCompletedAlloc = false;
         return false;
     }

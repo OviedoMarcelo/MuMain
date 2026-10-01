@@ -33,6 +33,8 @@
 
 #include "Data/DataHandler/ItemData/ItemDataHandler.h"
 #include "Data/DataHandler/ItemData/ItemModelLoader.h"
+#include "Render/Items/ItemEffects.h"
+#include "Render/Items/ItemRenderStyles.h"
 #include "Core/Platform/ErrorDialog.h"
 #include "Core/Text/Utf8.h"
 #include "Network/Server/SocketSystem.h"
@@ -461,7 +463,7 @@ void OpenItems()
     // Without model data the game stops; the item models are not opened.
     if (OpenItemModelData())
     {
-        Data::Items::ModelLoader::OpenModels();
+        Data::Items::ModelLoader::OpenModels({Render::Items::Styles::Exists, Render::Items::ItemEffects::Exists});
         PrepareGrandSoulPantsClothMesh();
     }
     OpenItemEffectModels();

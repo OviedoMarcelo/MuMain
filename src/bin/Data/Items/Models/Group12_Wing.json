@@ -11,6 +11,10 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
       }
     },
     {
@@ -22,6 +26,10 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
       }
     },
     {
@@ -33,6 +41,10 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
       }
     },
     {
@@ -45,6 +57,10 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
       }
     },
     {
@@ -57,7 +73,12 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "itemEffect": "wingsOfSoul"
     },
     {
       "number": 5,
@@ -69,7 +90,12 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "itemEffect": "wingsOfDragon"
     },
     {
       "number": 6,
@@ -81,7 +107,13 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "wingsOfDarkness",
+      "itemEffect": "wingsOfDarkness"
     },
     {
       "number": 7,
@@ -94,6 +126,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -142,18 +177,23 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
       "number": 12,
-      "file": "Data/Item/Gem06.bmd",
-      "textureFolders": ["Item"],
+      "model": "skillCrystal",
       "inventory": {
         "anchor": [0.5, 0.75],
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -166,6 +206,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -178,17 +221,23 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9,
+        "color": "blue"
       }
     },
     {
       "number": 15,
-      "file": "Data/Item/Jewel15.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfChaos",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
@@ -201,6 +250,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -213,6 +265,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -225,6 +280,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -237,6 +295,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
@@ -252,70 +313,74 @@
     },
     {
       "number": 21,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 22,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 23,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 24,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 30,
-      "file": "Data/Item/Jewel01.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfBless",
       "inventory": {
         "anchor": [0.55, 0.8],
         "scale": 0.004
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
       "number": 31,
-      "file": "Data/Item/Jewel02.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfSoul",
       "inventory": {
         "anchor": [0.55, 0.8],
         "scale": 0.004
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
@@ -359,14 +424,14 @@
     },
     {
       "number": 35,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 36,
@@ -377,7 +442,13 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "wingOfStorm",
+      "itemEffect": "wingOfStorm"
     },
     {
       "number": 37,
@@ -389,7 +460,12 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "itemEffect": "wingOfEternal"
     },
     {
       "number": 38,
@@ -401,7 +477,12 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "itemEffect": "wingOfIllusion"
     },
     {
       "number": 39,
@@ -414,7 +495,13 @@
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "wingOfRuin",
+      "itemEffect": "wingOfRuin"
     },
     {
       "number": 40,
@@ -427,7 +514,12 @@
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "capeOfEmperor"
     },
     {
       "number": 41,
@@ -438,6 +530,10 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
       }
     },
     {
@@ -451,7 +547,12 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "wingsOfDespair"
     },
     {
       "number": 43,
@@ -462,12 +563,17 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "wingOfDimension",
+      "itemEffect": "wingOfDimension"
     },
     {
       "number": 44,
-      "file": "Data/Item/Gem06.bmd",
-      "textureFolders": ["Item"],
+      "model": "skillCrystal",
       "inventory": {
         "offset": [0.005, -0.015],
         "rotation": [270, 0, 0],
@@ -475,12 +581,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
       "number": 45,
-      "file": "Data/Item/Gem06.bmd",
-      "textureFolders": ["Item"],
+      "model": "skillCrystal",
       "inventory": {
         "offset": [0.005, -0.015],
         "rotation": [270, 0, 0],
@@ -488,12 +596,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
       "number": 46,
-      "file": "Data/Item/Gem06.bmd",
-      "textureFolders": ["Item"],
+      "model": "skillCrystal",
       "inventory": {
         "offset": [0.005, -0.015],
         "rotation": [270, 0, 0],
@@ -501,12 +611,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
       "number": 47,
-      "file": "Data/Item/Gem06.bmd",
-      "textureFolders": ["Item"],
+      "model": "skillCrystal",
       "inventory": {
         "offset": [0.005, -0.015],
         "rotation": [270, 0, 0],
@@ -514,23 +626,25 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 9
       }
     },
     {
       "number": 48,
-      "file": "Data/Item/skillScroll.bmd",
-      "textureFolders": ["Item"],
+      "model": "darkLordScroll",
       "inventory": {
         "scale": 0.002
       },
       "ground": {
         "rotation": [270, 0, 45]
-      }
+      },
+      "itemEffect": "darkLordScroll"
     },
     {
       "number": 49,
-      "file": "Data/Item/Wing50.bmd",
-      "textureFolders": ["Item"],
+      "model": "capeOfFighter",
       "inventory": {
         "anchor": [0.5, 0.5],
         "offset": [0.015, 0.01],
@@ -540,7 +654,11 @@
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "level": 0,
+        "excellent": false
+      }
     },
     {
       "number": 50,
@@ -554,79 +672,102 @@
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "level": 0,
+        "excellent": false
+      },
+      "renderStyle": "capeOfEmperor"
     },
     {
       "number": 60,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 61,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 62,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 63,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 64,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 65,
-      "file": "Data/Item/s30_seed.bmd",
-      "textureFolders": ["Effect"],
+      "model": "socketSeed",
       "inventory": {
         "rotation": [10, -10, 10],
         "scale": 0.0022
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeed"
     },
     {
       "number": 70,
@@ -638,6 +779,9 @@
       },
       "ground": {
         "scale": 0.6
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
@@ -650,6 +794,9 @@
       },
       "ground": {
         "scale": 0.6
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
@@ -662,6 +809,9 @@
       },
       "ground": {
         "scale": 0.6
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
@@ -688,375 +838,468 @@
     },
     {
       "number": 100,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 101,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 102,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 103,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 104,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 105,
-      "file": "Data/Item/s30_sphere01.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere1",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 106,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 107,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 108,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 109,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 110,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 111,
-      "file": "Data/Item/s30_sphere02.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere2",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 112,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 113,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 114,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 115,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 116,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 117,
-      "file": "Data/Item/s30_sphere03.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere3",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 118,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 119,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 120,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 121,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 122,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 123,
-      "file": "Data/Item/s30_sphere04.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere4",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 124,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 125,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 126,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 127,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 128,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 129,
-      "file": "Data/Item/s30_sphere05.bmd",
-      "textureFolders": ["Item", "Effect"],
+      "model": "seedSphere5",
       "inventory": {
         "rotation": [0, 0, 0],
         "scale": 0.0017
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "socketSeedSphere"
     },
     {
       "number": 130,
-      "file": "Data/Item/DarkLordRobe.bmd",
-      "textureFolders": ["Item"],
+      "model": "capeOfLord",
       "inventory": {
         "scale": 0.0012
       },
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "excellent": false
+      },
+      "renderStyle": "smallCapeOfLord"
     },
     {
       "number": 131,
@@ -1067,6 +1310,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "excellent": false
       }
     },
     {
@@ -1078,6 +1324,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "excellent": false
       }
     },
     {
@@ -1089,6 +1338,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "excellent": false
       }
     },
     {
@@ -1100,12 +1352,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "excellent": false
       }
     },
     {
       "number": 135,
-      "file": "Data/Item/Wing50.bmd",
-      "textureFolders": ["Item"],
+      "model": "capeOfFighter",
       "inventory": {
         "offset": [0.005, 0.05],
         "scale": 0.0012
@@ -1113,12 +1367,14 @@
       "ground": {
         "rotation": [270, 0, 45]
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "excellent": false
+      }
     },
     {
       "number": 136,
-      "file": "Data/Item/Jewel03.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfLife",
       "inventory": {
         "anchor": [0.55, 0.82],
         "offset": [0, -0.025],
@@ -1126,23 +1382,27 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
       "number": 137,
-      "file": "Data/Item/jewel22.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfCreation",
       "inventory": {
         "anchor": [0.55, 0.82]
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
       "number": 138,
-      "file": "Data/Item/suho.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfGuardian",
       "inventory": {
         "anchor": [0.55, 0.82],
         "offset": [0, 0.05],
@@ -1150,12 +1410,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
       "number": 139,
-      "file": "Data/Item/rs.bmd",
-      "textureFolders": ["Item"],
+      "model": "gemstone",
       "inventory": {
         "anchor": [0.55, 0.82],
         "rotation": [270, 90, 0],
@@ -1163,24 +1425,28 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
       "number": 140,
-      "file": "Data/Item/jos.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfHarmony",
       "inventory": {
         "anchor": [0.55, 0.82],
         "scale": 0.005
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
       "number": 141,
-      "file": "Data/Item/Jewel15.bmd",
-      "textureFolders": ["Item"],
+      "model": "jewelOfChaos",
       "inventory": {
         "anchor": [0.55, 0.82],
         "offset": [0, 0.025],
@@ -1188,12 +1454,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
       "number": 142,
-      "file": "Data/Item/LowRefineStone.bmd",
-      "textureFolders": ["Item"],
+      "model": "lowerRefiningStone",
       "inventory": {
         "anchor": [0.55, 0.82],
         "offset": [-0.05, 0],
@@ -1202,12 +1470,14 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0
       }
     },
     {
       "number": 143,
-      "file": "Data/Item/HighRefineStone.bmd",
-      "textureFolders": ["Item"],
+      "model": "higherRefiningStone",
       "inventory": {
         "anchor": [0.55, 0.82],
         "offset": [-0.05, 0],
@@ -1216,6 +1486,9 @@
       },
       "ground": {
         "rotation": [270, 0, 45]
+      },
+      "glow": {
+        "level": 0
       }
     }
   ]

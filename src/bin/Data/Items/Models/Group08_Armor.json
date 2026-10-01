@@ -28,6 +28,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "red"
       }
     },
     {
@@ -56,6 +59,10 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "blue",
+        "ancientColor": "gold"
       }
     },
     {
@@ -70,6 +77,10 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "white",
+        "shineColor": "orange"
       }
     },
     {
@@ -98,6 +109,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "lime"
       }
     },
     {
@@ -140,7 +154,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "blue",
+        "ancientColor": "gold"
+      },
+      "renderStyle": "helperNpcPlate"
     },
     {
       "number": 10,
@@ -186,6 +205,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "blue"
       }
     },
     {
@@ -200,6 +222,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "green"
       }
     },
     {
@@ -214,6 +239,10 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "white",
+        "shineColor": "orange"
       }
     },
     {
@@ -228,7 +257,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "lavender",
+        "shineColor": "orange"
+      },
+      "renderStyle": "stormCrow"
     },
     {
       "number": 16,
@@ -242,6 +276,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "sand"
       }
     },
     {
@@ -256,6 +293,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "steelBlue",
+        "shineColor": "orange",
+        "ancientColor": "gold"
       }
     },
     {
@@ -270,6 +312,10 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "white",
+        "shineColor": "blue"
       }
     },
     {
@@ -284,6 +330,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "steelBlue"
       }
     },
     {
@@ -298,7 +347,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "steelBlue"
+      },
+      "renderStyle": "thunderHawk"
     },
     {
       "number": 21,
@@ -312,6 +365,10 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "copper",
+        "shineWhite": true
       }
     },
     {
@@ -326,6 +383,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "bronze"
       }
     },
     {
@@ -340,7 +400,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "slate"
+      },
+      "renderStyle": "hurricane"
     },
     {
       "number": 24,
@@ -354,6 +418,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "copper"
       }
     },
     {
@@ -368,6 +435,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "slate"
       }
     },
     {
@@ -382,6 +452,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "sage"
       }
     },
     {
@@ -396,6 +469,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "sand"
       }
     },
     {
@@ -410,6 +486,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "denim"
       }
     },
     {
@@ -426,6 +505,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "brown"
       }
     },
     {
@@ -442,6 +524,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "royalBlue"
       }
     },
     {
@@ -456,7 +541,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "leafGreen"
+      },
+      "renderStyle": "sylphidRay"
     },
     {
       "number": 32,
@@ -470,6 +559,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "violet"
       }
     },
     {
@@ -484,6 +576,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "olive"
       }
     },
     {
@@ -500,6 +595,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "ochre"
       }
     },
     {
@@ -516,6 +614,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "grey"
       }
     },
     {
@@ -532,7 +633,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "leafGreen"
+      },
+      "renderStyle": "onlyMesh2WithoutSkin"
     },
     {
       "number": 37,
@@ -548,6 +653,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "mist"
       }
     },
     {
@@ -564,6 +672,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "olive"
       }
     },
     {
@@ -580,7 +691,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "emerald",
+        "shineColor": "orange"
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 40,
@@ -596,7 +712,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "rust",
+        "shineColor": "orange"
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 41,
@@ -612,7 +733,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "amber",
+        "shineColor": "orange"
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 42,
@@ -628,7 +754,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "purple",
+        "shineColor": "orange"
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 43,
@@ -644,7 +775,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "pink",
+        "shineColor": "blue"
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 44,
@@ -660,7 +796,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "lilac",
+        "shineWhite": true
+      },
+      "renderStyle": "violentWindToEternalWingArmor"
     },
     {
       "number": 45,
@@ -674,6 +815,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "periwinkle"
       }
     },
     {
@@ -688,6 +832,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "darkOrange"
       }
     },
     {
@@ -702,6 +849,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "orchid"
       }
     },
     {
@@ -716,6 +866,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "red"
       }
     },
     {
@@ -730,7 +883,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "rose"
+      },
+      "renderStyle": "onlyMesh2WithoutSkin"
     },
     {
       "number": 50,
@@ -744,7 +901,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "moss"
+      },
+      "renderStyle": "divineAndSuccubusSkin"
     },
     {
       "number": 51,
@@ -758,6 +919,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "crimson"
       }
     },
     {
@@ -772,6 +936,9 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "periwinkle"
       }
     },
     {
@@ -786,7 +953,11 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "magenta"
+      },
+      "renderStyle": "divineAndSuccubusSkin"
     },
     {
       "number": 59,
@@ -802,6 +973,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "copper",
+        "meshes": [1],
+        "shineMeshes": [1],
+        "excellentMesh": 1
       }
     },
     {
@@ -818,6 +995,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "darkOrange",
+        "meshes": [1],
+        "shineMeshes": [1],
+        "excellentMesh": 1
       }
     },
     {
@@ -834,6 +1017,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
+      },
+      "glow": {
+        "color": "brown",
+        "meshes": [0],
+        "shineMeshes": [0],
+        "excellentMesh": 0
       }
     },
     {
@@ -848,7 +1037,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 63,
@@ -862,7 +1052,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 64,
@@ -876,7 +1067,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 65,
@@ -890,7 +1082,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 66,
@@ -904,7 +1097,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 67,
@@ -918,7 +1112,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 68,
@@ -932,7 +1127,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 69,
@@ -946,7 +1142,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 70,
@@ -960,7 +1157,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 71,
@@ -974,7 +1172,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 72,
@@ -988,7 +1187,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "renderStyle": "luckyItem"
     },
     {
       "number": 73,
@@ -1004,7 +1204,14 @@
       "ground": {
         "rotation": [270, 0, -45],
         "bodyHeight": -100
-      }
+      },
+      "glow": {
+        "color": "ice",
+        "meshes": [2],
+        "shineMeshes": [2],
+        "excellentMesh": 2
+      },
+      "renderStyle": "phoenixSoulArmor"
     }
   ]
 }

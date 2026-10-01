@@ -1339,13 +1339,7 @@ void CNewUIMyInventory::RenderButtons()
 {
     EnableAlphaTest();
 
-    if (g_pNewUISystem->IsVisible(INTERFACE_NPCSHOP) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_TRADE) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_DEVILSQUARE) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_BLOODCASTLE) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_MIXINVENTORY) == false
-        && g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_LUCKYITEMWND) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_STORAGE) == false)
+    if (AreShopButtonsShown())
     {
         if (m_bRepairEnableLevel == true)
         {
@@ -1529,6 +1523,17 @@ bool CNewUIMyInventory::CheckTakeOff(int equipmentSlot) const
     return false;
 }
 
+bool CNewUIMyInventory::GetEquipmentSlotCenter(int slot, POINT& center) const
+{
+    if (slot < 0 || slot >= MAX_EQUIPMENT_INDEX)
+        return false;
+
+    const EQUIPMENT_ITEM& equipmentSlot = m_EquipmentSlots[slot];
+    center.x = equipmentSlot.x + equipmentSlot.width / 2;
+    center.y = equipmentSlot.y + equipmentSlot.height / 2;
+    return true;
+}
+
 bool CNewUIMyInventory::InventoryProcess() const
 {
     if (CheckMouseIn(m_Pos.x, m_Pos.y, INVENTORY_WIDTH, INVENTORY_HEIGHT) == false)
@@ -1580,13 +1585,7 @@ bool CNewUIMyInventory::BtnProcess()
         return true;
     }
 
-    if (g_pNewUISystem->IsVisible(INTERFACE_NPCSHOP) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_TRADE) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_DEVILSQUARE) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_BLOODCASTLE) == false
-        && g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_LUCKYITEMWND) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_MIXINVENTORY) == false
-        && g_pNewUISystem->IsVisible(INTERFACE_STORAGE) == false)
+    if (AreShopButtonsShown())
     {
         if (m_bRepairEnableLevel == true && m_BtnRepair.UpdateMouseEvent() == true)
         {
@@ -1711,6 +1710,27 @@ bool CNewUIMyInventory::CanOpenMyShopInterface()
 bool CNewUIMyInventory::IsRepairEnableLevel() const
 {
     return m_bRepairEnableLevel;
+}
+
+bool CNewUIMyInventory::AreShopButtonsShown() const
+{
+    return g_pNewUISystem->IsVisible(INTERFACE_NPCSHOP) == false &&
+           g_pNewUISystem->IsVisible(INTERFACE_TRADE) == false &&
+           g_pNewUISystem->IsVisible(INTERFACE_DEVILSQUARE) == false &&
+           g_pNewUISystem->IsVisible(INTERFACE_BLOODCASTLE) == false &&
+           g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_LUCKYITEMWND) == false &&
+           g_pNewUISystem->IsVisible(INTERFACE_MIXINVENTORY) == false &&
+           g_pNewUISystem->IsVisible(INTERFACE_STORAGE) == false;
+}
+
+CNewUIButton* CNewUIMyInventory::GetShownRepairButton()
+{
+    return IsVisible() && AreShopButtonsShown() && m_bRepairEnableLevel ? &m_BtnRepair : nullptr;
+}
+
+CNewUIButton* CNewUIMyInventory::GetShownMyShopButton()
+{
+    return IsVisible() && AreShopButtonsShown() && m_bMyShopOpen ? &m_BtnMyShop : nullptr;
 }
 
 void CNewUIMyInventory::SetRepairEnableLevel(bool bOver)

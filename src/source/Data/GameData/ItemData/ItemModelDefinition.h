@@ -45,14 +45,75 @@ struct ItemGroundDisplay
     bool operator==(const ItemGroundDisplay&) const = default;
 };
 
+// The meshes of the model a glow is drawn on. Without meshes and without a
+// hidden mesh it is drawn on all meshes.
+struct ItemGlowMeshes
+{
+    // Only these meshes.
+    std::vector<int> only;
+    // All meshes but this one.
+    std::optional<int> hidden;
+
+    bool operator==(const ItemGlowMeshes&) const = default;
+};
+
+// How an item glows. The defaults are the glow of items without values of
+// their own. Colors are names from the glow color list
+// (Data/Effects/GlowColors.json).
+struct ItemGlow
+{
+    static constexpr const char* DefaultColor = "orange";
+    static constexpr const char* DefaultShineColor = "white";
+    static constexpr const char* DefaultAncientColor = "azure";
+    // The item levels 0 to 15.
+    static constexpr size_t ItemLevelCount = 16;
+
+    // The level the item glows like at each item level instead of its own:
+    // all the same for most items (e.g. 8 for jewels, 0 for wings), one per
+    // level for arrows. None: its own level.
+    std::optional<std::array<int, ItemLevelCount>> levels;
+    // The glow of items +7 and up.
+    std::string color = DefaultColor;
+    ItemGlowMeshes meshes;
+    // The shine of items +11 and up tints the light of the item with this
+    // color, or is plain white.
+    std::string shineColor = DefaultShineColor;
+    bool shineWhite = false;
+    ItemGlowMeshes shineMeshes;
+    // The shine of ancient items.
+    std::string ancientColor = DefaultAncientColor;
+    // Whether excellent items glow; wings and capes do not.
+    bool excellent = true;
+    // The only mesh with the excellent glow, and the one when the model is
+    // drawn without the character skin (in the inventory, on the ground).
+    std::optional<int> excellentMesh;
+    std::optional<int> excellentMeshWithoutSkin;
+
+    bool operator==(const ItemGlow&) const = default;
+};
+
+// The glow colors of an item model, looked up in the glow color list when
+// the models are built (ItemModelDatabase::Build).
+struct ItemGlowColors
+{
+    std::array<float, 3> color{};
+    std::array<float, 3> shineColor{};
+    bool shineWhite = false;
+    std::array<float, 3> ancientColor{};
+};
+
 // The model of one item: which .bmd file is opened for it, where its
 // textures are and how it is drawn. One entry of the model files
 // (Data/Items/Models). Each item keeps its own model slot, MODEL_ITEM + item
-// type.
+// type; items that share a model (SharedItemModel) share its loaded data.
 struct ItemModelDefinition
 {
     int group = 0;
     int number = 0;
+    // The name of a shared model (Data/Items/Models/SharedModels.json) whose
+    // file, texture folders and none-blend meshes the item uses; the loading
+    // fills them in. Empty: the item has a file of its own.
+    std::string model;
     // Relative to the client folder, with '/': "Data/Item/Sword01.bmd".
     std::string file;
     // Folders below Data/ with the textures of the model: "Item",
@@ -66,10 +127,18 @@ struct ItemModelDefinition
     // A cape worn as cloth: putting it on or taking it off deletes the cloth
     // of the character. Which capes are drawn as cloth is decided in code.
     bool cloth = false;
+    ItemGlow glow;
+    // The look of the model when it is more than a plain textured model: the
+    // name of a render style (Render/Items/ItemRenderStyles). Empty: plain.
+    std::string renderStyle;
+    // What the model does before it is drawn (sprites and particles on its
+    // bones, a pulsing glow mesh, its own drawing, ...): the name of an item
+    // effect (Render/Items/ItemEffects). Empty: none.
+    std::string itemEffect;
 
     bool Exists() const
     {
-        return !file.empty();
+        return !file.empty() || !model.empty();
     }
 
     bool operator==(const ItemModelDefinition&) const = default;

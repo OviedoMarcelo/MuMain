@@ -33,6 +33,9 @@
       "inventory": {
         "anchor": [0.5, 0.7],
         "rotation": [-90, -90, 0]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
@@ -42,7 +45,8 @@
       "inventory": {
         "rotation": [-90, -90, 0],
         "scale": 0.0015
-      }
+      },
+      "renderStyle": "darkHorse"
     },
     {
       "number": 5,
@@ -52,7 +56,8 @@
         "anchor": [0.5, 0.7],
         "rotation": [-90, -35, 0],
         "scale": 0.005
-      }
+      },
+      "renderStyle": "darkRaven"
     },
     {
       "number": 7,
@@ -60,12 +65,13 @@
       "textureFolders": ["Item"],
       "inventory": {
         "anchor": [0.5, 0.9]
-      }
+      },
+      "renderStyle": "contractSummon",
+      "itemEffect": "hiddenMeshByLevel"
     },
     {
       "number": 8,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7]
       }
@@ -80,10 +86,12 @@
     },
     {
       "number": 10,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7]
+      },
+      "glow": {
+        "level": 8
       }
     },
     {
@@ -92,7 +100,9 @@
       "textureFolders": ["Item"],
       "inventory": {
         "anchor": [0.5, 0.8]
-      }
+      },
+      "renderStyle": "lifeStone",
+      "itemEffect": "hideMesh1"
     },
     {
       "number": 12,
@@ -131,7 +141,8 @@
       "inventory": {
         "anchor": [0.6, 1],
         "scale": 0.003
-      }
+      },
+      "itemEffect": "fruits"
     },
     {
       "number": 16,
@@ -157,7 +168,8 @@
       "ground": {
         "rotation": [-45, -5, 18],
         "scale": 0.48
-      }
+      },
+      "renderStyle": "bloodBone"
     },
     {
       "number": 18,
@@ -171,7 +183,8 @@
       "ground": {
         "rotation": [165, -168, 198],
         "scale": 0.48
-      }
+      },
+      "itemEffect": "invisibilityCloak"
     },
     {
       "number": 21,
@@ -268,8 +281,7 @@
     },
     {
       "number": 30,
-      "file": "Data/Item/DarkLordRobe.bmd",
-      "textureFolders": ["Item"],
+      "model": "capeOfLord",
       "inventory": {
         "anchor": [0.5, 0.5],
         "rotation": [-90, 0, 0],
@@ -279,7 +291,11 @@
         "rotation": [-45, 0, 45],
         "scale": 0.5
       },
-      "cloth": true
+      "cloth": true,
+      "glow": {
+        "level": 0,
+        "excellent": false
+      }
     },
     {
       "number": 31,
@@ -288,7 +304,8 @@
       "inventory": {
         "anchor": [0.5, 0.9],
         "rotation": [-90, -90, 0]
-      }
+      },
+      "itemEffect": "spirit"
     },
     {
       "number": 32,
@@ -381,42 +398,51 @@
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
         "rotation": [-198, 0, 0]
-      }
+      },
+      "renderStyle": "harmonyShine"
     },
     {
       "number": 39,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7],
         "rotation": [270, 0, 0]
+      },
+      "glow": {
+        "level": 13
       }
     },
     {
       "number": 40,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7],
         "rotation": [270, 0, 0]
+      },
+      "glow": {
+        "level": 13
       }
     },
     {
       "number": 41,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7],
         "rotation": [270, 0, 0]
+      },
+      "glow": {
+        "level": 13
       }
     },
     {
       "number": 42,
-      "file": "Data/Item/Ring01.bmd",
-      "textureFolders": ["Item"],
+      "model": "transformationRing",
       "inventory": {
         "anchor": [0.5, 0.7],
         "rotation": [270, 0, 0]
+      },
+      "glow": {
+        "level": 13
       }
     },
     {
@@ -432,7 +458,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "sealOfAscension"
     },
     {
       "number": 44,
@@ -447,7 +474,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "sealOfWealth"
     },
     {
       "number": 45,
@@ -462,7 +490,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "sealOfSustenance"
     },
     {
       "number": 46,
@@ -477,7 +506,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "eventTicket"
     },
     {
       "number": 47,
@@ -492,7 +522,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "eventTicket"
     },
     {
       "number": 48,
@@ -507,7 +538,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "eventTicket"
     },
     {
       "number": 49,
@@ -522,7 +554,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.3
-      }
+      },
+      "renderStyle": "oldScroll"
     },
     {
       "number": 50,
@@ -536,7 +569,11 @@
       },
       "ground": {
         "scale": 0.6
-      }
+      },
+      "glow": {
+        "shineHiddenMesh": 1
+      },
+      "renderStyle": "illusionSorcererCovenant"
     },
     {
       "number": 51,
@@ -551,7 +588,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.45
-      }
+      },
+      "renderStyle": "scrollOfBlood"
     },
     {
       "number": 52,
@@ -565,7 +603,11 @@
       },
       "ground": {
         "scale": 1.2
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "condorFlame"
     },
     {
       "number": 53,
@@ -579,7 +621,11 @@
       },
       "ground": {
         "scale": 1.2
-      }
+      },
+      "glow": {
+        "level": 0
+      },
+      "renderStyle": "condorFeather"
     },
     {
       "number": 54,
@@ -594,7 +640,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 55,
@@ -609,7 +656,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 56,
@@ -624,7 +672,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 57,
@@ -639,7 +688,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 58,
@@ -654,7 +704,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 59,
@@ -669,7 +720,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.2
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 60,
@@ -684,7 +736,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 1.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 61,
@@ -699,7 +752,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "eventTicket"
     },
     {
       "number": 62,
@@ -714,7 +768,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 63,
@@ -729,7 +784,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 64,
@@ -743,7 +799,8 @@
       "ground": {
         "rotation": [0, 0, 70],
         "scale": 0.21
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 65,
@@ -757,7 +814,8 @@
       "ground": {
         "rotation": [0, 0, 70],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 66,
@@ -772,7 +830,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "invitationToSantaVillage"
     },
     {
       "number": 67,
@@ -805,7 +864,8 @@
         "offset": [0.005, -0.05],
         "rotation": [270, -30, 0],
         "scale": 0.0023
-      }
+      },
+      "renderStyle": "talismanOfResurrection"
     },
     {
       "number": 70,
@@ -816,7 +876,8 @@
         "offset": [0.04, 0],
         "rotation": [270, 0, 70],
         "scale": 0.0018
-      }
+      },
+      "renderStyle": "talismanOfMobility"
     },
     {
       "number": 71,
@@ -827,7 +888,8 @@
         "offset": [0, 0.07],
         "rotation": [270, 0, 0],
         "scale": 0.0019
-      }
+      },
+      "renderStyle": "gambleItem"
     },
     {
       "number": 72,
@@ -838,7 +900,8 @@
         "offset": [0, 0.07],
         "rotation": [270, 0, 0],
         "scale": 0.0019
-      }
+      },
+      "renderStyle": "gambleItem"
     },
     {
       "number": 73,
@@ -849,7 +912,8 @@
         "offset": [0, 0.07],
         "rotation": [270, 0, 0],
         "scale": 0.0019
-      }
+      },
+      "renderStyle": "gambleItem"
     },
     {
       "number": 74,
@@ -860,7 +924,8 @@
         "offset": [0, 0.07],
         "rotation": [270, 0, 0],
         "scale": 0.0019
-      }
+      },
+      "renderStyle": "gambleItem"
     },
     {
       "number": 75,
@@ -871,7 +936,8 @@
         "offset": [0, 0.07],
         "rotation": [270, 0, 0],
         "scale": 0.0019
-      }
+      },
+      "renderStyle": "gambleItem"
     },
     {
       "number": 76,
@@ -904,7 +970,8 @@
         "offset": [0.005, 0.035],
         "rotation": [-90, 0, 0],
         "scale": 0.0012
-      }
+      },
+      "renderStyle": "talismanOfGuardian"
     },
     {
       "number": 82,
@@ -915,7 +982,8 @@
         "offset": [0.005, 0.035],
         "rotation": [-90, 0, 0],
         "scale": 0.0012
-      }
+      },
+      "renderStyle": "talismanOfItemProtection"
     },
     {
       "number": 83,
@@ -930,7 +998,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 84,
@@ -945,7 +1014,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 85,
@@ -960,7 +1030,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 86,
@@ -975,7 +1046,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 87,
@@ -990,7 +1062,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 88,
@@ -1005,7 +1078,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 89,
@@ -1020,7 +1094,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 90,
@@ -1035,7 +1110,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 91,
@@ -1050,7 +1126,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 92,
@@ -1065,7 +1142,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 93,
@@ -1080,7 +1158,8 @@
       "ground": {
         "rotation": [0, 0, 90],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "sealOfAscension"
     },
     {
       "number": 94,
@@ -1091,12 +1170,12 @@
         "offset": [0.005, 0],
         "rotation": [-90, 0, 0],
         "scale": 0.0021
-      }
+      },
+      "renderStyle": "sealOfWealth"
     },
     {
       "number": 97,
-      "file": "Data/Item/Ingameshop/charactercard.bmd",
-      "textureFolders": ["Item/Ingameshop"],
+      "model": "characterCard",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0.002, -0.04],
@@ -1106,12 +1185,12 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "characterCard"
     },
     {
       "number": 98,
-      "file": "Data/Item/Ingameshop/charactercard.bmd",
-      "textureFolders": ["Item/Ingameshop"],
+      "model": "characterCard",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0.002, -0.04],
@@ -1121,7 +1200,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "characterCard"
     },
     {
       "number": 103,
@@ -1148,7 +1228,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "boostAura"
     },
     {
       "number": 105,
@@ -1163,7 +1244,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "boostAura"
     },
     {
       "number": 106,
@@ -1188,7 +1270,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 109,
@@ -1203,7 +1286,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 110,
@@ -1218,7 +1302,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 111,
@@ -1233,7 +1318,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 112,
@@ -1248,7 +1334,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 113,
@@ -1263,7 +1350,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 114,
@@ -1278,7 +1366,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 115,
@@ -1293,7 +1382,8 @@
       "ground": {
         "rotation": [270, 0, -45],
         "scale": 1
-      }
+      },
+      "renderStyle": "chromeMesh1"
     },
     {
       "number": 116,
@@ -1308,7 +1398,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "sealOfWealth"
     },
     {
       "number": 121,
@@ -1323,7 +1414,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "eventTicket"
     },
     {
       "number": 122,
@@ -1334,7 +1426,8 @@
         "offset": [0.01, -0.035],
         "rotation": [290, -20, 0],
         "scale": 0.0033
-      }
+      },
+      "renderStyle": "skeletonTransformationRing"
     },
     {
       "number": 123,
@@ -1375,7 +1468,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "openAccessTicketToDoppelganger"
     },
     {
       "number": 126,
@@ -1390,7 +1484,8 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "openAccessTicketToVarka"
     },
     {
       "number": 127,
@@ -1405,12 +1500,12 @@
       "ground": {
         "rotation": [90, 0, -45],
         "scale": 0.5
-      }
+      },
+      "renderStyle": "openAccessTicketToVarka7"
     },
     {
       "number": 135,
-      "file": "Data/Item/LuckyItem/LuckyCardgreen.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketGreen",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1424,8 +1519,7 @@
     },
     {
       "number": 136,
-      "file": "Data/Item/LuckyItem/LuckyCardgreen.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketGreen",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1439,8 +1533,7 @@
     },
     {
       "number": 137,
-      "file": "Data/Item/LuckyItem/LuckyCardgreen.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketGreen",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1454,8 +1547,7 @@
     },
     {
       "number": 138,
-      "file": "Data/Item/LuckyItem/LuckyCardgreen.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketGreen",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1469,8 +1561,7 @@
     },
     {
       "number": 139,
-      "file": "Data/Item/LuckyItem/LuckyCardgreen.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketGreen",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1484,8 +1575,7 @@
     },
     {
       "number": 140,
-      "file": "Data/Item/LuckyItem/LuckyCardred.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketRed",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1499,8 +1589,7 @@
     },
     {
       "number": 141,
-      "file": "Data/Item/LuckyItem/LuckyCardred.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketRed",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1514,8 +1603,7 @@
     },
     {
       "number": 142,
-      "file": "Data/Item/LuckyItem/LuckyCardred.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketRed",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1529,8 +1617,7 @@
     },
     {
       "number": 143,
-      "file": "Data/Item/LuckyItem/LuckyCardred.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketRed",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],
@@ -1544,8 +1631,7 @@
     },
     {
       "number": 144,
-      "file": "Data/Item/LuckyItem/LuckyCardred.bmd",
-      "textureFolders": ["Item/LuckyItem"],
+      "model": "luckyTicketRed",
       "inventory": {
         "anchor": [0.5, 0.7],
         "offset": [0, 0.02],

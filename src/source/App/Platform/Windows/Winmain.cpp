@@ -17,6 +17,7 @@
 #endif
 #include <clocale>
 #include <filesystem>
+#include <optional>
 #include <utility>
 #include <vector>
 #include "Core/Platform/WinIni.h" // private-profile (.ini) API
@@ -32,6 +33,7 @@
 #include "Network/Reconnect/ReconnectManager.h"
 #include "Network/IncomingPacketQueue.h"
 #include "Core/Time/FrameTimerScheduler.h"
+#include "Core/Utilities/FrameProfiler.h"
 #include <SDL3/SDL.h>
 #include "Render/Models/ZzzBMD.h"
 #include "Engine/Object/ZzzInfomation.h"
@@ -69,6 +71,7 @@
 #include "Core/Platform/Audio/MiniAudioBackend.h"
 #include "Core/Time/Timer.h"
 #include "Core/Utilities/Log/MuLogger.h"
+#include "Core/Utilities/Log/SdlLogBridge.h"
 #include "UI/Legacy/UIMng.h"
 
 #include "World/MapInfra/w_MapHeaders.h"
@@ -239,6 +242,8 @@ static void ConsumeDiagnosticFrameCapture()
     capture.schedule.Finish();
     if (!mu::GetRenderer().ConsumeFramePixels(pixels))
     {
+        // A skipped frame leaves the request pending; drop it.
+        mu::GetRenderer().CancelFramePixels();
         g_ErrorReport.Write(L"[capture] frame %llu readback failed\r\n",
                             static_cast<unsigned long long>(capture.targetFrame));
         return;
@@ -1274,6 +1279,26 @@ std::vector<std::pair<int, int>> MuGetSupportedDisplayResolutions()
     return resolutions;
 }
 
+// Wayland compositors own top-level window placement, so SDL rejects position
+// requests there. Not asking also keeps SDL from holding a pending position it
+// never clears on Wayland, which can pin a later borderless fullscreen to the
+// display the window was on at that point.
+static bool VideoDriverPositionsTopLevelWindows()
+{
+    constexpr std::string_view kWaylandVideoDriver = "wayland";
+    const char* driver = SDL_GetCurrentVideoDriver();
+    return driver == nullptr || driver != kWaylandVideoDriver;
+}
+
+static void CenterWindowAfterResize(SDL_Window* window)
+{
+    if (!VideoDriverPositionsTopLevelWindows())
+        return;
+
+    if (!SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED))
+        mu::log::Get("platform")->warn("SDL_SetWindowPosition failed: {}", SDL_GetError());
+}
+
 // Resolution change through SDL (issue #462). SDL owns the window on every
 // platform, so resize it via SDL rather than the OS. The old Windows path in
 // ApplyResolution() drove Win32 SetWindowPos/ChangeDisplaySettings on g_hWnd,
@@ -1294,7 +1319,7 @@ void MuApplyWindowResolution(unsigned int width, unsigned int height, bool windo
     {
         SDL_SetWindowFullscreen(g_sdlWindow, false);
         SDL_SetWindowSize(g_sdlWindow, w, h);
-        SDL_SetWindowPosition(g_sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        CenterWindowAfterResize(g_sdlWindow);
     }
     else
     {
@@ -1533,9 +1558,19 @@ MSG MainLoop()
 
                 RequestDiagnosticFrameCapture();
                 ApplyPendingVSyncPreference();
-                mu::GetRenderer().BeginFrame();
+                // Present in $glstats: the frame boundary, where a VSync or GPU wait shows up
+                // (the swapchain acquire in BeginFrame(), submit and present in EndFrame()).
+                // RenderScene() reads and resets the profiler, so it shows the last EndFrame()
+                // together with this BeginFrame().
+                {
+                    FRAME_PROFILE(Present);
+                    mu::GetRenderer().BeginFrame();
+                }
                 RenderScene(g_hDC);
-                mu::GetRenderer().EndFrame();
+                {
+                    FRAME_PROFILE(Present);
+                    mu::GetRenderer().EndFrame();
+                }
                 ConsumeDiagnosticFrameCapture();
             }
         }
@@ -1799,7 +1834,7 @@ void UpdateResolutionDependentSystems()
     CUIMng::Instance().RepositionSceneUI();
 }
 
-static void ShutdownRuntime(std::thread& cpuUsageRecorder)
+static void ShutdownRuntime(std::thread& cpuUsageRecorder, std::optional<Core::Log::Sdl::ScopedLogOutput>& sdlLogOutput)
 {
     // The recorder polls process state until Destroy is set.
     Destroy = true;
@@ -1838,6 +1873,8 @@ static void ShutdownRuntime(std::thread& cpuUsageRecorder)
     DestroyWindow();
     ShutdownRendererWindow();
     SDL_Quit();
+    // SDL_Quit() may still log, so the bridge outlives it and dies before mu::log.
+    sdlLogOutput.reset();
     mu::log::Shutdown();
 }
 
@@ -1894,6 +1931,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nC
 #endif
 {
     InitializeWorkingDirectoryAndLog();
+    // Installed before SDL starts so init failures are captured; every early
+    // return restores it, and ShutdownRuntime() releases it before mu::log closes.
+    std::optional<Core::Log::Sdl::ScopedLogOutput> sdlLogOutput;
+    sdlLogOutput.emplace();
 
     wchar_t lpszExeVersion[256] = L"unknown";
 
@@ -2273,7 +2314,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nC
 
     std::thread cpuUsageRecorder(RecordCpuUsage);
     const MSG msg = MainLoop();
-    ShutdownRuntime(cpuUsageRecorder);
+    ShutdownRuntime(cpuUsageRecorder, sdlLogOutput);
 
     return msg.wParam;
 }

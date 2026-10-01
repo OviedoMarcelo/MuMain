@@ -97,7 +97,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "hiddenMesh": 2
+      },
+      "renderStyle": "elementalMace"
     },
     {
       "number": 8,
@@ -110,7 +114,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "steelBlue"
+      },
+      "renderStyle": "battleScepter"
     },
     {
       "number": 9,
@@ -123,7 +131,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "sand"
+      },
+      "renderStyle": "masterScepter"
     },
     {
       "number": 10,
@@ -136,7 +148,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "sage"
+      },
+      "renderStyle": "greatScepter"
     },
     {
       "number": 11,
@@ -149,7 +165,8 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "renderStyle": "lordScepter"
     },
     {
       "number": 12,
@@ -161,7 +178,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "copper"
+      },
+      "renderStyle": "greatLordScepter"
     },
     {
       "number": 13,
@@ -173,7 +194,8 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "renderStyle": "divineScepterOfArchangel"
     },
     {
       "number": 14,
@@ -186,7 +208,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "olive"
+      },
+      "renderStyle": "sylphWindBow"
     },
     {
       "number": 15,
@@ -199,6 +225,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "olive"
       }
     },
     {
@@ -212,7 +241,8 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "renderStyle": "frostMace"
     },
     {
       "number": 17,
@@ -225,6 +255,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "crimson"
       }
     },
     {
@@ -239,7 +272,12 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "white",
+        "meshes": [0]
+      },
+      "renderStyle": "strikerScepter"
     }
   ]
 }

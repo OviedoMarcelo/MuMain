@@ -78,6 +78,12 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "blue",
+        "hiddenMesh": 1,
+        "shineColor": "blue",
+        "shineHiddenMesh": 1
       }
     },
     {
@@ -131,6 +137,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "white"
       }
     },
     {
@@ -144,7 +153,8 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "renderStyle": "archangelStaff"
     },
     {
       "number": 11,
@@ -157,7 +167,12 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "bronze"
+      },
+      "renderStyle": "staffOfKundun",
+      "itemEffect": "staffOfKundun"
     },
     {
       "number": 12,
@@ -171,7 +186,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "royalBlue"
+      },
+      "renderStyle": "sylphWindBow"
     },
     {
       "number": 13,
@@ -185,7 +204,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "grey"
+      },
+      "renderStyle": "platinaStaff"
     },
     {
       "number": 14,
@@ -199,6 +222,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "ochre"
       }
     },
     {
@@ -212,6 +238,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "denim"
       }
     },
     {
@@ -225,6 +254,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "red"
       }
     },
     {
@@ -239,6 +271,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "blue"
       }
     },
     {
@@ -253,7 +288,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "rust"
+      },
+      "renderStyle": "demonicStick"
     },
     {
       "number": 19,
@@ -267,7 +306,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "violet"
+      },
+      "renderStyle": "stormBlitzStick"
     },
     {
       "number": 20,
@@ -281,6 +324,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "white"
       }
     },
     {
@@ -307,6 +353,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "red"
       }
     },
     {
@@ -333,7 +382,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "red"
+      },
+      "renderStyle": "deadlyStaff"
     },
     {
       "number": 31,
@@ -346,7 +399,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "color": "royalBlue"
+      },
+      "renderStyle": "imperialStaff"
     },
     {
       "number": 32,
@@ -359,7 +416,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "meshes": [1]
+      },
+      "renderStyle": "staff32"
     },
     {
       "number": 33,
@@ -373,6 +434,10 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "goldenrod",
+        "meshes": [0]
       }
     },
     {
@@ -387,6 +452,10 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "white",
+        "meshes": [0]
       }
     },
     {

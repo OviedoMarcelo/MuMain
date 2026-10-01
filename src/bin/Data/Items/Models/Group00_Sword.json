@@ -182,6 +182,10 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
+      },
+      "glow": {
+        "color": "blue",
+        "shineColor": "blue"
       }
     },
     {
@@ -243,7 +247,8 @@
       "ground": {
         "rotation": [60, 0, -45],
         "scale": 0.7
-      }
+      },
+      "renderStyle": "divineSwordOfArchangel"
     },
     {
       "number": 20,
@@ -255,7 +260,13 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "sand",
+        "hiddenMesh": 1,
+        "shineHiddenMesh": 1
+      },
+      "renderStyle": "knightBlade"
     },
     {
       "number": 21,
@@ -267,7 +278,13 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "white",
+        "hiddenMesh": 0,
+        "shineHiddenMesh": 0
+      },
+      "renderStyle": "darkReignBlade"
     },
     {
       "number": 22,
@@ -279,7 +296,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "brown"
+      },
+      "renderStyle": "sylphWindBow"
     },
     {
       "number": 23,
@@ -291,7 +312,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "dusk"
+      },
+      "renderStyle": "explosionBlade"
     },
     {
       "number": 24,
@@ -305,6 +330,9 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
+      },
+      "glow": {
+        "color": "ochre"
       }
     },
     {
@@ -317,7 +345,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "mist"
+      },
+      "renderStyle": "swordDancer"
     },
     {
       "number": 26,
@@ -330,7 +362,12 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "hiddenMesh": 5,
+        "shineHiddenMesh": 5
+      },
+      "renderStyle": "flamberge"
     },
     {
       "number": 27,
@@ -342,7 +379,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "meshes": [0]
+      },
+      "renderStyle": "swordBreaker"
     },
     {
       "number": 28,
@@ -355,7 +396,12 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "paleBlue",
+        "meshes": [2]
+      },
+      "renderStyle": "runeBastardSword"
     },
     {
       "number": 31,
@@ -367,7 +413,12 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "sand",
+        "hiddenMesh": 2
+      },
+      "renderStyle": "runeBlade"
     },
     {
       "number": 32,
@@ -381,7 +432,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "copper"
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 33,
@@ -395,7 +450,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "darkOrange"
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 34,
@@ -409,7 +468,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "brown"
+      },
+      "renderStyle": "textured"
     },
     {
       "number": 35,
@@ -423,7 +486,11 @@
       },
       "ground": {
         "rotation": [60, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "ice"
+      },
+      "renderStyle": "phoenixSoulStar"
     }
   ]
 }

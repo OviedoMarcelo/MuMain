@@ -44,7 +44,8 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "renderStyle": "monsterBattleBow"
     },
     {
       "number": 4,
@@ -66,6 +67,10 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "white",
+        "shineColor": "blue"
       }
     },
     {
@@ -89,7 +94,11 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
-      }
+      },
+      "glow": {
+        "level": [0, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31]
+      },
+      "renderStyle": "ammunition"
     },
     {
       "number": 8,
@@ -161,6 +170,10 @@
       },
       "ground": {
         "rotation": [90, 0, -45]
+      },
+      "glow": {
+        "color": "white",
+        "shineColor": "blue"
       }
     },
     {
@@ -186,7 +199,11 @@
       },
       "ground": {
         "rotation": [90, 0, -45]
-      }
+      },
+      "glow": {
+        "level": [0, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31]
+      },
+      "renderStyle": "ammunition"
     },
     {
       "number": 16,
@@ -210,6 +227,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "steelBlue"
       }
     },
     {
@@ -222,7 +242,11 @@
       },
       "ground": {
         "rotation": [90, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "sand"
+      },
+      "renderStyle": "archangelStaff"
     },
     {
       "number": 19,
@@ -235,7 +259,11 @@
       },
       "ground": {
         "rotation": [90, 0, -45]
-      }
+      },
+      "glow": {
+        "color": "steelBlue"
+      },
+      "renderStyle": "greatReignCrossbow"
     },
     {
       "number": 20,
@@ -244,7 +272,11 @@
       "inventory": {
         "anchor": [0.5, 0.55],
         "rotation": [180, -90, 15]
-      }
+      },
+      "glow": {
+        "color": "copper"
+      },
+      "renderStyle": "arrowViperBow"
     },
     {
       "number": 21,
@@ -255,7 +287,11 @@
         "offset": [0, 0.12],
         "rotation": [180, -90, 15],
         "scale": 0.0022
-      }
+      },
+      "glow": {
+        "color": "leafGreen"
+      },
+      "renderStyle": "sylphWindBow"
     },
     {
       "number": 22,
@@ -266,7 +302,11 @@
         "offset": [-0.1, 0.08],
         "rotation": [180, -90, 15],
         "scale": 0.002
-      }
+      },
+      "glow": {
+        "color": "leafGreen"
+      },
+      "renderStyle": "albatrossBow"
     },
     {
       "number": 23,
@@ -280,6 +320,9 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "rose"
       }
     },
     {
@@ -294,6 +337,10 @@
       },
       "ground": {
         "rotation": [0, 270, -45]
+      },
+      "glow": {
+        "color": "periwinkle",
+        "meshes": [0]
       }
     }
   ]

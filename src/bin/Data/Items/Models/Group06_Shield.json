@@ -177,7 +177,8 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "renderStyle": "grandSoulShield"
     },
     {
       "number": 16,
@@ -189,7 +190,12 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "glow": {
+        "color": "lime",
+        "hiddenMesh": 2
+      },
+      "renderStyle": "elementalShield"
     },
     {
       "number": 17,
@@ -200,7 +206,8 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "renderStyle": "crimsonGlory"
     },
     {
       "number": 18,
@@ -211,7 +218,8 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "renderStyle": "salamanderShield"
     },
     {
       "number": 19,
@@ -222,7 +230,13 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "glow": {
+        "color": "emerald",
+        "meshes": [0],
+        "shineMeshes": [0]
+      },
+      "renderStyle": "frostBarrier"
     },
     {
       "number": 20,
@@ -233,7 +247,12 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "glow": {
+        "color": "periwinkle",
+        "meshes": [0]
+      },
+      "renderStyle": "guardianShield"
     },
     {
       "number": 21,
@@ -245,7 +264,12 @@
       },
       "ground": {
         "rotation": [0, 270, 225]
-      }
+      },
+      "glow": {
+        "color": "rust",
+        "meshes": [0]
+      },
+      "renderStyle": "crossShield"
     }
   ]
 }
