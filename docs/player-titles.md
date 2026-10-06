@@ -11,15 +11,16 @@ mostly by completing achievements, and each one has its own color.
 
 ## Where it's shown
 
-The title is the line right below the name, above the chat bubbles, wherever
-the client shows the name of a player: when the mouse is over the player, while
-it's chatting, and for your own character. Guild and alliance lines stay above
-the name, like before.
+The title is the top line of the name box, framed by « », above the alliance and
+guild lines, the name and the chat bubbles. It shows wherever the client shows
+the name of a player: when the mouse is over the player, while it's chatting,
+and for your own character.
 
 ```
-[Guild] Master
-PlayerName
-Lord of Arena
+« Leyenda del Continente »   <- title, in its own color
+[Masters] Master             <- guild
+Suripantha                   <- name
+a ver                        <- chat
 ```
 
 ## Choosing a title

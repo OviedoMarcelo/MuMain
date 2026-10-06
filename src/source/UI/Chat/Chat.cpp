@@ -82,7 +82,11 @@ namespace
 constexpr BYTE TitleBackgroundAlpha = 150;
 constexpr BYTE TitleTextAlpha = 255;
 
-// The title which the owner of the chat shows below its name, if it's a player with one.
+// The title is framed like « Leyenda del Continente ». The server limits it to 32 characters.
+constexpr size_t MaxDecoratedTitleLength = 48;
+using DecoratedTitle = wchar_t[MaxDecoratedTitleLength];
+
+// The title which the owner of the chat shows above its guild and name, if it's a player with one.
 const GameLogic::Social::PlayerTitle* FindTitle(const CHAT* c)
 {
     if (c->Owner == nullptr || c->Owner->Object.Kind != KIND_PLAYER)
@@ -93,6 +97,12 @@ const GameLogic::Social::PlayerTitle* FindTitle(const CHAT* c)
     return GameLogic::Social::PlayerTitles().Find(c->Owner->Key);
 }
 
+int Decorate(const GameLogic::Social::PlayerTitle& title, DecoratedTitle& buffer)
+{
+    const int length = swprintf(buffer, MaxDecoratedTitleLength, L"« %ls »", title.Text.c_str());
+    return length < 0 ? 0 : length;
+}
+
 void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
 {
     const auto* title = FindTitle(c);
@@ -101,9 +111,11 @@ void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
         return;
     }
 
+    DecoratedTitle text{};
+    Decorate(*title, text);
     g_pRenderText->SetBgColor(0, 0, 0, TitleBackgroundAlpha);
     g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, TitleTextAlpha);
-    g_pRenderText->RenderText(renderPos.x, renderPos.y, title->Text.c_str(), width, lineHeight, RT3_SORT_LEFT);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_LEFT);
     renderPos.y += lineHeight;
 }
 } // namespace
@@ -141,7 +153,9 @@ void SetBooleanPosition(CHAT* c)
     const auto* title = FindTitle(c);
     if (title != nullptr)
     {
-        const SIZE titleSize = g_pRenderText->MeasureText(title->Text.c_str(), static_cast<int>(title->Text.size()));
+        DecoratedTitle text{};
+        const int length = Decorate(*title, text);
+        const SIZE titleSize = g_pRenderText->MeasureText(text, length);
         c->Width = std::max<int>(c->Width, titleSize.cx);
     }
 
@@ -272,6 +286,9 @@ void RenderBoolean(int x, int y, CHAT* c)
         }
     }
 
+    // Title on top, then alliance, guild, name and the chat lines.
+    RenderTitle(c, RenderPos, RenderBoxSize.cx, iLineHeight);
+
     bool bGmMode = false;
 
     if (g_isCharacterBuff((&c->Owner->Object), eBuff_GMEffect) || (c->Owner->CtlCode == CTLCODE_20OPERATOR) || (c->Owner->CtlCode == CTLCODE_08OPERATOR))
@@ -339,8 +356,6 @@ void RenderBoolean(int x, int y, CHAT* c)
         g_pRenderText->RenderText(RenderPos.x, RenderPos.y, c->ID, RenderBoxSize.cx, iLineHeight, RT3_SORT_LEFT);
         RenderPos.y += iLineHeight;
     }
-
-    RenderTitle(c, RenderPos, RenderBoxSize.cx, iLineHeight);
 
     if (c->GuildColor == 0)
         g_pRenderText->SetBgColor(10, 30, 50, 150);
