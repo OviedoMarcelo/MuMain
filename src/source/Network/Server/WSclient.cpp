@@ -43,6 +43,7 @@
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
+#include "GameLogic/Social/PlayerTitleCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "UI/Legacy/UIMng.h"
@@ -568,6 +569,7 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
         // levels of the previous server don't apply anymore. This one sends its own after the login.
         GameLogic::Skills::ServerRequirements().Reset();
         GameLogic::Monsters::ServerMonsterLevels().Reset();
+        GameLogic::Social::PlayerTitles().Reset();
 
         CUIMng& rUIMng = CUIMng::Instance();
 
@@ -2621,6 +2623,9 @@ void ReceiveCreatePlayerViewportExtended(std::span<const BYTE> ReceiveBuffer)
     int CreateFlag = (Key >> 15);
     Key &= 0x7FFF;
 
+    // The key may have belonged to another player. If this one shows a title, the server sends it next.
+    GameLogic::Social::PlayerTitles().Remove(Key);
+
     // if (Index != MAX_CHARACTERS_CLIENT)
     //{
     // auto BackUpGuildMarkIndex = CharactersClient[Index].GuildMarkIndex;
@@ -2768,6 +2773,7 @@ void ReceiveCreateTransformViewport(std::span<const BYTE> ReceiveBuffer)
         WORD Key = ((WORD)(Data2->KeyH) << 8) + Data2->KeyL;
         int CreateFlag = (Key >> 15);
         Key &= 0x7FFF;
+        GameLogic::Social::PlayerTitles().Remove(Key);
 
         wchar_t characterName[MAX_USERNAME_SIZE + 1]{};
         CMultiLanguage::ConvertFromUtf8(characterName, Data2->ID, MAX_USERNAME_SIZE);
@@ -3204,6 +3210,7 @@ void ReceiveDeleteCharacterViewport(const BYTE* ReceiveBuffer)
         int DeleteFlag = (Key >> 15);
 
         Key &= 0x7FFF;
+        GameLogic::Social::PlayerTitles().Remove(Key);
 
         int iIndex = g_pPurchaseShopInventory->GetShopCharacterIndex();
         if (iIndex >= 0 && iIndex < MAX_CHARACTERS_CLIENT)
@@ -14142,6 +14149,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x06)
         {
             GameLogic::Monsters::ServerMonsterLevels().AddFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x07)
+        {
+            GameLogic::Social::PlayerTitles().AddFromPacket(ReceiveBuffer, Size);
         }
         else
         {

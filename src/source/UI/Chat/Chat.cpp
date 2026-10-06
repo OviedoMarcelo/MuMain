@@ -49,6 +49,7 @@
 #include "World/MapInfra/w_MapHeaders.h"
 #include "GameLogic/Combat/DuelMgr.h"
 #include "Core/Text/WideString.h"
+#include "GameLogic/Social/PlayerTitleCatalog.h"
 
 namespace UI::Chat
 {
@@ -74,6 +75,38 @@ typedef struct
 #define MAX_CHAT 120
 
 CHAT Chat[MAX_CHAT];
+
+namespace
+{
+// The background of the title line, a bit darker than the one of the name.
+constexpr BYTE TitleBackgroundAlpha = 150;
+constexpr BYTE TitleTextAlpha = 255;
+
+// The title which the owner of the chat shows below its name, if it's a player with one.
+const GameLogic::Social::PlayerTitle* FindTitle(const CHAT* c)
+{
+    if (c->Owner == nullptr || c->Owner->Object.Kind != KIND_PLAYER)
+    {
+        return nullptr;
+    }
+
+    return GameLogic::Social::PlayerTitles().Find(c->Owner->Key);
+}
+
+void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
+{
+    const auto* title = FindTitle(c);
+    if (title == nullptr)
+    {
+        return;
+    }
+
+    g_pRenderText->SetBgColor(0, 0, 0, TitleBackgroundAlpha);
+    g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, TitleTextAlpha);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, title->Text.c_str(), width, lineHeight, RT3_SORT_LEFT);
+    renderPos.y += lineHeight;
+}
+} // namespace
 
 void SetBooleanPosition(CHAT* c)
 {
@@ -105,8 +138,15 @@ void SetBooleanPosition(CHAT* c)
         c->Width = std::max<int>(std::max<int>(Size[0].cx, Size[1].cx), std::max<int>(Size[3].cx, Size[4].cx));
     else
         c->Width = std::max<int>(std::max<int>(Size[0].cx, Size[3].cx), Size[4].cx);
+    const auto* title = FindTitle(c);
+    if (title != nullptr)
+    {
+        const SIZE titleSize = g_pRenderText->MeasureText(title->Text.c_str(), static_cast<int>(title->Text.size()));
+        c->Width = std::max<int>(c->Width, titleSize.cx);
+    }
+
     const int lineCount = (c->ID[0] != L'\0') + (c->LifeTime[0] > 0) + (c->LifeTime[1] > 0)
-        + (c->Union[0] != L'\0') + (c->Guild[0] != L'\0');
+        + (c->Union[0] != L'\0') + (c->Guild[0] != L'\0') + (title != nullptr);
     c->LineHeight = 1;
     for (const SIZE& size : Size)
     {
@@ -299,6 +339,8 @@ void RenderBoolean(int x, int y, CHAT* c)
         g_pRenderText->RenderText(RenderPos.x, RenderPos.y, c->ID, RenderBoxSize.cx, iLineHeight, RT3_SORT_LEFT);
         RenderPos.y += iLineHeight;
     }
+
+    RenderTitle(c, RenderPos, RenderBoxSize.cx, iLineHeight);
 
     if (c->GuildColor == 0)
         g_pRenderText->SetBgColor(10, 30, 50, 150);

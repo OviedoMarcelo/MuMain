@@ -92,6 +92,13 @@ mu_add_test(
         ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/ServerMonsterLevelCatalog.cpp
 )
 
+mu_add_test(
+    NAME test_player_title_catalog
+    SOURCES
+        test_player_title_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Social/PlayerTitleCatalog.cpp
+)
+
 if(DOTNET_EXECUTABLE)
     add_test(
         NAME login_diagnostics_contract
