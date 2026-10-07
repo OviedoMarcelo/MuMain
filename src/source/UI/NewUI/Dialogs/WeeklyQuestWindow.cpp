@@ -9,6 +9,7 @@
 
 #include "Audio/DSPlaySound.h"
 #include "Core/Text/TextLineWrap.h"
+#include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "UI/NewUI/NewUISystem.h"
 
 #include <algorithm>
@@ -17,6 +18,8 @@
 using namespace SEASON3B;
 using GameLogic::Quests::QuestCategory;
 using GameLogic::Quests::QuestPeriod;
+using GameLogic::Quests::SeasonPass;
+using GameLogic::Quests::SeasonPassLevel;
 using GameLogic::Quests::WeeklyQuest;
 using GameLogic::Quests::WeeklyQuestCatalog;
 using GameLogic::Quests::WeeklyQuests;
@@ -269,6 +272,7 @@ SEASON3B::CWeeklyQuestWindow::CWeeklyQuestWindow()
     m_shownRevision = 0;
     m_rowsRevision = 0;
     m_resetQuestIndex = QuestListRow::NoQuest;
+    m_seasonRevision = 0;
 }
 
 SEASON3B::CWeeklyQuestWindow::~CWeeklyQuestWindow()
@@ -312,6 +316,11 @@ void SEASON3B::CWeeklyQuestWindow::SetPos(int x, int y)
 
     m_BtnExit.ChangeButtonInfo(m_Pos.x + EXIT_BUTTON_X, m_Pos.y + EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
     m_BtnBack.ChangeButtonInfo(m_Pos.x + CONTENT_LEFT, m_Pos.y + BUTTON_ROW_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+    // The season pass button sits at the right of the button row, where the details page has nothing.
+    const auto rightButtonX = m_Pos.x + WINDOW_WIDTH - CONTENT_LEFT - BUTTON_WIDTH;
+    m_BtnSeason.ChangeButtonInfo(rightButtonX, m_Pos.y + BUTTON_ROW_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+    m_BtnClaim.ChangeButtonInfo(rightButtonX, m_Pos.y + BUTTON_ROW_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
 }
 
 void SEASON3B::CWeeklyQuestWindow::InitButtons()
@@ -324,6 +333,12 @@ void SEASON3B::CWeeklyQuestWindow::InitButtons()
 
     m_BtnBack.ChangeButtonImgState(true, IMAGE_WEEKLYQUEST_BTN, true);
     m_BtnBack.ChangeText(&I18N::Game::ChatCommandsBack);
+
+    m_BtnSeason.ChangeButtonImgState(true, IMAGE_WEEKLYQUEST_BTN, true);
+    m_BtnSeason.ChangeText(&I18N::Game::SeasonPassButton);
+
+    m_BtnClaim.ChangeButtonImgState(true, IMAGE_WEEKLYQUEST_BTN, true);
+    m_BtnClaim.ChangeText(&I18N::Game::SeasonPassClaim);
 }
 
 float SEASON3B::CWeeklyQuestWindow::GetLayerDepth()
@@ -400,6 +415,10 @@ void SEASON3B::CWeeklyQuestWindow::ShowPage(ePAGE page)
     if (page == PAGE_DETAILS)
     {
         WrapDetailsOfSelected();
+    }
+    else if (page == PAGE_SEASON)
+    {
+        WrapSeasonPass();
     }
 }
 
@@ -493,7 +512,7 @@ void SEASON3B::CWeeklyQuestWindow::WrapHint()
 
 int SEASON3B::CWeeklyQuestWindow::GetScrollableRowCount() const
 {
-    if (m_page == PAGE_DETAILS)
+    if (m_page != PAGE_LIST)
     {
         return static_cast<int>(m_detailLines.size());
     }
@@ -503,8 +522,86 @@ int SEASON3B::CWeeklyQuestWindow::GetScrollableRowCount() const
 
 int SEASON3B::CWeeklyQuestWindow::GetVisibleRowCount() const
 {
-    // The details page has no hint, so it can use the space down to its button.
-    return m_page == PAGE_DETAILS ? DETAIL_VISIBLE_ROWS : VISIBLE_ROWS;
+    // The details and season pages have no hint, so they can use the space down to their buttons.
+    return m_page != PAGE_LIST ? DETAIL_VISIBLE_ROWS : VISIBLE_ROWS;
+}
+
+void SEASON3B::CWeeklyQuestWindow::WrapSeasonPass()
+{
+    m_detailLines.clear();
+    m_seasonRevision = SeasonPass().GetRevision();
+
+    if (!SeasonPass().HasSeason())
+    {
+        AddDetailLines(I18N::Game::SeasonPassNone, STYLE_DESCRIPTION);
+        return;
+    }
+
+    AddSeasonSummaryLines();
+    for (const auto& level : SeasonPass().GetLevels())
+    {
+        m_detailLines.push_back({});
+        AddSeasonLevelLines(level);
+    }
+}
+
+void SEASON3B::CWeeklyQuestWindow::AddSeasonSummaryLines()
+{
+    const auto& pass = SeasonPass();
+    constexpr const wchar_t* Separator = L" · ";
+    AddDetailLines(pass.GetSeasonName(), STYLE_TITLE);
+    AddDetailLines(std::wstring(pass.IsPremium() ? I18N::Game::SeasonPassPremium : I18N::Game::SeasonPassFree) + Separator +
+                       FormatDaysHoursMinutes(I18N::Game::SeasonPassEndsIn, pass.GetTimeUntilEnd()),
+                   STYLE_TYPE);
+    m_detailLines.push_back({});
+
+    wchar_t text[FormattedTextLength] = {};
+    mu_swprintf_s(text, I18N::Game::SeasonPassLevel, pass.GetLevel(), pass.GetMaximumLevel());
+    AddDetailLines(text, STYLE_HEADING);
+    if (pass.GetLevel() >= pass.GetMaximumLevel())
+    {
+        AddDetailLines(I18N::Game::SeasonPassMaximumLevel, STYLE_COMPLETED);
+    }
+    else
+    {
+        mu_swprintf_s(text, I18N::Game::SeasonPassExperience, static_cast<int>(pass.GetExperienceInLevel()),
+                      static_cast<int>(pass.GetExperiencePerLevel()));
+        AddDetailLines(text, STYLE_VALUE);
+    }
+
+    AddDetailLines(I18N::Game::SeasonPassHint, STYLE_TYPE);
+}
+
+void SEASON3B::CWeeklyQuestWindow::AddSeasonLevelLines(const SeasonPassLevel& level)
+{
+    const auto& pass = SeasonPass();
+    const bool isReached = level.Level <= pass.GetLevel();
+
+    wchar_t text[FormattedTextLength] = {};
+    mu_swprintf_s(text, I18N::Game::SeasonPassLevelHeading, level.Level);
+    const auto headingStyle = !isReached ? STYLE_STEP_LATER : pass.IsClaimable(level) ? STYLE_PENDING : STYLE_COMPLETED;
+    AddDetailLines(text, headingStyle);
+
+    // A track is in the background when it's out of reach: a level which isn't reached, or premium without the pass.
+    const auto addTrack = [&](const wchar_t* format, const std::wstring& rewards, bool isClaimed, bool isOpen) {
+        if (rewards.empty())
+        {
+            return;
+        }
+
+        mu_swprintf_s(text, format, rewards.c_str());
+        std::wstring line = text;
+        if (isClaimed)
+        {
+            line += L" ";
+            line += I18N::Game::SeasonPassReceived;
+        }
+
+        AddDetailLines(line, isClaimed ? STYLE_STEP_DONE : isOpen ? STYLE_VALUE : STYLE_STEP_LATER);
+    };
+
+    addTrack(I18N::Game::SeasonPassFreeReward, level.FreeRewards, level.IsFreeClaimed, isReached);
+    addTrack(I18N::Game::SeasonPassPremiumReward, level.PremiumRewards, level.IsPremiumClaimed, isReached && pass.IsPremium());
 }
 
 bool SEASON3B::CWeeklyQuestWindow::IsRowHovered(int y) const
@@ -538,7 +635,7 @@ bool SEASON3B::CWeeklyQuestWindow::UpdateMouseEvent()
         return false;
     }
 
-    if (m_page == PAGE_DETAILS && m_BtnBack.UpdateMouseEvent())
+    if (m_page != PAGE_LIST && m_BtnBack.UpdateMouseEvent())
     {
         ShowPage(PAGE_LIST);
         PlayBuffer(SOUND_CLICK01);
@@ -546,6 +643,11 @@ bool SEASON3B::CWeeklyQuestWindow::UpdateMouseEvent()
     }
 
     if (m_page == PAGE_LIST && UpdateListPageMouseEvent())
+    {
+        return false;
+    }
+
+    if (m_page == PAGE_SEASON && UpdateSeasonPageMouseEvent())
     {
         return false;
     }
@@ -565,8 +667,30 @@ bool SEASON3B::CWeeklyQuestWindow::UpdateMouseEvent()
     return false;
 }
 
+bool SEASON3B::CWeeklyQuestWindow::UpdateSeasonPageMouseEvent()
+{
+    // The button is only there while there are rewards to claim.
+    if (!SeasonPass().HasClaimableRewards() || !m_BtnClaim.UpdateMouseEvent())
+    {
+        return false;
+    }
+
+    PlayBuffer(SOUND_CLICK01);
+
+    // The server answers with the rewards and a new SeasonPassState.
+    GameLogic::Commands::ChatCommandCatalog::Execute(L"/pase reclamar");
+    return true;
+}
+
 bool SEASON3B::CWeeklyQuestWindow::UpdateListPageMouseEvent()
 {
+    if (SeasonPass().IsAvailable() && m_BtnSeason.UpdateMouseEvent())
+    {
+        PlayBuffer(SOUND_CLICK01);
+        ShowPage(PAGE_SEASON);
+        return true;
+    }
+
     for (int row = 0; row < VISIBLE_ROWS; ++row)
     {
         const auto index = m_scrollOffset + row;
@@ -645,6 +769,15 @@ bool SEASON3B::CWeeklyQuestWindow::Update()
         m_scrollOffset = std::min(m_scrollOffset, lastOffset);
     }
 
+    if (m_page == PAGE_SEASON && m_seasonRevision != SeasonPass().GetRevision())
+    {
+        // The server sent new experience or claimed rewards: keep the scroll position, it's the same list.
+        const auto scrollOffset = m_scrollOffset;
+        WrapSeasonPass();
+        m_scrollOffset = std::min(scrollOffset, std::max(0, GetScrollableRowCount() - GetVisibleRowCount()));
+        return true;
+    }
+
     if (m_page != PAGE_DETAILS || m_shownRevision == WeeklyQuests().GetRevision())
     {
         return true;
@@ -674,12 +807,18 @@ bool SEASON3B::CWeeklyQuestWindow::Render()
     RenderBaseWindow();
     RenderTitle();
 
-    if (m_page == PAGE_DETAILS)
+    if (m_page != PAGE_LIST)
     {
+        // The season page is a list of lines, drawn like the details of a quest.
         RenderPanel(DETAIL_PANEL_HEIGHT);
         RenderDetailsPage();
         m_BtnBack.SetFont(g_hFont);
         m_BtnBack.Render();
+        if (m_page == PAGE_SEASON && SeasonPass().HasClaimableRewards())
+        {
+            m_BtnClaim.SetFont(g_hFont);
+            m_BtnClaim.Render();
+        }
     }
     else
     {
@@ -687,6 +826,11 @@ bool SEASON3B::CWeeklyQuestWindow::Render()
         RenderListPage();
         RenderHint();
         RenderTimeUntilReset();
+        if (SeasonPass().IsAvailable())
+        {
+            m_BtnSeason.SetFont(g_hFont);
+            m_BtnSeason.Render();
+        }
     }
 
     m_BtnExit.Render();

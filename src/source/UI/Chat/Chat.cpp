@@ -49,6 +49,7 @@
 #include "World/MapInfra/w_MapHeaders.h"
 #include "GameLogic/Combat/DuelMgr.h"
 #include "Core/Text/WideString.h"
+#include "GameLogic/Social/PlayerTitleCatalog.h"
 
 namespace UI::Chat
 {
@@ -74,6 +75,81 @@ typedef struct
 #define MAX_CHAT 120
 
 CHAT Chat[MAX_CHAT];
+
+namespace
+{
+// The background of the title line, a bit darker than the one of the name.
+constexpr BYTE TitleBackgroundAlpha = 150;
+constexpr BYTE TitleTextAlpha = 255;
+
+// The title is framed like « Leyenda del Continente ». The server limits it to 32 characters.
+constexpr size_t MaxDecoratedTitleLength = 48;
+using DecoratedTitle = wchar_t[MaxDecoratedTitleLength];
+
+// The title which the owner of the chat shows above its guild and name, if it's a player with one.
+const GameLogic::Social::PlayerTitle* FindTitle(const CHAT* c)
+{
+    if (c->Owner == nullptr || c->Owner->Object.Kind != KIND_PLAYER)
+    {
+        return nullptr;
+    }
+
+    return GameLogic::Social::PlayerTitles().Find(c->Owner->Key);
+}
+
+int Decorate(const GameLogic::Social::PlayerTitle& title, DecoratedTitle& buffer)
+{
+    const int length = swprintf(buffer, MaxDecoratedTitleLength, L"« %ls »", title.Text.c_str());
+    return length < 0 ? 0 : length;
+}
+
+// The glow is a halo in the color of the title: the text drawn again, slightly shifted in every direction and
+// translucent, below the sharp text. Its strength pulses slowly, so that the title catches the eye.
+constexpr BYTE TitleGlowMinimumAlpha = 40;
+constexpr BYTE TitleGlowPulseAlpha = 50;
+constexpr float TitleGlowPulseSpeed = 0.002f;
+// Only the four sides: the diagonal copies made the edges of the glyphs look pixelated.
+constexpr POINT TitleGlowOffsets[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+// The glow reaches one pixel beyond the text on each side.
+constexpr int TitleGlowMargin = 2;
+
+BYTE GetTitleGlowAlpha()
+{
+    const float pulse = 0.5f + 0.5f * sinf(static_cast<float>(WorldTime) * TitleGlowPulseSpeed);
+    return static_cast<BYTE>(TitleGlowMinimumAlpha + TitleGlowPulseAlpha * pulse);
+}
+
+void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
+{
+    const auto* title = FindTitle(c);
+    if (title == nullptr)
+    {
+        return;
+    }
+
+    DecoratedTitle text{};
+    Decorate(*title, text);
+    g_pRenderText->SetFont(g_hFontBold);
+
+    // The dark background of the line, once: the glow and the text are drawn without one.
+    g_pRenderText->SetBgColor(0, 0, 0, TitleBackgroundAlpha);
+    g_pRenderText->SetTextColor(0, 0, 0, 0);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_CENTER);
+    g_pRenderText->SetBgColor(0, 0, 0, 0);
+
+    g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, GetTitleGlowAlpha());
+    for (const auto& offset : TitleGlowOffsets)
+    {
+        g_pRenderText->RenderText(renderPos.x + offset.x, renderPos.y + offset.y, text, width, lineHeight, RT3_SORT_CENTER);
+    }
+
+    g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, TitleTextAlpha);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_CENTER);
+
+    g_pRenderText->SetFont(g_hFont);
+    renderPos.y += lineHeight;
+}
+} // namespace
 
 void SetBooleanPosition(CHAT* c)
 {
@@ -105,13 +181,27 @@ void SetBooleanPosition(CHAT* c)
         c->Width = std::max<int>(std::max<int>(Size[0].cx, Size[1].cx), std::max<int>(Size[3].cx, Size[4].cx));
     else
         c->Width = std::max<int>(std::max<int>(Size[0].cx, Size[3].cx), Size[4].cx);
+    const auto* title = FindTitle(c);
+    SIZE titleSize{};
+    if (title != nullptr)
+    {
+        // Measured with the bold font it's drawn with, and the glow reaches one pixel further.
+        DecoratedTitle text{};
+        const int length = Decorate(*title, text);
+        g_pRenderText->SetFont(g_hFontBold);
+        titleSize = g_pRenderText->MeasureText(text, length);
+        g_pRenderText->SetFont(g_hFont);
+        c->Width = std::max<int>(c->Width, titleSize.cx + TitleGlowMargin);
+    }
+
     const int lineCount = (c->ID[0] != L'\0') + (c->LifeTime[0] > 0) + (c->LifeTime[1] > 0)
-        + (c->Union[0] != L'\0') + (c->Guild[0] != L'\0');
+        + (c->Union[0] != L'\0') + (c->Guild[0] != L'\0') + (title != nullptr);
     c->LineHeight = 1;
     for (const SIZE& size : Size)
     {
         c->LineHeight = std::max<int>(c->LineHeight, size.cy);
     }
+    c->LineHeight = std::max<int>(c->LineHeight, titleSize.cy);
 
     if (lstrlen(c->szShopTitle) > 0)
     {
@@ -231,6 +321,9 @@ void RenderBoolean(int x, int y, CHAT* c)
             }
         }
     }
+
+    // Title on top, then alliance, guild, name and the chat lines.
+    RenderTitle(c, RenderPos, RenderBoxSize.cx, iLineHeight);
 
     bool bGmMode = false;
 
