@@ -103,6 +103,21 @@ int Decorate(const GameLogic::Social::PlayerTitle& title, DecoratedTitle& buffer
     return length < 0 ? 0 : length;
 }
 
+// The glow is a halo in the color of the title: the text drawn again, slightly shifted in every direction and
+// translucent, below the sharp text. Its strength pulses slowly, so that the title catches the eye.
+constexpr BYTE TitleGlowMinimumAlpha = 60;
+constexpr BYTE TitleGlowPulseAlpha = 70;
+constexpr float TitleGlowPulseSpeed = 0.003f;
+constexpr POINT TitleGlowOffsets[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+// The glow reaches one pixel beyond the text on each side.
+constexpr int TitleGlowMargin = 2;
+
+BYTE GetTitleGlowAlpha()
+{
+    const float pulse = 0.5f + 0.5f * sinf(static_cast<float>(WorldTime) * TitleGlowPulseSpeed);
+    return static_cast<BYTE>(TitleGlowMinimumAlpha + TitleGlowPulseAlpha * pulse);
+}
+
 void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
 {
     const auto* title = FindTitle(c);
@@ -113,9 +128,24 @@ void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
 
     DecoratedTitle text{};
     Decorate(*title, text);
+    g_pRenderText->SetFont(g_hFontBold);
+
+    // The dark background of the line, once: the glow and the text are drawn without one.
     g_pRenderText->SetBgColor(0, 0, 0, TitleBackgroundAlpha);
+    g_pRenderText->SetTextColor(0, 0, 0, 0);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_LEFT);
+    g_pRenderText->SetBgColor(0, 0, 0, 0);
+
+    g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, GetTitleGlowAlpha());
+    for (const auto& offset : TitleGlowOffsets)
+    {
+        g_pRenderText->RenderText(renderPos.x + offset.x, renderPos.y + offset.y, text, width, lineHeight, RT3_SORT_LEFT);
+    }
+
     g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, TitleTextAlpha);
     g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_LEFT);
+
+    g_pRenderText->SetFont(g_hFont);
     renderPos.y += lineHeight;
 }
 } // namespace
@@ -151,12 +181,16 @@ void SetBooleanPosition(CHAT* c)
     else
         c->Width = std::max<int>(std::max<int>(Size[0].cx, Size[3].cx), Size[4].cx);
     const auto* title = FindTitle(c);
+    SIZE titleSize{};
     if (title != nullptr)
     {
+        // Measured with the bold font it's drawn with, and the glow reaches one pixel further.
         DecoratedTitle text{};
         const int length = Decorate(*title, text);
-        const SIZE titleSize = g_pRenderText->MeasureText(text, length);
-        c->Width = std::max<int>(c->Width, titleSize.cx);
+        g_pRenderText->SetFont(g_hFontBold);
+        titleSize = g_pRenderText->MeasureText(text, length);
+        g_pRenderText->SetFont(g_hFont);
+        c->Width = std::max<int>(c->Width, titleSize.cx + TitleGlowMargin);
     }
 
     const int lineCount = (c->ID[0] != L'\0') + (c->LifeTime[0] > 0) + (c->LifeTime[1] > 0)
@@ -166,6 +200,7 @@ void SetBooleanPosition(CHAT* c)
     {
         c->LineHeight = std::max<int>(c->LineHeight, size.cy);
     }
+    c->LineHeight = std::max<int>(c->LineHeight, titleSize.cy);
 
     if (lstrlen(c->szShopTitle) > 0)
     {

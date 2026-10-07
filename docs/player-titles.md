@@ -11,7 +11,8 @@ mostly by completing achievements, and each one has its own color.
 
 ## Where it's shown
 
-The title is the top line of the name box, framed by « », above the alliance and
+The title is the top line of the name box, framed by « », in bold and with a soft
+glow in its own color which slowly pulses. It stands above the alliance and
 guild lines, the name and the chat bubbles. It shows wherever the client shows
 the name of a player: when the mouse is over the player, while it's chatting,
 and for your own character.
