@@ -105,10 +105,11 @@ int Decorate(const GameLogic::Social::PlayerTitle& title, DecoratedTitle& buffer
 
 // The glow is a halo in the color of the title: the text drawn again, slightly shifted in every direction and
 // translucent, below the sharp text. Its strength pulses slowly, so that the title catches the eye.
-constexpr BYTE TitleGlowMinimumAlpha = 60;
-constexpr BYTE TitleGlowPulseAlpha = 70;
+constexpr BYTE TitleGlowMinimumAlpha = 30;
+constexpr BYTE TitleGlowPulseAlpha = 35;
 constexpr float TitleGlowPulseSpeed = 0.003f;
-constexpr POINT TitleGlowOffsets[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+// Only the four sides: the diagonal copies made the edges of the glyphs look pixelated.
+constexpr POINT TitleGlowOffsets[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 // The glow reaches one pixel beyond the text on each side.
 constexpr int TitleGlowMargin = 2;
 
