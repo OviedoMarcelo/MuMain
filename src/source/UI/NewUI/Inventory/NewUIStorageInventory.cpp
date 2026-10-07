@@ -125,10 +125,9 @@ bool CNewUIStorageInventory::UpdateMouseEvent()
             return false;
         }
 
-        if (!IsNone(VK_LBUTTON))
-        {
-            return false;
-        }
+        // Also on a plain hover: otherwise no window owns the mouse and the world behind it
+        // (NPCs, players, items on the ground) gets highlighted and clicked through the window.
+        return false;
     }
 
     return true;
