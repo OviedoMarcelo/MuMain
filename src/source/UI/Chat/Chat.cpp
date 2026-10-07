@@ -134,17 +134,17 @@ void RenderTitle(const CHAT* c, POINT& renderPos, int width, int lineHeight)
     // The dark background of the line, once: the glow and the text are drawn without one.
     g_pRenderText->SetBgColor(0, 0, 0, TitleBackgroundAlpha);
     g_pRenderText->SetTextColor(0, 0, 0, 0);
-    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_LEFT);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_CENTER);
     g_pRenderText->SetBgColor(0, 0, 0, 0);
 
     g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, GetTitleGlowAlpha());
     for (const auto& offset : TitleGlowOffsets)
     {
-        g_pRenderText->RenderText(renderPos.x + offset.x, renderPos.y + offset.y, text, width, lineHeight, RT3_SORT_LEFT);
+        g_pRenderText->RenderText(renderPos.x + offset.x, renderPos.y + offset.y, text, width, lineHeight, RT3_SORT_CENTER);
     }
 
     g_pRenderText->SetTextColor(title->Red, title->Green, title->Blue, TitleTextAlpha);
-    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_LEFT);
+    g_pRenderText->RenderText(renderPos.x, renderPos.y, text, width, lineHeight, RT3_SORT_CENTER);
 
     g_pRenderText->SetFont(g_hFont);
     renderPos.y += lineHeight;

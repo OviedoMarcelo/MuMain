@@ -18,7 +18,7 @@ the name of a player: when the mouse is over the player, while it's chatting,
 and for your own character.
 
 ```
-« Leyenda del Continente »   <- title, in its own color
+  « Leyenda del Continente »   <- title, centered, in its own color
 [Masters] Master             <- guild
 Suripantha                   <- name
 a ver                        <- chat
