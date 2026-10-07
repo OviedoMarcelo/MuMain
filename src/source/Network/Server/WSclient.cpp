@@ -44,6 +44,7 @@
 #include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
 #include "GameLogic/Social/PlayerTitleCatalog.h"
+#include "GameLogic/Quests/SeasonPassCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "UI/Legacy/UIMng.h"
@@ -570,6 +571,7 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
         GameLogic::Skills::ServerRequirements().Reset();
         GameLogic::Monsters::ServerMonsterLevels().Reset();
         GameLogic::Social::PlayerTitles().Reset();
+        GameLogic::Quests::SeasonPass().Reset();
 
         CUIMng& rUIMng = CUIMng::Instance();
 
@@ -14153,6 +14155,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x07)
         {
             GameLogic::Social::PlayerTitles().AddFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x08)
+        {
+            GameLogic::Quests::SeasonPass().AddFromPacket(ReceiveBuffer, Size);
         }
         else
         {

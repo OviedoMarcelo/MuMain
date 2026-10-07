@@ -93,6 +93,13 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME test_season_pass_catalog
+    SOURCES
+        test_season_pass_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Quests/SeasonPassCatalog.cpp
+)
+
+mu_add_test(
     NAME test_player_title_catalog
     SOURCES
         test_player_title_catalog.cpp

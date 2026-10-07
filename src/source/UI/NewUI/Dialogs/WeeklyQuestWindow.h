@@ -8,6 +8,7 @@
 #include "UI/NewUI/UILayoutPolicy.h"
 #include "UI/NewUI/Widgets/NewUIButton.h"
 #include "UI/Scaling/UITransform.h"
+#include "GameLogic/Quests/SeasonPassCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "UI/Quests/QuestList.h"
 
@@ -86,6 +87,8 @@ class CWeeklyQuestWindow : public CNewUIObj
     {
         PAGE_LIST,
         PAGE_DETAILS,
+        // The season pass: the level, the experience and the rewards of each level.
+        PAGE_SEASON,
     };
 
 public:
@@ -145,6 +148,11 @@ private:
     void AddProgressLines(const GameLogic::Quests::WeeklyQuest& quest);
     void AddStepLines(const GameLogic::Quests::WeeklyQuest& quest);
     void AddDetailLines(const std::wstring& text, eDETAIL_STYLE style);
+    // The season pass page uses the lines of the details page, built from the season pass.
+    void WrapSeasonPass();
+    void AddSeasonSummaryLines();
+    void AddSeasonLevelLines(const GameLogic::Quests::SeasonPassLevel& level);
+    bool UpdateSeasonPageMouseEvent();
     void WrapHint();
     int GetScrollableRowCount() const;
     int GetVisibleRowCount() const;
@@ -194,7 +202,13 @@ private:
     std::vector<DetailLine> m_detailLines;
     std::vector<std::wstring> m_hintLines;
 
+    // The revision of the season pass which the season page shows.
+    uint32_t m_seasonRevision;
+
     CNewUIButton m_BtnExit;
     CNewUIButton m_BtnBack;
+    // On the list: opens the season pass. On the season pass: hands out the reached rewards.
+    CNewUIButton m_BtnSeason;
+    CNewUIButton m_BtnClaim;
 };
 } // namespace SEASON3B

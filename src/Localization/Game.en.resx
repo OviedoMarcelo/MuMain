@@ -13216,4 +13216,46 @@
   <data name="QuestRequirementBuff" xml:space="preserve">
     <value>Bonus: %ls</value>
   </data>
+  <data name="SeasonPassButton" xml:space="preserve">
+    <value>Pass</value>
+  </data>
+  <data name="SeasonPassClaim" xml:space="preserve">
+    <value>Claim</value>
+  </data>
+  <data name="SeasonPassNone" xml:space="preserve">
+    <value>No season is running right now.</value>
+  </data>
+  <data name="SeasonPassLevel" xml:space="preserve">
+    <value>Level %d / %d</value>
+  </data>
+  <data name="SeasonPassExperience" xml:space="preserve">
+    <value>XP %d / %d</value>
+  </data>
+  <data name="SeasonPassMaximumLevel" xml:space="preserve">
+    <value>Maximum level reached</value>
+  </data>
+  <data name="SeasonPassEndsIn" xml:space="preserve">
+    <value>Ends in %dd %dh %dm</value>
+  </data>
+  <data name="SeasonPassPremium" xml:space="preserve">
+    <value>Premium pass</value>
+  </data>
+  <data name="SeasonPassFree" xml:space="preserve">
+    <value>Free pass</value>
+  </data>
+  <data name="SeasonPassLevelHeading" xml:space="preserve">
+    <value>Level %d</value>
+  </data>
+  <data name="SeasonPassFreeReward" xml:space="preserve">
+    <value>Free: %ls</value>
+  </data>
+  <data name="SeasonPassPremiumReward" xml:space="preserve">
+    <value>Premium: %ls</value>
+  </data>
+  <data name="SeasonPassReceived" xml:space="preserve">
+    <value>(received)</value>
+  </data>
+  <data name="SeasonPassHint" xml:space="preserve">
+    <value>Earn pass XP by completing quests and by playing.</value>
+  </data>
 </root>

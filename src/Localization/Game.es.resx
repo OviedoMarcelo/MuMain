@@ -13133,4 +13133,46 @@
   <data name="QuestRequirementBuff" xml:space="preserve">
     <value>Bonus: %ls</value>
   </data>
+  <data name="SeasonPassButton" xml:space="preserve">
+    <value>Pase</value>
+  </data>
+  <data name="SeasonPassClaim" xml:space="preserve">
+    <value>Reclamar</value>
+  </data>
+  <data name="SeasonPassNone" xml:space="preserve">
+    <value>No hay una temporada activa en este momento.</value>
+  </data>
+  <data name="SeasonPassLevel" xml:space="preserve">
+    <value>Nivel %d / %d</value>
+  </data>
+  <data name="SeasonPassExperience" xml:space="preserve">
+    <value>XP %d / %d</value>
+  </data>
+  <data name="SeasonPassMaximumLevel" xml:space="preserve">
+    <value>Nivel máximo alcanzado</value>
+  </data>
+  <data name="SeasonPassEndsIn" xml:space="preserve">
+    <value>Termina en %dd %dh %dm</value>
+  </data>
+  <data name="SeasonPassPremium" xml:space="preserve">
+    <value>Pase premium</value>
+  </data>
+  <data name="SeasonPassFree" xml:space="preserve">
+    <value>Pase gratis</value>
+  </data>
+  <data name="SeasonPassLevelHeading" xml:space="preserve">
+    <value>Nivel %d</value>
+  </data>
+  <data name="SeasonPassFreeReward" xml:space="preserve">
+    <value>Gratis: %ls</value>
+  </data>
+  <data name="SeasonPassPremiumReward" xml:space="preserve">
+    <value>Premium: %ls</value>
+  </data>
+  <data name="SeasonPassReceived" xml:space="preserve">
+    <value>(recibido)</value>
+  </data>
+  <data name="SeasonPassHint" xml:space="preserve">
+    <value>Ganás XP del pase completando quests y jugando.</value>
+  </data>
 </root>

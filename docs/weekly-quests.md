@@ -78,3 +78,19 @@ The quests, their texts and the progress are sent by the server when the
 character enters the game, and the progress is updated while you play. Nothing
 is stored on your computer - the texts are whatever the server operator
 configured, in the language the server uses.
+
+## Season pass
+
+When the server runs a season pass, the list page has a **Pass** button at the
+bottom right. It opens the pass of your account: the season, whether it's the
+free or the premium pass, when the season ends, your level and the experience
+towards the next one, and every level with its rewards.
+
+- Quests and playing give experience of the pass. All characters of the account
+  share it.
+- The free rewards are for everyone, the premium ones only with the premium
+  pass. Rewards of a level which isn't reached yet, or premium rewards without
+  the premium pass, are greyed out. Received rewards are marked.
+- **Claim** hands out all rewards of the reached levels which you didn't receive
+  yet. It's the same as typing `/pase reclamar`, and only shows up while there
+  is something to claim. When the inventory is full, the rewards stay claimable.
