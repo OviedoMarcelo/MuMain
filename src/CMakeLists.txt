@@ -348,6 +348,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   target_sources(Main PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/source/App/Platform/Windows/resource.rc"
   )
+  # The resource compiler doesn't report the icons it embeds: without this, a changed icon
+  # isn't picked up by an existing build.
+  set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/source/App/Platform/Windows/resource.rc"
+    PROPERTIES OBJECT_DEPENDS
+      "${CMAKE_CURRENT_SOURCE_DIR}/source/App/Platform/Windows/icon1.ico;${CMAKE_CURRENT_SOURCE_DIR}/source/App/Platform/Windows/icon2.ico")
 endif()
 
 # Copy assets directory next to executable. Platform-agnostic: any build
