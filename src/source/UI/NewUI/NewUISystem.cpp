@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "UI/NewUI/NewUISystem.h"
 #include "UI/NewUI/Dialogs/NewUIMessageBox.h"
+#include "UI/NewUI/HUD/MainFrameLayout.h"
 #include "UI/Scaling/UITransform.h"
+
+#include <cmath>
 
 #include "GameLogic/Items/PersonalShopTitleImp.h"
 #include "World/MapInfra/MapManager.h"
@@ -17,6 +20,21 @@ namespace
     constexpr int PanelColumnX(int columns)
     {
         return kLayoutBaseX - (kLayoutPanelWidth * columns);
+    }
+
+    // The chat sits right above the bottom bar. Its highest part is the orbs, and the chat input box
+    // spans the left orb, so the chat rests on their top (it used to rest on the old, flat 51-high bar).
+    constexpr int kChatInputBoxHeight = 47;
+
+    int ChatInputBoxY()
+    {
+        return static_cast<int>(std::floor(UI::MainFrame::Layout::LifeOrb().y)) - kChatInputBoxHeight;
+    }
+
+    // The chat log is drawn upwards from its y, one pixel under the input box's top edge.
+    int ChatLogBottomY()
+    {
+        return ChatInputBoxY() + 1;
     }
 
     bool IsHeroPositionLayoutInterface(DWORD dwKey)
@@ -136,7 +154,7 @@ bool CNewUISystem::Create()
         return false;
 
     m_pNewChatLogWindow = new CNewUIChatLogWindow;
-    if (false == m_pNewChatLogWindow->Create(m_pNewUIMng, 0, 480 - 50 - 47, 6))
+    if (false == m_pNewChatLogWindow->Create(m_pNewUIMng, 0, ChatLogBottomY(), 6))
         return false;
 
     m_pNewSystemLogWindow = new CNewUISystemLogWindow;
@@ -217,7 +235,7 @@ bool CNewUISystem::LoadMainSceneInterface()
 
     m_pNewChatInputBox = new CNewUIChatInputBox;
 
-    if (false == m_pNewChatInputBox->Create(m_pNewUIMng, m_pNewChatLogWindow, m_pNewSystemLogWindow, 0, 480 - 51 - 47))
+    if (false == m_pNewChatInputBox->Create(m_pNewUIMng, m_pNewChatLogWindow, m_pNewSystemLogWindow, 0, ChatInputBoxY()))
     {
         return false;
     }
