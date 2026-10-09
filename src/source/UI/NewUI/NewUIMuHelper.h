@@ -364,6 +364,8 @@ namespace SEASON3B
         void SetPos(int x, int y);
         void RenderBackPane(int x, int y, int width, int height, const wchar_t* pszHeader);
         void RenderHpLevel(int x, int y, int width, int height, int level, const wchar_t* pszLabel);
+        void UpdateLevelBar(int y, int& level);
+        void RenderAutoPotionPane();
         void LoadImages();
         void UnloadImages();
 
@@ -392,6 +394,7 @@ namespace SEASON3B
         int m_iCurrentHealThreshold;
         int m_iCurrentPartyHealThreshold;
         int m_iCurrentPotionThreshold;
+        int m_iCurrentManaPotionThreshold = 0;
     };
 
 }

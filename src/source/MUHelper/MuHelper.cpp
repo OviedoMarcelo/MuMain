@@ -27,7 +27,6 @@
 
 constexpr int MAX_ACTIONABLE_DISTANCE = 10;
 constexpr int DEFAULT_DURABILITY_THRESHOLD = 50;
-constexpr int MANA_POTION_THRESHOLD = 30;       // percent of maximum mana
 constexpr int MANA_POTION_COOLDOWN_LOOPS = 3;  // helper loops (~200 ms each) between two mana potions
 
 SpinLock _targetsLock;
@@ -595,9 +594,9 @@ namespace MUHelper
         return 1;
     }
 
-    // The helper window only has a threshold for life. Without this, mana was only refilled by the skill
-    // code when a cast already failed for lack of it, losing casts while hunting. Same rule as the
-    // server-side helper of offline players: refill below 30%.
+    // Refills mana below the "MP Status" of the Auto Recovery window (30% until the player sets it).
+    // Without this, mana was only refilled by the skill code once a cast had already failed for lack
+    // of it, losing casts while hunting.
     void CMuHelper::ConsumeManaPotion()
     {
         // The new mana arrives with the server's answer: wait a moment so one dip doesn't drink several potions.
@@ -614,7 +613,7 @@ namespace MUHelper
 
         const int64_t iMana = CharacterAttribute->Mana;
         const int64_t iManaMax = CharacterAttribute->ManaMax;
-        if (iManaMax <= 0 || iMana * 100 > iManaMax * MANA_POTION_THRESHOLD)
+        if (iManaMax <= 0 || iMana * 100 > iManaMax * m_config.iManaPotionThreshold)
         {
             return;
         }
