@@ -12040,6 +12040,12 @@
   <data name="MP Status" xml:space="preserve">
     <value>MP Status</value>
   </data>
+  <data name="LoginFooterSite" xml:space="preserve">
+    <value>MU Cyber · mucyber.tech · </value>
+  </data>
+  <data name="LoginFooterFanProject" xml:space="preserve">
+    <value>Fan project. MU Online © Webzen.</value>
+  </data>
   <data name="Heal Support" xml:space="preserve">
     <value>Heal Support</value>
     <comment>legacy_id=3548</comment>
