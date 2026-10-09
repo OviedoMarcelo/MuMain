@@ -442,14 +442,19 @@ bool NewRenderLogInScene(HDC hDC)
         if (g_fMULogoAlpha > 10.0f) g_fMULogoAlpha = 10.0f;
 
         EnableAlphaBlend();
+        // The MU Cyber logo is taller than the original MU one (it sits centered in its 2:1 texture),
+        // so the box is bigger to show it at a similar width.
+        constexpr float LogoWidth = 280.0f;
+        constexpr float LogoHeight = 140.0f;
+        constexpr float LogoX = 320.0f - LogoWidth / 2.0f;
+        constexpr float LogoY = 12.0f;
+
         const BYTE glowLevel = static_cast<BYTE>(std::clamp(g_fMULogoAlpha - 0.3f, 0.f, 1.f) * 255.f);
-        RenderColorBitmap(BITMAP_LOG_IN + 17, 320.0f - 128.0f * 0.8f, 25.0f,
-            256.0f * 0.8f, 128.0f * 0.8f, 0.f, 0.f, 1.f, 1.f,
+        RenderColorBitmap(BITMAP_LOG_IN + 17, LogoX, LogoY, LogoWidth, LogoHeight, 0.f, 0.f, 1.f, 1.f,
             RGBA(glowLevel, glowLevel, glowLevel, glowLevel));
         EnableAlphaTest();
         const BYTE logoLevel = static_cast<BYTE>(std::clamp(g_fMULogoAlpha, 0.f, 1.f) * 255.f);
-        RenderColorBitmap(BITMAP_LOG_IN + 16, 320.0f - 128.0f * 0.8f, 25.0f,
-            256.0f * 0.8f, 128.0f * 0.8f, 0.f, 0.f, 1.f, 1.f,
+        RenderColorBitmap(BITMAP_LOG_IN + 16, LogoX, LogoY, LogoWidth, LogoHeight, 0.f, 0.f, 1.f, 1.f,
             RGBA(logoLevel, logoLevel, logoLevel, logoLevel));
     }
 
@@ -462,11 +467,11 @@ bool NewRenderLogInScene(HDC hDC)
     g_pRenderText->SetTextColor(255, 255, 255, 255);
     g_pRenderText->SetBgColor(0, 0, 0, 128);
 
-    wcscpy_s(Text, 100, I18N::Game::CCopyright2001Webzen);
+    wcscpy_s(Text, 100, I18N::Game::LoginFooterSite);
     Size = g_pRenderText->MeasureText(Text, lstrlen(Text));
     g_pRenderText->RenderText(335 - Size.cx, REFERENCE_HEIGHT - Size.cy - 1, Text);
 
-    wcscpy_s(Text, 100, I18N::Game::AllRightsReserved);
+    wcscpy_s(Text, 100, I18N::Game::LoginFooterFanProject);
 
     Size = g_pRenderText->MeasureText(Text, lstrlen(Text));
     g_pRenderText->RenderText(335, REFERENCE_HEIGHT - Size.cy - 1, Text);

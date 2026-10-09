@@ -12020,6 +12020,12 @@
   <data name="MP Status" xml:space="preserve">
     <value>Estado de MP</value>
   </data>
+  <data name="LoginFooterSite" xml:space="preserve">
+    <value>MU Cyber · mucyber.tech · </value>
+  </data>
+  <data name="LoginFooterFanProject" xml:space="preserve">
+    <value>Proyecto de fans. MU Online © Webzen.</value>
+  </data>
   <data name="Heal Support" xml:space="preserve">
     <value>Soporte de curación</value>
     <comment>legacy_id=3548</comment>
