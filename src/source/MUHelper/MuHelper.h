@@ -50,6 +50,7 @@ namespace MUHelper
 		int HealSelf(ActionSkillType iHealingSkill);
 		int DrainLife();
 		int ConsumePotion();
+		void ConsumeManaPotion();
 		int Attack();
 		int RepairEquipments();
 		int Regroup();
@@ -96,6 +97,7 @@ namespace MUHelper
 		bool m_bTimerActivatedBuffOngoing;
 		bool m_bPetActivated;
 		int m_iTotalCost;
+		int m_iManaPotionCooldown = 0;
 	};
 
 	extern CMuHelper g_MuHelper;
