@@ -668,28 +668,25 @@ TEST_CASE("world viewport clamps zero and tiny dimensions before deriving aspect
     CHECK(UI::Scaling::WorldViewportAspect(640, 1, true) == doctest::Approx(640.0f));
 }
 
-TEST_CASE("bottom HUD hit-region edges block controls and preserve wide gaps [ui][scaling]")
+TEST_CASE("bottom HUD hit region follows the bar artwork and leaves the sides to the world [ui][scaling]")
 {
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 100.0f, 643.49f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 100.0f, 643.5f));
-
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 227.99f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 228.0f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 300.0f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 387.99f, 660.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 388.0f, 660.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 891.99f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 892.0f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 980.0f, 660.0f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1051.99f, 660.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1052.0f, 660.0f));
-
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 0.0f, 705.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 300.0f, 710.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 980.0f, 710.0f));
-    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1279.99f, 719.99f));
-    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1280.0f, 710.0f));
+    // At 1280x720 the bar is scaled 1.5x and centered, spanning x 160..1120.
+    // Its slot band starts at y ~654; the gauge row and the orbs rise above it.
+    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 100.0f, 710.0f));
+    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1150.0f, 710.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 165.0f, 710.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 1115.0f, 710.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 640.0f, 719.99f));
     CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 640.0f, 720.0f));
+
+    // Above the slot band only the gauge row and the orbs block the world.
+    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 200.0f, 650.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 200.0f, 658.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 640.0f, 640.0f));
+    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 640.0f, 628.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 368.0f, 620.0f));
+    CHECK(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 900.0f, 620.0f));
+    CHECK_FALSE(UI::Scaling::BottomHudContainsWindowPoint(1280, 720, 368.0f, 605.0f));
 }
 
 TEST_CASE("legacy UI preserves logical input and world-overlay coordinates [ui][scaling]")

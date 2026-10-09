@@ -32,6 +32,8 @@ namespace SEASON3B
         MAINFRAME_BTN_MYINVEN,
         MAINFRAME_BTN_FRIEND,
         MAINFRAME_BTN_WINDOW,
+        MAINFRAME_BTN_QUEST,
+        MAINFRAME_BTN_COUNT,
     };
 
     enum KINDOFSKILL
@@ -167,24 +169,23 @@ namespace SEASON3B
     public:
         enum IMAGE_LIST
         {
-            IMAGE_MENU_1 = BITMAP_INTERFACE_NEW_MAINFRAME_BEGIN,	// newui_menu01.jpg
-            IMAGE_MENU_2,		// newui_menu02.jpg
-            IMAGE_MENU_3,		// newui_menu03.jpg
-            IMAGE_MENU_2_1,
-            IMAGE_GAUGE_BLUE,	// newui_menu_blue.tga
-            IMAGE_GAUGE_GREEN,	// newui_menu_green.tga
-            IMAGE_GAUGE_RED,	// newui_menu_red.tga
-            IMAGE_GAUGE_AG,		// newui_menu_AG.tga
-            IMAGE_GAUGE_SD,		// newui_menu_SD.tga
+            IMAGE_FRAME = BITMAP_INTERFACE_NEW_MAINFRAME_BEGIN,	// MenuS8_Main.tga
+            IMAGE_ORB_EMPTY,	// MenuS8_black.tga
+            IMAGE_ORB_LIFE,		// MenuS8_red.tga
+            IMAGE_ORB_POISON,	// MenuS8_green.tga
+            IMAGE_ORB_MANA,		// MenuS8_blue.tga
+            IMAGE_GAUGE_AG,		// MenuS8_AG.jpg
+            IMAGE_GAUGE_SD,		// MenuS8_SD.jpg
             IMAGE_GAUGE_EXBAR,	// newui_Exbar.jpg
             IMAGE_MASTER_GAUGE_BAR,	// Exbar_Master.jpg
 #ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
-            IMAGE_MENU_BTN_CSHOP,
+            IMAGE_MENU_BTN_CSHOP,	// MenuS8_shop.tga
 #endif //defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
-            IMAGE_MENU_BTN_CHAINFO,
-            IMAGE_MENU_BTN_MYINVEN,
-            IMAGE_MENU_BTN_FRIEND,
-            IMAGE_MENU_BTN_WINDOW,
+            IMAGE_MENU_BTN_CHAINFO,	// MenuS8_character.tga
+            IMAGE_MENU_BTN_MYINVEN,	// MenuS8_inventory.tga
+            IMAGE_MENU_BTN_QUEST,	// MenuS8_quest.tga
+            IMAGE_MENU_BTN_FRIEND,	// MenuS8_friend.tga
+            IMAGE_MENU_BTN_WINDOW,	// MenuS8_btmenu.tga
         };
 
         CNewUIMainFrameWindow();
@@ -235,23 +236,17 @@ namespace SEASON3B
 
         bool BtnProcess();
 
-        void RenderLeftRegion();
-        void RenderCenterRegion();
-        void RenderRightRegion();
-        void RenderExperienceRegion();
-        void RenderLeftFrame();
-        void RenderCenterFrame();
-        void RenderRightFrame();
-        void RenderExperienceBackground();
+        void RenderOrbs();
         void RenderLifeMana();
         void RenderGuageAG();
         void RenderGuageSD();
         void RenderExperience();
+        void RenderExperienceFill(int iImage, DWORD dwGainColor, double fGainStart, double fProgress);
         void RenderHotKeyItemCount();
         void RenderButtons();
-        void RenderCharInfoButton();
-        void RenderFriendButton();
-        void RenderFriendButtonState();
+        void RenderMenuButton(CNewUIButton& button, int iImage, int iBtnType, bool bAlert);
+        bool IsCharInfoAlertOn();
+        bool IsFriendAlertOn();
 
     public:
         __int64	m_loPreExp;
@@ -274,9 +269,12 @@ namespace SEASON3B
 #endif //defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
         CNewUIButton m_BtnChaInfo;
         CNewUIButton m_BtnMyInven;
+        CNewUIButton m_BtnQuest;
         CNewUIButton m_BtnFriend;
         CNewUIButton m_BtnWindow;
 
+        // Set while the window a button opens is visible (see SetBtnState).
+        bool m_bButtonActive[MAINFRAME_BTN_COUNT];
         bool m_bButtonBlink;
     };
 }

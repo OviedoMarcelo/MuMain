@@ -24,6 +24,8 @@
 #include "Character/CharacterManager.h"
 #include "GameLogic/Skills/SkillManager.h"
 #include "UI/NewUI/HUD/Skills/SkillTooltip.h"
+#include "UI/NewUI/HUD/MainFrameGauges.h"
+#include "UI/NewUI/HUD/MainFrameLayout.h"
 #include "UI/Scaling/UITransform.h"
 #include "Core/Time/CTimCheck.h"
 #include "GameLogic/Social/MonkSystem.h"
@@ -35,20 +37,241 @@
 
 namespace
 {
-    constexpr float kHudTop = 429.0f;
-    constexpr float kHudContentHeight = 41.0f;
-    constexpr float kExperienceTop = 470.0f;
-    constexpr float kExperienceHeight = 10.0f;
-    constexpr float kLeftBandWidth = 152.0f;
-    constexpr float kCenterBandStart = 152.0f;
-    constexpr float kMenu1CenterWidth = 104.0f;
-    constexpr float kMenu2Start = 256.0f;
-    constexpr float kMenu2Width = 128.0f;
-    constexpr float kMenu3Start = 384.0f;
-    constexpr float kMenu3CenterWidth = 104.0f;
-    constexpr float kRightBandStart = 488.0f;
-    constexpr float kRightBandWidth = 152.0f;
-    constexpr float kMenu3RightSourceX = 104.0f;
+    namespace Layout = UI::MainFrame::Layout;
+    namespace Gauges = UI::MainFrame::Gauges;
+
+    // Source art sizes, in texels.
+    constexpr Gauges::ArtSize kFrameArt{935.0f, 110.0f};
+    constexpr Gauges::ArtSize kOrbArt{90.0f, 90.0f};
+    constexpr Gauges::ArtSize kGaugeArt{122.0f, 16.0f};
+    constexpr Gauges::ArtSize kButtonArt{27.0f, 28.0f};
+    constexpr Gauges::ArtSize kSkillBoxArt{32.0f, 38.0f};
+    // The experience art is a 6x4 strip padded to an 8x4 texture.
+    constexpr float kExperienceArtU = 6.0f / 8.0f;
+    constexpr float kExperienceArtV = 1.0f;
+
+    constexpr float kLowLifeWarningRatio = 0.2f;
+    // RenderNumber digits are 16 units tall before their 0.3 scale offset.
+    constexpr float kNumberDigitHeight = 16.0f;
+    constexpr float kNumberScaleOffset = 0.3f;
+    constexpr float kGaugeNumberScale = 0.9f;
+    constexpr float kPercentNumberScale = 0.8f;
+    constexpr float kPercentMax = 100.0f;
+    constexpr float kTooltipGap = 14.0f;
+    constexpr float kExperienceTooltipLeftOffset = 40.0f;
+
+    // White veil over the part of the experience bar gained since the last update.
+    constexpr DWORD kExperienceGainColor = 0x66FFFFFFu;
+    constexpr DWORD kMasterExperienceGainColor = 0x99FFFFFFu;
+
+    // Additive tint laid over a button while hovered, active or blinking an alert.
+    constexpr unsigned char kButtonHighlightLevel = 90;
+
+    // The character button blinks while a quest waits for the player.
+    constexpr int kQuestAlertTimerId = 5;
+    constexpr int kQuestAlertBlinkMs = 500;
+    // The friend button blinks on for half of every period, counted in rendered frames.
+    constexpr int kFriendBlinkPeriod = 24;
+    constexpr int kFriendBlinkOnFrames = 12;
+
+    Layout::MenuButton MenuButtonSlot(int btnType)
+    {
+        switch (btnType)
+        {
+        case SEASON3B::MAINFRAME_BTN_CHAINFO:
+            return Layout::MenuButton::Character;
+        case SEASON3B::MAINFRAME_BTN_MYINVEN:
+            return Layout::MenuButton::Inventory;
+        case SEASON3B::MAINFRAME_BTN_QUEST:
+            return Layout::MenuButton::Quest;
+        case SEASON3B::MAINFRAME_BTN_FRIEND:
+            return Layout::MenuButton::Friend;
+        case SEASON3B::MAINFRAME_BTN_WINDOW:
+            return Layout::MenuButton::Menu;
+        default:
+            return Layout::MenuButton::Shop;
+        }
+    }
+
+    // 3D item models and their stack count inside the Q/W/E/R slots.
+    constexpr float kItemIconSize = 20.0f;
+    constexpr float kItemCountLift = 6.0f;
+
+    // Skill icons are 20x28 cells in their sprite sheets, whatever size they are drawn at.
+    constexpr float kSkillIconCellWidth = 20.0f;
+    constexpr float kSkillIconCellHeight = 28.0f;
+    // Margin between a bar slot's edge and the skill icon inside it.
+    constexpr float kSkillIconInset = 1.4f;
+    // The hotkey digit overlaps the icon's bottom-right corner by this much.
+    constexpr float kSkillHotKeyNumberLift = 8.0f;
+
+    // The skill list pops up above the bar as a grid of boxes fanning out from this x;
+    // it stays put so the widest list still fits on a 4:3 screen.
+    constexpr float kSkillListOriginX = 385.0f;
+    constexpr float kSkillBoxWidth = 32.0f;
+    constexpr float kSkillBoxHeight = 38.0f;
+
+    float SkillListTop()
+    {
+        return Layout::SkillListBottom() - kSkillBoxHeight;
+    }
+
+    // Pet commands get their own row above the skill list, starting one box to its left.
+    float PetCommandRowX()
+    {
+        return kSkillListOriginX - kSkillBoxWidth;
+    }
+
+    float PetCommandRowTop()
+    {
+        return SkillListTop() - kSkillBoxHeight;
+    }
+
+    // Largest icon with the sprite's aspect ratio that fits inside a bar slot.
+    Layout::Rect SkillIconRect(const Layout::Rect& slot)
+    {
+        const float height = slot.height - kSkillIconInset * 2.0f;
+        const float width = std::min(slot.width - kSkillIconInset * 2.0f,
+                                     height * kSkillIconCellWidth / kSkillIconCellHeight);
+        return {slot.CenterX() - width * 0.5f, slot.CenterY() - height * 0.5f, width, height};
+    }
+
+    struct Resource
+    {
+        DWORD current;
+        DWORD max;
+    };
+
+    Resource HeroLife()
+    {
+        const DWORD max = gCharacterManager.IsMasterLevel(Hero->Class) ? Master_Level_Data.wMaxLife
+                                                                       : CharacterAttribute->LifeMax;
+        return {static_cast<DWORD>(std::min<int>(std::max<int>(0, CharacterAttribute->Life), max)), max};
+    }
+
+    Resource HeroMana()
+    {
+        const DWORD max = gCharacterManager.IsMasterLevel(Hero->Class) ? Master_Level_Data.wMaxMana
+                                                                       : CharacterAttribute->ManaMax;
+        return {static_cast<DWORD>(std::min<int>(std::max<int>(0, CharacterAttribute->Mana), max)), max};
+    }
+
+    Resource HeroShield()
+    {
+        const DWORD max = gCharacterManager.IsMasterLevel(Hero->Class)
+                              ? std::max<int>(1, Master_Level_Data.wMaxShield)
+                              : std::max<int>(1, CharacterAttribute->ShieldMax);
+        return {static_cast<DWORD>(std::min<int>(max, CharacterAttribute->Shield)), max};
+    }
+
+    Resource HeroSkillMana()
+    {
+        const DWORD max = gCharacterManager.IsMasterLevel(Hero->Class)
+                              ? std::max<int>(1, Master_Level_Data.wMaxBP)
+                              : std::max<int>(1, CharacterAttribute->SkillManaMax);
+        return {static_cast<DWORD>(std::min<int>(max, CharacterAttribute->SkillMana)), max};
+    }
+
+    bool IsMouseIn(const Layout::Rect& rect)
+    {
+        return rect.Contains(static_cast<float>(MouseX), static_cast<float>(MouseY));
+    }
+
+    float NumberHeight(float scale)
+    {
+        return kNumberDigitHeight * (scale - kNumberScaleOffset);
+    }
+
+    void RenderCenteredNumber(const Layout::Rect& rect, int value, float scale = 1.0f)
+    {
+        SEASON3B::RenderNumber(rect.CenterX(), rect.CenterY() - NumberHeight(scale) * 0.5f, value, scale);
+    }
+
+    void RenderResourceTooltip(const Layout::Rect& rect, const wchar_t* format, const Resource& value)
+    {
+        if (!IsMouseIn(rect))
+            return;
+
+        wchar_t text[256];
+        mu_swprintf(text, format, value.current, value.max);
+        RenderTipText(static_cast<int>(rect.x), static_cast<int>(rect.y - kTooltipGap), text);
+    }
+
+    Layout::Rect ItemIconRect(int hotKey)
+    {
+        const Layout::Rect slot = Layout::ItemHotKeySlot(hotKey);
+        return {slot.CenterX() - kItemIconSize * 0.5f, slot.CenterY() - kItemIconSize * 0.5f, kItemIconSize,
+                kItemIconSize};
+    }
+
+    // The experience bar shows progress through the current tenth of the level;
+    // index is which tenth (0-9) and progress how far through it (0..1).
+    struct ExperienceSegment
+    {
+        int index;
+        double progress;
+    };
+
+    constexpr double kExperienceSegments = 10.0;
+    constexpr int kLastExperienceSegment = 9;
+
+    ExperienceSegment SegmentForRatio(double ratio)
+    {
+        const double clampedRatio = std::clamp(ratio, 0.0, 1.0);
+        if (clampedRatio >= 1.0)
+            return {kLastExperienceSegment, 1.0};
+
+        const double scaled = clampedRatio * kExperienceSegments;
+        const int index = std::clamp(static_cast<int>(scaled), 0, kLastExperienceSegment);
+        const double progress = std::clamp(scaled - static_cast<double>(static_cast<long long>(scaled)), 0.0, 1.0);
+        return {index, progress};
+    }
+
+    double ExperienceRatio(__int64 experience, __int64 lowerBound, __int64 upperBound)
+    {
+        const double needed = static_cast<double>(upperBound - lowerBound);
+        if (needed <= 0.0)
+            return 0.0;
+
+        const double clamped = std::clamp(static_cast<double>(experience), static_cast<double>(lowerBound),
+                                          static_cast<double>(upperBound));
+        return std::clamp((clamped - static_cast<double>(lowerBound)) / needed, 0.0, 1.0);
+    }
+
+    // Experience needed to reach the given level; levels above 255 add a steeper term.
+    constexpr __int64 kExperienceCurveOffset = 9;
+    constexpr __int64 kExperienceCurveFactor = 10;
+    constexpr __int64 kExperienceSteepLevel = 255;
+    constexpr __int64 kExperienceSteepFactor = 1000;
+
+    __int64 LevelBaseExperience(__int64 level)
+    {
+        if (level <= 0)
+            return 0;
+
+        __int64 experience = (kExperienceCurveOffset + level) * level * level * kExperienceCurveFactor;
+        if (level > kExperienceSteepLevel)
+        {
+            const __int64 overLevel = level - kExperienceSteepLevel;
+            experience += (kExperienceCurveOffset + overLevel) * overLevel * overLevel * kExperienceSteepFactor;
+        }
+        return experience;
+    }
+
+    // Master levels continue the normal curve from level 400; the result is
+    // rebased onto the experience a character has when master level 0 starts.
+    constexpr __int64 kMasterLevelOffset = 400;
+    constexpr __int64 kMasterExperienceBase = 3892250000;
+    constexpr __int64 kMasterExperienceDivisor = 2;
+
+    __int64 MasterLevelBaseExperience(__int64 masterLevel)
+    {
+        const __int64 totalLevel = masterLevel + kMasterLevelOffset;
+        const __int64 overLevel = totalLevel - kExperienceSteepLevel;
+        const __int64 total = (kExperienceCurveOffset + totalLevel) * totalLevel * totalLevel * kExperienceCurveFactor
+                              + (kExperienceCurveOffset + overLevel) * overLevel * overLevel * kExperienceSteepFactor;
+        return (total - kMasterExperienceBase) / kMasterExperienceDivisor;
+    }
 }
 
 SEASON3B::CNewUIMainFrameWindow::CNewUIMainFrameWindow()
@@ -58,6 +281,7 @@ SEASON3B::CNewUIMainFrameWindow::CNewUIMainFrameWindow()
     m_dwPreExp = 0;
     m_dwGetExp = 0;
     m_bButtonBlink = false;
+    std::fill(std::begin(m_bButtonActive), std::end(m_bButtonActive), false);
 }
 
 SEASON3B::CNewUIMainFrameWindow::~CNewUIMainFrameWindow()
@@ -67,38 +291,38 @@ SEASON3B::CNewUIMainFrameWindow::~CNewUIMainFrameWindow()
 
 void SEASON3B::CNewUIMainFrameWindow::LoadImages()
 {
-    LoadBitmap(L"Interface\\newui_menu01.jpg", IMAGE_MENU_1, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu02.jpg", IMAGE_MENU_2, GL_LINEAR);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu03.jpg", IMAGE_MENU_3, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu02-03.jpg", IMAGE_MENU_2_1, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu_blue.jpg", IMAGE_GAUGE_BLUE, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu_green.jpg", IMAGE_GAUGE_GREEN, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu_red.jpg", IMAGE_GAUGE_RED, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu_ag.jpg", IMAGE_GAUGE_AG, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_menu_sd.jpg", IMAGE_GAUGE_SD, GL_LINEAR);
+    LoadBitmap(L"Interface\\MenuS8_Main.tga", IMAGE_FRAME, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_black.tga", IMAGE_ORB_EMPTY, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_red.tga", IMAGE_ORB_LIFE, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_green.tga", IMAGE_ORB_POISON, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_blue.tga", IMAGE_ORB_MANA, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_AG.jpg", IMAGE_GAUGE_AG, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_SD.jpg", IMAGE_GAUGE_SD, GL_LINEAR, GL_CLAMP_TO_EDGE);
     LoadBitmap(L"Interface\\newui_exbar.jpg", IMAGE_GAUGE_EXBAR, GL_LINEAR);
     LoadBitmap(L"Interface\\Exbar_Master.jpg", IMAGE_MASTER_GAUGE_BAR, GL_LINEAR);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu_Bt05.jpg", IMAGE_MENU_BTN_CSHOP, GL_LINEAR, GL_CLAMP_TO_EDGE);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu_Bt01.jpg", IMAGE_MENU_BTN_CHAINFO, GL_LINEAR, GL_CLAMP_TO_EDGE);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu_Bt02.jpg", IMAGE_MENU_BTN_MYINVEN, GL_LINEAR, GL_CLAMP_TO_EDGE);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu_Bt03.jpg", IMAGE_MENU_BTN_FRIEND, GL_LINEAR, GL_CLAMP_TO_EDGE);
-    LoadBitmap(L"Interface\\partCharge1\\newui_menu_Bt04.jpg", IMAGE_MENU_BTN_WINDOW, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_shop.tga", IMAGE_MENU_BTN_CSHOP, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_character.tga", IMAGE_MENU_BTN_CHAINFO, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_inventory.tga", IMAGE_MENU_BTN_MYINVEN, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_quest.tga", IMAGE_MENU_BTN_QUEST, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_friend.tga", IMAGE_MENU_BTN_FRIEND, GL_LINEAR, GL_CLAMP_TO_EDGE);
+    LoadBitmap(L"Interface\\MenuS8_btmenu.tga", IMAGE_MENU_BTN_WINDOW, GL_LINEAR, GL_CLAMP_TO_EDGE);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::UnloadImages()
 {
-    DeleteBitmap(IMAGE_MENU_1);
-    DeleteBitmap(IMAGE_MENU_2);
-    DeleteBitmap(IMAGE_MENU_3);
-    DeleteBitmap(IMAGE_MENU_2_1);
-    DeleteBitmap(IMAGE_GAUGE_BLUE);
-    DeleteBitmap(IMAGE_GAUGE_GREEN);
-    DeleteBitmap(IMAGE_GAUGE_RED);
+    DeleteBitmap(IMAGE_FRAME);
+    DeleteBitmap(IMAGE_ORB_EMPTY);
+    DeleteBitmap(IMAGE_ORB_LIFE);
+    DeleteBitmap(IMAGE_ORB_POISON);
+    DeleteBitmap(IMAGE_ORB_MANA);
     DeleteBitmap(IMAGE_GAUGE_AG);
     DeleteBitmap(IMAGE_GAUGE_SD);
     DeleteBitmap(IMAGE_GAUGE_EXBAR);
+    DeleteBitmap(IMAGE_MASTER_GAUGE_BAR);
+    DeleteBitmap(IMAGE_MENU_BTN_CSHOP);
     DeleteBitmap(IMAGE_MENU_BTN_CHAINFO);
     DeleteBitmap(IMAGE_MENU_BTN_MYINVEN);
+    DeleteBitmap(IMAGE_MENU_BTN_QUEST);
     DeleteBitmap(IMAGE_MENU_BTN_FRIEND);
     DeleteBitmap(IMAGE_MENU_BTN_WINDOW);
 }
@@ -123,50 +347,27 @@ bool SEASON3B::CNewUIMainFrameWindow::Create(CNewUIManager* pNewUIMng, CNewUI3DR
     return true;
 }
 
+namespace
+{
+    // The button only handles clicks and its tooltip; RenderMenuButton draws the art
+    // scaled into the socket, which CNewUIButton's 1:1 blit cannot do.
+    void PlaceMenuButton(SEASON3B::CNewUIButton& button, Layout::MenuButton slot, const wchar_t* const* tooltip)
+    {
+        const Layout::Rect rect = Layout::MenuButtonRect(slot);
+        button.ChangeButtonInfo(static_cast<int>(std::lround(rect.x)), static_cast<int>(std::lround(rect.y)),
+                                static_cast<int>(std::lround(rect.width)), static_cast<int>(std::lround(rect.height)));
+        button.ChangeToolTipText(tooltip, true);
+    }
+}
+
 void SEASON3B::CNewUIMainFrameWindow::SetButtonInfo()
 {
-    int x_Next = 489;
-    int y_Next = REFERENCE_HEIGHT - 51;
-    int x_Add = 30;
-    int y_Add = 41;
-    m_BtnCShop.ChangeTextBackColor(RGBA(255, 255, 255, 0));
-    m_BtnCShop.ChangeButtonImgState(true, IMAGE_MENU_BTN_CSHOP, true);
-    m_BtnCShop.ChangeButtonInfo(x_Next, y_Next, x_Add, y_Add);
-    x_Next += x_Add;
-    m_BtnCShop.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
-    m_BtnCShop.ChangeImgColor(BUTTON_STATE_DOWN, RGBA(255, 255, 255, 255));
-    m_BtnCShop.ChangeToolTipText(&I18N::Game::MUItemShopX, true);
-
-    m_BtnChaInfo.ChangeTextBackColor(RGBA(255, 255, 255, 0));
-    m_BtnChaInfo.ChangeButtonImgState(true, IMAGE_MENU_BTN_CHAINFO, true);
-    m_BtnChaInfo.ChangeButtonInfo(x_Next, y_Next, x_Add, y_Add);
-    x_Next += x_Add;
-    m_BtnChaInfo.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
-    m_BtnChaInfo.ChangeImgColor(BUTTON_STATE_DOWN, RGBA(255, 255, 255, 255));
-    m_BtnChaInfo.ChangeToolTipText(&I18N::Game::CharacterC, true);
-
-    m_BtnMyInven.ChangeTextBackColor(RGBA(255, 255, 255, 0));
-    m_BtnMyInven.ChangeButtonImgState(true, IMAGE_MENU_BTN_MYINVEN, true);
-    m_BtnMyInven.ChangeButtonInfo(x_Next, y_Next, x_Add, y_Add);
-    x_Next += x_Add;
-    m_BtnMyInven.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
-    m_BtnMyInven.ChangeImgColor(BUTTON_STATE_DOWN, RGBA(255, 255, 255, 255));
-    m_BtnMyInven.ChangeToolTipText(&I18N::Game::InventoryIV, true);
-
-    m_BtnFriend.ChangeTextBackColor(RGBA(255, 255, 255, 0));
-    m_BtnFriend.ChangeButtonImgState(true, IMAGE_MENU_BTN_FRIEND, true);
-    m_BtnFriend.ChangeButtonInfo(x_Next, y_Next, x_Add, y_Add);
-    x_Next += x_Add;
-    m_BtnFriend.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
-    m_BtnFriend.ChangeImgColor(BUTTON_STATE_DOWN, RGBA(255, 255, 255, 255));
-    m_BtnFriend.ChangeToolTipText(&I18N::Game::FriendF, true);
-
-    m_BtnWindow.ChangeTextBackColor(RGBA(255, 255, 255, 0));
-    m_BtnWindow.ChangeButtonImgState(true, IMAGE_MENU_BTN_WINDOW, true);
-    m_BtnWindow.ChangeButtonInfo(x_Next, y_Next, x_Add, y_Add);
-    m_BtnWindow.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
-    m_BtnWindow.ChangeImgColor(BUTTON_STATE_DOWN, RGBA(255, 255, 255, 255));
-    m_BtnWindow.ChangeToolTipText(&I18N::Game::MenuU, true);
+    PlaceMenuButton(m_BtnCShop, Layout::MenuButton::Shop, &I18N::Game::MUItemShopX);
+    PlaceMenuButton(m_BtnChaInfo, Layout::MenuButton::Character, &I18N::Game::CharacterC);
+    PlaceMenuButton(m_BtnMyInven, Layout::MenuButton::Inventory, &I18N::Game::InventoryIV);
+    PlaceMenuButton(m_BtnQuest, Layout::MenuButton::Quest, &I18N::Game::Quest);
+    PlaceMenuButton(m_BtnFriend, Layout::MenuButton::Friend, &I18N::Game::FriendF);
+    PlaceMenuButton(m_BtnWindow, Layout::MenuButton::Menu, &I18N::Game::MenuU);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::Release()
@@ -190,44 +391,23 @@ bool SEASON3B::CNewUIMainFrameWindow::Render()
 {
     EnableAlphaTest();
 
-    const auto leftTransform = UI::Scaling::BottomHudLeftTransform(WindowWidth, WindowHeight);
-    const auto centerTransform = UI::Scaling::BottomHudCenterTransform(WindowWidth, WindowHeight);
-    const auto rightTransform = UI::Scaling::BottomHudRightTransform(WindowWidth, WindowHeight);
-    const auto experienceTransform = UI::Scaling::BottomHudExperienceTransform(WindowWidth, WindowHeight);
+    const auto transform = UI::Scaling::BottomHudCenterTransform(WindowWidth, WindowHeight);
+    UI::Scaling::ScopedActiveTransform layout(transform, true);
 
-    {
-        UI::Scaling::ScopedActiveTransform layout(leftTransform);
-        RenderLeftFrame();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(centerTransform);
-        RenderCenterFrame();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(rightTransform);
-        RenderRightFrame();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(experienceTransform);
-        RenderExperienceBackground();
-    }
+    // The orbs sit behind the frame, which has see-through holes for them.
+    RenderOrbs();
+    const Layout::Rect frame = Layout::Frame();
+    RenderImageStretch(IMAGE_FRAME, frame.x, frame.y, frame.width, frame.height, 0.0f, 0.0f, kFrameArt.width,
+                       kFrameArt.height);
 
-    {
-        UI::Scaling::ScopedActiveTransform layout(leftTransform, true);
-        RenderLeftRegion();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(centerTransform, true);
-        RenderCenterRegion();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(rightTransform, true);
-        RenderRightRegion();
-    }
-    {
-        UI::Scaling::ScopedActiveTransform layout(experienceTransform, true);
-        RenderExperienceRegion();
-    }
+    m_pNewUI3DRenderMng->RenderUI2DEffect(ITEMHOTKEYNUMBER_CAMERA_Z_ORDER, UI2DEffectCallback, this, 0, 0);
+    g_pSkillList->RenderCurrentSkillAndHotSkillList();
+    RenderLifeMana();
+    RenderGuageSD();
+    RenderGuageAG();
+    RenderExperience();
+    RenderButtons();
+
     DisableAlphaBlend();
 
     return true;
@@ -235,7 +415,7 @@ bool SEASON3B::CNewUIMainFrameWindow::Render()
 
 void SEASON3B::CNewUIMainFrameWindow::Render3D()
 {
-    const auto transform = UI::Scaling::BottomHudLeftTransform(WindowWidth, WindowHeight);
+    const auto transform = UI::Scaling::BottomHudCenterTransform(WindowWidth, WindowHeight);
     UI::Scaling::ScopedActiveTransform layout(transform);
     m_ItemHotKey.RenderItems();
 }
@@ -250,463 +430,125 @@ bool SEASON3B::CNewUIMainFrameWindow::IsVisible() const
     return CNewUIObj::IsVisible();
 }
 
-void SEASON3B::CNewUIMainFrameWindow::RenderLeftRegion()
+void SEASON3B::CNewUIMainFrameWindow::RenderOrbs()
 {
-    m_pNewUI3DRenderMng->RenderUI2DEffect(ITEMHOTKEYNUMBER_CAMERA_Z_ORDER, UI2DEffectCallback, this, 0, 0);
-}
+    const Resource life = HeroLife();
+    const Resource mana = HeroMana();
+    const int lifeImage = g_isCharacterBuff((&Hero->Object), eDeBuff_Poison) ? IMAGE_ORB_POISON : IMAGE_ORB_LIFE;
 
-void SEASON3B::CNewUIMainFrameWindow::RenderCenterRegion()
-{
-    g_pSkillList->RenderCurrentSkillAndHotSkillList();
-    RenderLifeMana();
-    RenderGuageSD();
-    RenderGuageAG();
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderRightRegion()
-{
-    RenderButtons();
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderExperienceRegion()
-{
-    RenderExperience();
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderLeftFrame()
-{
-    RenderImageStretch(IMAGE_MENU_1, 0.0f, kHudTop, kLeftBandWidth, kHudContentHeight,
-                       0.0f, 0.0f, kLeftBandWidth, kHudContentHeight);
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderCenterFrame()
-{
-    RenderImageStretch(IMAGE_MENU_1, kCenterBandStart, kHudTop, kMenu1CenterWidth, kHudContentHeight,
-                       kCenterBandStart, 0.0f, kMenu1CenterWidth, kHudContentHeight);
-    RenderImageStretch(IMAGE_MENU_2, kMenu2Start, kHudTop, kMenu2Width, kHudContentHeight,
-                       0.0f, 0.0f, kMenu2Width, kHudContentHeight);
-    RenderImageStretch(IMAGE_MENU_3, kMenu3Start, kHudTop, kMenu3CenterWidth, kHudContentHeight,
-                       0.0f, 0.0f, kMenu3CenterWidth, kHudContentHeight);
-
-    if (g_pSkillList->IsSkillListUp())
-        RenderImage(IMAGE_MENU_2_1, 222.0f, kHudTop, 160.0f, 40.0f);
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderRightFrame()
-{
-    RenderImageStretch(IMAGE_MENU_3, kRightBandStart, kHudTop, kRightBandWidth, kHudContentHeight,
-                       kMenu3RightSourceX, 0.0f, kRightBandWidth, kHudContentHeight);
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderExperienceBackground()
-{
-    RenderImageStretch(IMAGE_MENU_1, 0.0f, kExperienceTop, 256.0f, kExperienceHeight,
-                       0.0f, kHudContentHeight, 256.0f, kExperienceHeight);
-    RenderImageStretch(IMAGE_MENU_2, 256.0f, kExperienceTop, 128.0f, kExperienceHeight,
-                       0.0f, kHudContentHeight, 128.0f, kExperienceHeight);
-    RenderImageStretch(IMAGE_MENU_3, 384.0f, kExperienceTop, 256.0f, kExperienceHeight,
-                       0.0f, kHudContentHeight, 256.0f, kExperienceHeight);
+    Gauges::RenderOrb(IMAGE_ORB_EMPTY, lifeImage, Layout::LifeOrb(), kOrbArt,
+                      Gauges::FillRatio(life.current, life.max));
+    Gauges::RenderOrb(IMAGE_ORB_EMPTY, IMAGE_ORB_MANA, Layout::ManaOrb(), kOrbArt,
+                      Gauges::FillRatio(mana.current, mana.max));
 }
 
 void SEASON3B::CNewUIMainFrameWindow::RenderLifeMana()
 {
-    DWORD wLifeMax, wLife, wManaMax, wMana;
+    const Resource life = HeroLife();
+    const Resource mana = HeroMana();
 
-    if (gCharacterManager.IsMasterLevel(Hero->Class) == true)
+    if (life.current > 0 && Gauges::FillRatio(life.current, life.max) < kLowLifeWarningRatio)
     {
-        wLifeMax = Master_Level_Data.wMaxLife;
-        wLife = std::min<int>(std::max<int>(0, CharacterAttribute->Life), wLifeMax);
-        wManaMax = Master_Level_Data.wMaxMana;
-        wMana = std::min<int>(std::max<int>(0, CharacterAttribute->Mana), wManaMax);
-    }
-    else
-    {
-        wLifeMax = CharacterAttribute->LifeMax;
-        wLife = std::min<int>(std::max<int>(0, CharacterAttribute->Life), wLifeMax);
-        wManaMax = CharacterAttribute->ManaMax;
-        wMana = std::min<int>(std::max<int>(0, CharacterAttribute->Mana), wManaMax);
+        PlayBuffer(SOUND_HEART);
     }
 
-    if (wLifeMax > 0)
-    {
-        if (wLife > 0 && (wLife / (float)wLifeMax) < 0.2f)
-        {
-            PlayBuffer(SOUND_HEART);
-        }
-    }
+    RenderCenteredNumber(Layout::LifeOrb(), static_cast<int>(life.current));
+    RenderCenteredNumber(Layout::ManaOrb(), static_cast<int>(mana.current));
 
-    float fLife = 0.f;
-    float fMana = 0.f;
-
-    if (wLifeMax > 0)
-    {
-        fLife = (wLifeMax - wLife) / (float)wLifeMax;
-    }
-    if (wManaMax > 0)
-    {
-        fMana = (wManaMax - wMana) / (float)wManaMax;
-    }
-
-    float width, height;
-    float x, y;
-    float fY, fH, fV;
-
-    // life
-    width = 45.f;
-    x = 158;
-    height = 39.f;
-    y = (float)REFERENCE_HEIGHT - 48.f;
-
-    fY = y + (fLife * height);
-    fH = height - (fLife * height);
-    fV = fLife;
-    if (g_isCharacterBuff((&Hero->Object), eDeBuff_Poison))
-    {
-        RenderBitmap(IMAGE_GAUGE_GREEN, x, fY, width, fH, 0.f, fV * height / 64.f, width / 64.f, (1.0f - fV) * height / 64.f);
-    }
-    else
-    {
-        RenderBitmap(IMAGE_GAUGE_RED, x, fY, width, fH, 0.f, fV * height / 64.f, width / 64.f, (1.0f - fV) * height / 64.f);
-    }
-
-    SEASON3B::RenderNumber(x + 25, REFERENCE_HEIGHT - 18, wLife);
-
-    wchar_t strTipText[256];
-    if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-    {
-        mu_swprintf(strTipText, I18N::Game::LifeDD, wLife, wLifeMax);
-        RenderTipText((int)x, (int)418, strTipText);
-    }
-
-    // mana
-    width = 45.f;
-    x = 256.f + 128.f + 53.f;
-    height = 39.f;
-    y = (float)REFERENCE_HEIGHT - 48.f;
-
-    fY = y + (fMana * height);
-    fH = height - (fMana * height);
-    fV = fMana;
-    RenderBitmap(IMAGE_GAUGE_BLUE, x, fY, width, fH, 0.f, fV * height / 64.f, width / 64.f, (1.0f - fV) * height / 64.f);
-
-    SEASON3B::RenderNumber(x + 30, REFERENCE_HEIGHT - 18, wMana);
-
-    // mana
-    if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-    {
-        mu_swprintf(strTipText, I18N::Game::ManaDD359, wMana, wManaMax);
-        RenderTipText((int)x, (int)418, strTipText);
-    }
+    RenderResourceTooltip(Layout::LifeOrb(), I18N::Game::LifeDD, life);
+    RenderResourceTooltip(Layout::ManaOrb(), I18N::Game::ManaDD359, mana);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::RenderGuageAG()
 {
-    float x, y, width, height;
-    float fY, fH, fV;
+    const Resource skillMana = HeroSkillMana();
+    const Layout::Rect gauge = Layout::SkillManaGauge();
 
-    DWORD dwMaxSkillMana, dwSkillMana;
-
-    if (gCharacterManager.IsMasterLevel(Hero->Class) == true)
-    {
-        dwMaxSkillMana = std::max<int>(1, Master_Level_Data.wMaxBP);
-        dwSkillMana = std::min<int>(dwMaxSkillMana, CharacterAttribute->SkillMana);
-    }
-    else
-    {
-        dwMaxSkillMana = std::max<int>(1, CharacterAttribute->SkillManaMax);
-        dwSkillMana = std::min<int>(dwMaxSkillMana, CharacterAttribute->SkillMana);
-    }
-
-    float fSkillMana = 0.0f;
-
-    if (dwMaxSkillMana > 0)
-    {
-        fSkillMana = (dwMaxSkillMana - dwSkillMana) / (float)dwMaxSkillMana;
-    }
-
-    width = 16.f, height = 39.f;
-    x = 256 + 128 + 36; y = (float)REFERENCE_HEIGHT - 49.f;
-    fY = y + (fSkillMana * height);
-    fH = height - (fSkillMana * height);
-    fV = fSkillMana;
-
-    RenderBitmap(IMAGE_GAUGE_AG, x, fY, width, fH, 0.f, fV * height / 64.f, width / 16.f, (1.0f - fV) * height / 64.f);
-    SEASON3B::RenderNumber(x + 10, REFERENCE_HEIGHT - 18, (int)dwSkillMana);
-
-    if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-    {
-        wchar_t strTipText[256];
-
-        mu_swprintf(strTipText, I18N::Game::AGDD, dwSkillMana, dwMaxSkillMana);
-        RenderTipText((int)x - 20, (int)418, strTipText);
-    }
+    Gauges::RenderHorizontal(IMAGE_GAUGE_AG, gauge, kGaugeArt, Gauges::FillRatio(skillMana.current, skillMana.max));
+    RenderCenteredNumber(gauge, static_cast<int>(skillMana.current), kGaugeNumberScale);
+    RenderResourceTooltip(gauge, I18N::Game::AGDD, skillMana);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::RenderGuageSD()
 {
-    float x, y, width, height;
-    float fY, fH, fV;
-    DWORD wMaxShield, wShield;
+    const Resource shield = HeroShield();
+    const Layout::Rect gauge = Layout::ShieldGauge();
 
-    //Master_Level_Data.wMaxShield
-    if (gCharacterManager.IsMasterLevel(Hero->Class) == true)
-    {
-        wMaxShield = std::max<int>(1, Master_Level_Data.wMaxShield);
-        wShield = std::min<int>(wMaxShield, CharacterAttribute->Shield);
-    }
-    else
-    {
-        wMaxShield = std::max<int>(1, CharacterAttribute->ShieldMax);
-        wShield = std::min<int>(wMaxShield, CharacterAttribute->Shield);
-    }
-
-    float fShield = 0.0f;
-
-    if (wMaxShield > 0)
-    {
-        fShield = (wMaxShield - wShield) / (float)wMaxShield;
-    }
-
-    width = 16.f, height = 39.f;
-    x = 204; y = (float)REFERENCE_HEIGHT - 49.f;
-    fY = y + (fShield * height);
-    fH = height - (fShield * height);
-    fV = fShield;
-
-    RenderBitmap(IMAGE_GAUGE_SD, x, fY, width, fH, 0.f, fV * height / 64.f, width / 16.f, (1.0f - fV) * height / 64.f);
-    SEASON3B::RenderNumber(x + 15, REFERENCE_HEIGHT - 18, (int)wShield);
-
-    height = 39.f;
-    y = (float)REFERENCE_HEIGHT - 10.f - 39.f;
-    if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-    {
-        wchar_t strTipText[256];
-
-        mu_swprintf(strTipText, I18N::Game::SDDD, wShield, wMaxShield);
-        RenderTipText((int)x - 20, (int)418, strTipText);
-    }
+    Gauges::RenderHorizontal(IMAGE_GAUGE_SD, gauge, kGaugeArt, Gauges::FillRatio(shield.current, shield.max));
+    RenderCenteredNumber(gauge, static_cast<int>(shield.current), kGaugeNumberScale);
+    RenderResourceTooltip(gauge, I18N::Game::SDDD, shield);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::RenderExperience()
 {
-    __int64 wLevel;
-    __int64 dwNexExperience;
-    __int64 dwExperience;
-    double x, y, width, height;
-    const auto buildExpSegment = [](const double ratio, int& digit, double& fraction)
-    {
-        const double clampedRatio = std::clamp(ratio, 0.0, 1.0);
-        if (clampedRatio >= 1.0)
-        {
-            digit = 9;
-            fraction = 1.0;
-            return;
-        }
-
-        const double scaled = clampedRatio * 10.0;
-        digit = std::clamp(static_cast<int>(scaled), 0, 9);
-        fraction = scaled - static_cast<double>(static_cast<long long>(scaled));
-        fraction = std::clamp(fraction, 0.0, 1.0);
-    };
+    __int64 experience = 0;
+    __int64 nextExperience = 0;
+    __int64 lowerBound = 0;
+    __int64 previousExperience = 0;
+    int image = IMAGE_GAUGE_EXBAR;
+    DWORD gainColor = kExperienceGainColor;
 
     if (gCharacterManager.IsMasterExperienceActive(CharacterAttribute->Class, CharacterAttribute->Level) == true)
     {
-        wLevel = (__int64)Master_Level_Data.nMLevel;
-        dwNexExperience = (__int64)Master_Level_Data.lNext_MasterLevel_Experince;
-        dwExperience = (__int64)Master_Level_Data.lMasterLevel_Experince;
+        experience = (__int64)Master_Level_Data.lMasterLevel_Experince;
+        nextExperience = (__int64)Master_Level_Data.lNext_MasterLevel_Experince;
+        lowerBound = MasterLevelBaseExperience((__int64)Master_Level_Data.nMLevel);
+        previousExperience = m_loPreExp;
+        image = IMAGE_MASTER_GAUGE_BAR;
+        gainColor = kMasterExperienceGainColor;
     }
     else
     {
-        wLevel = CharacterAttribute->Level;
-        dwNexExperience = CharacterAttribute->NextExperience;
-        dwExperience = CharacterAttribute->Experience;
+        experience = CharacterAttribute->Experience;
+        nextExperience = CharacterAttribute->NextExperience;
+        lowerBound = LevelBaseExperience((__int64)CharacterAttribute->Level - 1);
+        previousExperience = m_dwPreExp;
     }
 
-    if (gCharacterManager.IsMasterExperienceActive(CharacterAttribute->Class, CharacterAttribute->Level) == true)
+    const __int64 upperBound = std::max(nextExperience, lowerBound);
+    const double ratio = ExperienceRatio(experience, lowerBound, upperBound);
+    const ExperienceSegment current = SegmentForRatio(ratio);
+
+    // While the gain effect runs, the part earned since the last update is
+    // highlighted; a gain that crossed into a new tenth highlights the whole fill.
+    double gainStart = 0.0;
+    if (m_bExpEffect && previousExperience >= lowerBound)
     {
-        x = 0; y = 470; width = 6; height = 4;
-
-        __int64 iTotalLevel = wLevel + 400;
-        __int64 iTOverLevel = iTotalLevel - 255;
-        __int64 iBaseExperience = 0;
-
-        __int64 iData_Master =	// A
-            (
-                (
-                    (__int64)9 + (__int64)iTotalLevel
-                    )
-                * (__int64)iTotalLevel
-                * (__int64)iTotalLevel
-                * (__int64)10
-                )
-            +
-            (
-                (
-                    (__int64)9 + (__int64)iTOverLevel
-                    )
-                * (__int64)iTOverLevel
-                * (__int64)iTOverLevel
-                * (__int64)1000
-                );
-        iBaseExperience = (iData_Master - (__int64)3892250000) / (__int64)2;	// B
-
-        const __int64 lowerBound = iBaseExperience;
-        __int64 upperBound = dwNexExperience;
-        if (upperBound < lowerBound)
-        {
-            upperBound = lowerBound;
-        }
-
-        const double fNeedExp = static_cast<double>(upperBound - lowerBound);
-        const double fClampedExp = std::clamp(static_cast<double>(dwExperience), static_cast<double>(lowerBound), static_cast<double>(upperBound));
-        const double fRatio = (fNeedExp > 0.0) ? std::clamp((fClampedExp - static_cast<double>(lowerBound)) / fNeedExp, 0.0, 1.0) : 0.0;
-        int iExp = 0;
-        double fProgress = 0.0;
-        buildExpSegment(fRatio, iExp, fProgress);
-
-        if (m_bExpEffect == true)
-        {
-            double fPreProgress = 0.f;
-            if (m_loPreExp < lowerBound)
-            {
-                x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-                RenderBitmap(IMAGE_MASTER_GAUGE_BAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                RenderColorQuadARGB(x, y, width, height, 0x99FFFFFFu);
-            }
-            else
-            {
-                int iPreExpBarNum = 0;
-                if (fNeedExp > 0.f)
-                {
-                    const double fPreClampedExp = std::clamp(static_cast<double>(m_loPreExp), static_cast<double>(lowerBound), static_cast<double>(upperBound));
-                    const double fPreRatio = std::clamp((fPreClampedExp - static_cast<double>(lowerBound)) / fNeedExp, 0.0, 1.0);
-                    buildExpSegment(fPreRatio, iPreExpBarNum, fPreProgress);
-                }
-
-                if (iExp > iPreExpBarNum)
-                {
-                    x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-                    RenderBitmap(IMAGE_MASTER_GAUGE_BAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                    RenderColorQuadARGB(x, y, width, height, 0x99FFFFFFu);
-                }
-                else
-                {
-                    double fGapProgress = fProgress - fPreProgress;
-                    fGapProgress = std::clamp(fGapProgress, 0.0, 1.0);
-                    x = 2.f; y = 473.f; width = (double)fPreProgress * (double)629.f; height = 4.f;
-                    RenderBitmap(IMAGE_MASTER_GAUGE_BAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-
-                    x += width; width = (double)fGapProgress * (double)629.f;
-                    RenderBitmap(IMAGE_MASTER_GAUGE_BAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                    RenderColorQuadARGB(x, y, width, height, 0x99FFFFFFu);
-                }
-            }
-        }
-        else
-        {
-            x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-            RenderBitmap(IMAGE_MASTER_GAUGE_BAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-        }
-
-        x = 635.f; y = 469.f;
-        SEASON3B::RenderNumber(x, y, iExp);
-
-        x = 2.f; y = 473.f; width = 629.f; height = 4.f;
-        if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-        {
-            wchar_t strTipText[256];
-
-            mu_swprintf(strTipText, I18N::Game::EXPI64dI64d, dwExperience, dwNexExperience);
-            RenderTipText(280, 418, strTipText);
-        }
+        const ExperienceSegment previous =
+            SegmentForRatio(ExperienceRatio(previousExperience, lowerBound, upperBound));
+        if (current.index <= previous.index)
+            gainStart = previous.progress;
     }
-    else
+    RenderExperienceFill(image, gainColor, gainStart, current.progress);
+
+    RenderCenteredNumber(Layout::ExperiencePercent(), static_cast<int>(ratio * kPercentMax), kPercentNumberScale);
+
+    const Layout::Rect bar = Layout::ExperienceBar();
+    if (IsMouseIn(bar))
     {
-        x = 0; y = 470; width = 6; height = 4;
-
-        __int64 iPriorLevel = wLevel - 1;
-        __int64 iPriorExperience = 0;
-
-        if (iPriorLevel > 0)
-        {
-            iPriorExperience = (9 + iPriorLevel) * iPriorLevel * iPriorLevel * 10;
-
-            if (iPriorLevel > 255)
-            {
-                const __int64 iLevelOverN = iPriorLevel - 255;
-                iPriorExperience += (9 + iLevelOverN) * iLevelOverN * iLevelOverN * 1000;
-            }
-        }
-
-        const __int64 lowerBound = iPriorExperience;
-        __int64 upperBound = dwNexExperience;
-        if (upperBound < lowerBound)
-        {
-            upperBound = lowerBound;
-        }
-
-        const double fNeedExp = static_cast<double>(upperBound - lowerBound);
-        const double fClampedExp = std::clamp(static_cast<double>(dwExperience), static_cast<double>(lowerBound), static_cast<double>(upperBound));
-        const double fRatio = (fNeedExp > 0.0) ? std::clamp((fClampedExp - static_cast<double>(lowerBound)) / fNeedExp, 0.0, 1.0) : 0.0;
-        int iExp = 0;
-        double fProgress = 0.0;
-        buildExpSegment(fRatio, iExp, fProgress);
-
-        if (m_bExpEffect == true)
-        {
-            double fPreProgress = 0.f;
-            if (m_dwPreExp < lowerBound)
-            {
-                x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-                RenderBitmap(IMAGE_GAUGE_EXBAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                RenderColorQuadARGB(x, y, width, height, 0x66FFFFFFu);
-            }
-            else
-            {
-                int iPreExpBarNum = 0;
-                if (fNeedExp > 0.f)
-                {
-                    const double fPreClampedExp = std::clamp(static_cast<double>(m_dwPreExp), static_cast<double>(lowerBound), static_cast<double>(upperBound));
-                    const double fPreRatio = std::clamp((fPreClampedExp - static_cast<double>(lowerBound)) / fNeedExp, 0.0, 1.0);
-                    buildExpSegment(fPreRatio, iPreExpBarNum, fPreProgress);
-                }
-
-                if (iExp > iPreExpBarNum)
-                {
-                    x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-                    RenderBitmap(IMAGE_GAUGE_EXBAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                    RenderColorQuadARGB(x, y, width, height, 0x66FFFFFFu);
-                }
-                else
-                {
-                    double fGapProgress = fProgress - fPreProgress;
-                    fGapProgress = std::clamp(fGapProgress, 0.0, 1.0);
-                    x = 2.f; y = 473.f; width = fPreProgress * 629.f; height = 4.f;
-                    RenderBitmap(IMAGE_GAUGE_EXBAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                    x += width; width = fGapProgress * 629.f;
-                    RenderBitmap(IMAGE_GAUGE_EXBAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-                    RenderColorQuadARGB(x, y, width, height, 0x66FFFFFFu);
-                }
-            }
-        }
-        else
-        {
-            x = 2.f; y = 473.f; width = fProgress * 629.f; height = 4.f;
-            RenderBitmap(IMAGE_GAUGE_EXBAR, x, y, width, height, 0.f, 0.f, 6.f / 8.f, 4.f / 4.f);
-        }
-
-        x = 635.f; y = 469.f;
-        SEASON3B::RenderNumber(x, y, iExp);
-
-        x = 2.f; y = 473.f; width = 629.f; height = 4.f;
-        if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
-        {
-            wchar_t strTipText[256];
-
-            mu_swprintf(strTipText, I18N::Game::EXPI64dI64d, dwExperience, dwNexExperience);
-            RenderTipText(280, 418, strTipText);
-        }
+        wchar_t strTipText[256];
+        mu_swprintf(strTipText, I18N::Game::EXPI64dI64d, experience, nextExperience);
+        RenderTipText(static_cast<int>(bar.CenterX() - kExperienceTooltipLeftOffset),
+                      static_cast<int>(bar.y - kTooltipGap), strTipText);
     }
+}
+
+void SEASON3B::CNewUIMainFrameWindow::RenderExperienceFill(int iImage, DWORD dwGainColor, double fGainStart,
+                                                           double fProgress)
+{
+    const Layout::Rect bar = Layout::ExperienceBar();
+    const float filledWidth = static_cast<float>(fProgress) * bar.width;
+    if (filledWidth <= 0.0f)
+        return;
+
+    RenderBitmap(iImage, bar.x, bar.y, filledWidth, bar.height, 0.f, 0.f, kExperienceArtU, kExperienceArtV);
+
+    if (!m_bExpEffect)
+        return;
+
+    const float gainX = bar.x + static_cast<float>(fGainStart) * bar.width;
+    const float gainWidth = std::max(0.0f, bar.x + filledWidth - gainX);
+    RenderColorQuadARGB(gainX, bar.y, gainWidth, bar.height, dwGainColor);
 }
 
 void SEASON3B::CNewUIMainFrameWindow::RenderHotKeyItemCount()
@@ -717,53 +559,60 @@ void SEASON3B::CNewUIMainFrameWindow::RenderHotKeyItemCount()
 void SEASON3B::CNewUIMainFrameWindow::RenderButtons()
 {
 #ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    m_BtnCShop.Render();
+    RenderMenuButton(m_BtnCShop, IMAGE_MENU_BTN_CSHOP, MAINFRAME_BTN_PARTCHARGE, false);
 #endif //defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
-
-    RenderCharInfoButton();
-    m_BtnMyInven.Render();
-
-    RenderFriendButton();
-
-    m_BtnWindow.Render();
+    RenderMenuButton(m_BtnChaInfo, IMAGE_MENU_BTN_CHAINFO, MAINFRAME_BTN_CHAINFO, IsCharInfoAlertOn());
+    RenderMenuButton(m_BtnMyInven, IMAGE_MENU_BTN_MYINVEN, MAINFRAME_BTN_MYINVEN, false);
+    RenderMenuButton(m_BtnQuest, IMAGE_MENU_BTN_QUEST, MAINFRAME_BTN_QUEST, false);
+    RenderMenuButton(m_BtnFriend, IMAGE_MENU_BTN_FRIEND, MAINFRAME_BTN_FRIEND, IsFriendAlertOn());
+    RenderMenuButton(m_BtnWindow, IMAGE_MENU_BTN_WINDOW, MAINFRAME_BTN_WINDOW, false);
 }
 
-void SEASON3B::CNewUIMainFrameWindow::RenderCharInfoButton()
+void SEASON3B::CNewUIMainFrameWindow::RenderMenuButton(CNewUIButton& button, int iImage, int iBtnType, bool bAlert)
 {
-    m_BtnChaInfo.Render();
+    const Layout::Rect rect = Layout::MenuButtonRect(MenuButtonSlot(iBtnType));
+    RenderImageStretch(iImage, rect.x, rect.y, rect.width, rect.height, 0.0f, 0.0f, kButtonArt.width,
+                       kButtonArt.height);
 
+    if (m_bButtonActive[iBtnType] || bAlert || IsMouseIn(rect))
+    {
+        EnableAlphaBlend();
+        RenderImageStretch(iImage, rect.x, rect.y, rect.width, rect.height, 0.0f, 0.0f, kButtonArt.width,
+                           kButtonArt.height,
+                           RGBA(kButtonHighlightLevel, kButtonHighlightLevel, kButtonHighlightLevel, 255));
+        EnableAlphaTest();
+    }
+
+    // No art is registered on the button, so this only draws its tooltip.
+    button.Render();
+}
+
+bool SEASON3B::CNewUIMainFrameWindow::IsCharInfoAlertOn()
+{
     if (g_QuestMng.IsQuestIndexByEtcListEmpty())
-        return;
+        return false;
 
-    if (g_Time.GetTimeCheck(5, 500))
+    if (g_Time.GetTimeCheck(kQuestAlertTimerId, kQuestAlertBlinkMs))
         m_bButtonBlink = !m_bButtonBlink;
 
-    if (m_bButtonBlink)
-    {
-        if (!(g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_QUEST_PROGRESS_ETC)
-            || g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHARACTER)))
-            RenderImage(IMAGE_MENU_BTN_CHAINFO, 489 + 30, REFERENCE_HEIGHT - 51, 30, 41, 0.0f, 41.f);
-    }
+    const bool questWindowOpen = g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_QUEST_PROGRESS_ETC)
+                                 || g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHARACTER);
+    return m_bButtonBlink && !questWindowOpen;
 }
 
-void SEASON3B::CNewUIMainFrameWindow::RenderFriendButton()
+bool SEASON3B::CNewUIMainFrameWindow::IsFriendAlertOn()
 {
-    m_BtnFriend.Render();
+    const int iBlinkTemp = g_pFriendMenu->GetBlinkTemp();
+    const bool bIsAlertTime = (iBlinkTemp % kFriendBlinkPeriod < kFriendBlinkOnFrames);
+    bool bAlert = g_pFriendMenu->IsNewChatAlert() && bIsAlertTime;
 
-    int iBlinkTemp = g_pFriendMenu->GetBlinkTemp();
-    BOOL bIsAlertTime = (iBlinkTemp % 24 < 12);
-
-    if (g_pFriendMenu->IsNewChatAlert() && bIsAlertTime)
-    {
-        RenderFriendButtonState();
-    }
     if (g_pFriendMenu->IsNewMailAlert())
     {
         if (bIsAlertTime)
         {
-            RenderFriendButtonState();
+            bAlert = true;
 
-            if (iBlinkTemp % 24 == 11)
+            if (iBlinkTemp % kFriendBlinkPeriod == kFriendBlinkOnFrames - 1)
             {
                 g_pFriendMenu->IncreaseLetterBlink();
             }
@@ -771,33 +620,11 @@ void SEASON3B::CNewUIMainFrameWindow::RenderFriendButton()
     }
     else if (g_pLetterList->CheckNoReadLetter())
     {
-        RenderFriendButtonState();
+        bAlert = true;
     }
 
     g_pFriendMenu->IncreaseBlinkTemp();
-}
-
-void SEASON3B::CNewUIMainFrameWindow::RenderFriendButtonState()
-{
-#ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    if (g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_FRIEND) == true)
-    {
-        RenderImage(IMAGE_MENU_BTN_FRIEND, 489 + (30 * 3), REFERENCE_HEIGHT - 51, 30, 41, 0.0f, 123.f);
-    }
-    else
-    {
-        RenderImage(IMAGE_MENU_BTN_FRIEND, 489 + (30 * 3), REFERENCE_HEIGHT - 51, 30, 41, 0.0f, 41.f);
-    }
-#else //defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    if (g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_FRIEND) == true)
-    {
-        RenderImage(IMAGE_MENU_BTN_FRIEND, 488 + 76, REFERENCE_HEIGHT - 51, 38, 42, 0.0f, 126.f);
-    }
-    else
-    {
-        RenderImage(IMAGE_MENU_BTN_FRIEND, 488 + 76, REFERENCE_HEIGHT - 51, 38, 42, 0.0f, 42.f);
-    }
-#endif//defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
+    return bAlert;
 }
 
 bool SEASON3B::CNewUIMainFrameWindow::UpdateMouseEvent()
@@ -805,9 +632,31 @@ bool SEASON3B::CNewUIMainFrameWindow::UpdateMouseEvent()
     if (g_pNewUIHotKey->IsStateGameOver())
         return true;
 
-    const auto transform = UI::Scaling::BottomHudRightTransform(WindowWidth, WindowHeight);
+    const auto transform = UI::Scaling::BottomHudCenterTransform(WindowWidth, WindowHeight);
     UI::Scaling::ScopedActiveTransform layout(transform, true);
     return !BtnProcess();
+}
+
+namespace
+{
+    constexpr int kFriendMinimumLevel = 6;
+
+    void ToggleFriendWindow()
+    {
+        if (gMapManager.InChaosCastle() == true)
+            return;
+
+        if (CharacterAttribute->Level < kFriendMinimumLevel)
+        {
+            if (g_pSystemLogBox->CheckChatRedundancy(I18N::Game::YouMustBeAtLeastLevel6ToUseTheMyFriendFunction) == FALSE)
+            {
+                g_pSystemLogBox->AddText(I18N::Game::YouMustBeAtLeastLevel6ToUseTheMyFriendFunction, SEASON3B::TYPE_SYSTEM_MESSAGE);
+            }
+            return;
+        }
+
+        g_pNewUISystem->Toggle(SEASON3B::INTERFACE_FRIEND);
+    }
 }
 
 bool SEASON3B::CNewUIMainFrameWindow::BtnProcess()
@@ -842,25 +691,13 @@ bool SEASON3B::CNewUIMainFrameWindow::BtnProcess()
         }
         else if (m_BtnFriend.UpdateMouseEvent() == true)
         {
-            if (gMapManager.InChaosCastle() == true)
-            {
-                PlayBuffer(SOUND_CLICK01);
-                return true;
-            }
-
-            int iLevel = CharacterAttribute->Level;
-
-            if (iLevel < 6)
-            {
-                if (g_pSystemLogBox->CheckChatRedundancy(I18N::Game::YouMustBeAtLeastLevel6ToUseTheMyFriendFunction) == FALSE)
-                {
-                    g_pSystemLogBox->AddText(I18N::Game::YouMustBeAtLeastLevel6ToUseTheMyFriendFunction, SEASON3B::TYPE_SYSTEM_MESSAGE);
-                }
-            }
-            else
-            {
-                g_pNewUISystem->Toggle(SEASON3B::INTERFACE_FRIEND);
-            }
+            ToggleFriendWindow();
+            PlayBuffer(SOUND_CLICK01);
+            return true;
+        }
+        else if (m_BtnQuest.UpdateMouseEvent() == true)
+        {
+            g_pNewUISystem->Toggle(SEASON3B::INTERFACE_MYQUEST);
             PlayBuffer(SOUND_CLICK01);
             return true;
         }
@@ -967,7 +804,7 @@ int SEASON3B::CNewUIMainFrameWindow::GetItemHotKeyLevel(int iHotKey)
 
 void SEASON3B::CNewUIMainFrameWindow::UseHotKeyItemRButton()
 {
-    const auto transform = UI::Scaling::BottomHudLeftTransform(WindowWidth, WindowHeight);
+    const auto transform = UI::Scaling::BottomHudCenterTransform(WindowWidth, WindowHeight);
     UI::Scaling::ScopedActiveTransform layout(transform, true);
     m_ItemHotKey.UseItemRButton();
 }
@@ -1291,8 +1128,6 @@ int SEASON3B::CNewUIItemHotKey::GetHotKeyLevel(int iHotKey)
 
 void SEASON3B::CNewUIItemHotKey::RenderItems()
 {
-    float x, y, width, height;
-
     for (int i = 0; i < HOTKEY_COUNT; ++i)
     {
         int iIndex = GetHotKeyItemIndex(i);
@@ -1301,8 +1136,8 @@ void SEASON3B::CNewUIItemHotKey::RenderItems()
             ITEM* pItem = g_pMyInventory->FindItem(iIndex);
             if (pItem)
             {
-                x = 10 + (i * 38); y = 443; width = 20; height = 20;
-                RenderItem3D(x, y, width, height, pItem->Type, pItem->Level, 0, 0);
+                const Layout::Rect icon = ItemIconRect(i);
+                RenderItem3D(icon.x, icon.y, icon.width, icon.height, pItem->Type, pItem->Level, 0, 0);
             }
         }
     }
@@ -1310,27 +1145,22 @@ void SEASON3B::CNewUIItemHotKey::RenderItems()
 
 void SEASON3B::CNewUIItemHotKey::RenderItemCount()
 {
-    float x, y, width, height;
-
     for (int i = 0; i < HOTKEY_COUNT; ++i)
     {
         int iCount = GetHotKeyItemIndex(i, true);
         if (iCount > 0)
         {
-            x = 30 + (i * 38); y = 457; width = 8; height = 9;
-            SEASON3B::RenderNumber(x, y, iCount);
+            const Layout::Rect icon = ItemIconRect(i);
+            SEASON3B::RenderNumber(icon.x + icon.width, icon.y + icon.height - kItemCountLift, iCount);
         }
     }
 }
 
 void SEASON3B::CNewUIItemHotKey::UseItemRButton()
 {
-    int x, y, width, height;
-
     for (int i = 0; i < HOTKEY_COUNT; ++i)
     {
-        x = 10 + (i * 38); y = 445; width = 20; height = 20;
-        if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
+        if (IsMouseIn(Layout::ItemHotKeySlot(i)))
         {
             if (MouseRButtonPush)
             {
@@ -1463,7 +1293,8 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
         return true;
     }
 
-    x = 385.f; y = 431.f; width = 32.f; height = 38.f;
+    const Layout::Rect currentSkillSlot = Layout::CurrentSkillSlot();
+    x = currentSkillSlot.x; y = currentSkillSlot.y; width = currentSkillSlot.width; height = currentSkillSlot.height;
     if (SEASON3B::CheckMouseIn(x, y, width, height))
     {
         MouseOnWindow = true;
@@ -1517,7 +1348,8 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
         return false;
     }
 
-    x = 222.f; y = 431.f; width = 32.f * 5.f; height = 38.f;
+    const Layout::Rect hotKeyStrip = Layout::SkillHotKeyStrip();
+    x = hotKeyStrip.x; y = hotKeyStrip.y; width = hotKeyStrip.width; height = hotKeyStrip.height;
     if (SEASON3B::CheckMouseIn(x, y, width, height))
     {
         MouseOnWindow = true;
@@ -1542,11 +1374,11 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
         return false;
     }
 
-    x = 190.f; y = 431.f; width = 32.f; height = 38.f;
     int iStartIndex = (m_bHotKeySkillListUp == true) ? 6 : 1;
-    for (int i = 0, iIndex = iStartIndex; i < 5; ++i, iIndex++)
+    for (int i = 0, iIndex = iStartIndex; i < Layout::SkillHotKeySlotCount; ++i, iIndex++)
     {
-        x += width;
+        const Layout::Rect slot = Layout::SkillHotKeySlot(i);
+        x = slot.x; y = slot.y; width = slot.width; height = slot.height;
 
         if (iIndex == 10)
         {
@@ -1609,7 +1441,7 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
         }
     }
 
-    x = 222.f; y = 431.f; width = 32.f * 5.f; height = 38.f;
+    x = hotKeyStrip.x; y = hotKeyStrip.y; width = hotKeyStrip.width; height = hotKeyStrip.height;
     if (m_EventState == EVENT_BTN_DOWN_SKILLHOTKEY)
     {
         if (MouseLButtonPush == false && SEASON3B::CheckMouseIn(x, y, width, height) == false)
@@ -1628,8 +1460,8 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
     int iSkillCount = 0;
     bool bMouseOnSkillList = false;
 
-    x = 385.f; y = 390; width = 32; height = 38;
-    float fOrigX = 385.f;
+    x = kSkillListOriginX; y = SkillListTop(); width = kSkillBoxWidth; height = kSkillBoxHeight;
+    float fOrigX = kSkillListOriginX;
 
     EVENT_STATE PrevEventState = m_EventState;
 
@@ -1728,7 +1560,7 @@ bool SEASON3B::CNewUISkillList::UpdateMouseEvent()
 
     if (Hero->m_pPet != NULL)
     {
-        x = 353.f; y = 352; width = 32; height = 38;
+        x = PetCommandRowX(); y = PetCommandRowTop(); width = kSkillBoxWidth; height = kSkillBoxHeight;
         for (int i = AT_PET_COMMAND_DEFAULT; i < AT_PET_COMMAND_END; ++i)
         {
             if (SEASON3B::CheckMouseIn(x, y, width, height) == true)
@@ -1986,7 +1818,6 @@ bool SEASON3B::CNewUISkillList::Update()
 void SEASON3B::CNewUISkillList::RenderCurrentSkillAndHotSkillList()
 {
     int i;
-    float x, y, width, height;
 
     BYTE bySkillNumber = CharacterAttribute->SkillNumber;
 
@@ -1998,10 +1829,9 @@ void SEASON3B::CNewUISkillList::RenderCurrentSkillAndHotSkillList()
             iStartSkillIndex = 6;
         }
 
-        x = 190; y = 431; width = 32; height = 38;
-        for (i = 0; i < 5; ++i)
+        for (i = 0; i < Layout::SkillHotKeySlotCount; ++i)
         {
-            x += width;
+            const Layout::Rect slot = Layout::SkillHotKeySlot(i);
 
             int iIndex = iStartSkillIndex + i;
             if (iIndex == 10)
@@ -2024,13 +1854,15 @@ void SEASON3B::CNewUISkillList::RenderCurrentSkillAndHotSkillList()
 
             if (Hero->CurrentSkill == m_iHotKeySkillType[iIndex])
             {
-                SEASON3B::RenderImage(IMAGE_SKILLBOX_USE, x, y, width, height);
+                SEASON3B::RenderImageStretch(IMAGE_SKILLBOX_USE, slot.x, slot.y, slot.width, slot.height, 0.0f, 0.0f,
+                                             kSkillBoxArt.width, kSkillBoxArt.height);
             }
-            RenderSkillIcon(m_iHotKeySkillType[iIndex], x + 6, y + 6, 20, 28);
+            const Layout::Rect icon = SkillIconRect(slot);
+            RenderSkillIcon(m_iHotKeySkillType[iIndex], icon.x, icon.y, icon.width, icon.height);
         }
 
-        x = 392; y = 437; width = 20; height = 28;
-        RenderSkillIcon(Hero->CurrentSkill, x, y, width, height);
+        const Layout::Rect icon = SkillIconRect(Layout::CurrentSkillSlot());
+        RenderSkillIcon(Hero->CurrentSkill, icon.x, icon.y, icon.width, icon.height);
     }
 }
 
@@ -2045,8 +1877,8 @@ bool SEASON3B::CNewUISkillList::Render()
     {
         if (m_bSkillList == true)
         {
-            x = 385; y = 390; width = 32; height = 38;
-            float fOrigX = 385.f;
+            x = kSkillListOriginX; y = SkillListTop(); width = kSkillBoxWidth; height = kSkillBoxHeight;
+            float fOrigX = kSkillListOriginX;
             int iSkillType = 0;
             int iSkillCount = 0;
 
@@ -2156,7 +1988,7 @@ void SEASON3B::CNewUISkillList::RenderPetSkill()
 
     float x, y, width, height;
 
-    x = 353.f; y = 352; width = 32; height = 38;
+    x = PetCommandRowX(); y = PetCommandRowTop(); width = kSkillBoxWidth; height = kSkillBoxHeight;
     for (int i = AT_PET_COMMAND_DEFAULT; i < AT_PET_COMMAND_END; ++i)
     {
         if (i == Hero->CurrentSkill)
@@ -2394,68 +2226,68 @@ void SEASON3B::CNewUISkillList::RenderSkillIcon(int iIndex, float x, float y, fl
 
     if (static_cast<int>(bySkillType) >= static_cast<int>(AT_PET_COMMAND_DEFAULT) && static_cast<int>(bySkillType) <= static_cast<int>(AT_PET_COMMAND_END))
     {
-        fU = ((static_cast<int>(bySkillType) - AT_PET_COMMAND_DEFAULT) % 8) * width / 256.f;
-        fV = ((static_cast<int>(bySkillType) - AT_PET_COMMAND_DEFAULT) / 8) * height / 256.f;
+        fU = ((static_cast<int>(bySkillType) - AT_PET_COMMAND_DEFAULT) % 8) * kSkillIconCellWidth / 256.f;
+        fV = ((static_cast<int>(bySkillType) - AT_PET_COMMAND_DEFAULT) / 8) * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_COMMAND;
     }
     else if (bySkillType == AT_SKILL_PLASMA_STORM_FENRIR)
     {
-        fU = 4 * width / 256.f;
+        fU = 4 * kSkillIconCellWidth / 256.f;
         fV = 0.f;
         iKindofSkill = KOS_COMMAND;
     }
     else if ((bySkillType >= AT_SKILL_ALICE_DRAINLIFE && bySkillType <= AT_SKILL_ALICE_THORNS))
     {
-        fU = ((bySkillType - AT_SKILL_ALICE_DRAINLIFE) % 8) * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = ((bySkillType - AT_SKILL_ALICE_DRAINLIFE) % 8) * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType >= AT_SKILL_ALICE_SLEEP && bySkillType <= AT_SKILL_ALICE_BLIND)
     {
-        fU = ((bySkillType - AT_SKILL_ALICE_SLEEP + 4) % 8) * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = ((bySkillType - AT_SKILL_ALICE_SLEEP + 4) % 8) * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_ALICE_BERSERKER)
     {
-        fU = 10 * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = 10 * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType >= AT_SKILL_ALICE_WEAKNESS && bySkillType <= AT_SKILL_ALICE_ENERVATION)
     {
-        fU = (bySkillType - AT_SKILL_ALICE_WEAKNESS + 8) * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = (bySkillType - AT_SKILL_ALICE_WEAKNESS + 8) * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType >= AT_SKILL_SUMMON_EXPLOSION && bySkillType <= AT_SKILL_SUMMON_REQUIEM)
     {
-        fU = ((bySkillType - AT_SKILL_SUMMON_EXPLOSION + 6) % 8) * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = ((bySkillType - AT_SKILL_SUMMON_EXPLOSION + 6) % 8) * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_SUMMON_POLLUTION)
     {
-        fU = 11 * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = 11 * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_STRIKE_OF_DESTRUCTION)
     {
-        fU = 7 * width / 256.f;
-        fV = 2 * height / 256.f;
+        fU = 7 * kSkillIconCellWidth / 256.f;
+        fV = 2 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_CHAOTIC_DISEIER)
     {
-        fU = 3 * width / 256.f;
-        fV = 8 * height / 256.f;
+        fU = 3 * kSkillIconCellWidth / 256.f;
+        fV = 8 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_RECOVER)
     {
-        fU = 9 * width / 256.f;
-        fV = 2 * height / 256.f;
+        fU = 9 * kSkillIconCellWidth / 256.f;
+        fV = 2 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_MULTI_SHOT)
@@ -2465,8 +2297,8 @@ void SEASON3B::CNewUISkillList::RenderSkillIcon(int iIndex, float x, float y, fl
             bCantSkill = true;
         }
 
-        fU = 0 * width / 256.f;
-        fV = 8 * height / 256.f;
+        fU = 0 * kSkillIconCellWidth / 256.f;
+        fV = 8 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_FLAME_STRIKE)
@@ -2479,50 +2311,50 @@ void SEASON3B::CNewUISkillList::RenderSkillIcon(int iIndex, float x, float y, fl
             bCantSkill = true;
         }
 
-        fU = 1 * width / 256.f;
-        fV = 8 * height / 256.f;
+        fU = 1 * kSkillIconCellWidth / 256.f;
+        fV = 8 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_GIGANTIC_STORM)
     {
-        fU = 2 * width / 256.f;
-        fV = 8 * height / 256.f;
+        fU = 2 * kSkillIconCellWidth / 256.f;
+        fV = 8 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_LIGHTNING_SHOCK)
     {
-        fU = 2 * width / 256.f;
-        fV = 3 * height / 256.f;
+        fU = 2 * kSkillIconCellWidth / 256.f;
+        fV = 3 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType == AT_SKILL_EXPANSION_OF_WIZARDRY)
     {
-        fU = 8 * width / 256.f;
-        fV = 2 * height / 256.f;
+        fU = 8 * kSkillIconCellWidth / 256.f;
+        fV = 2 * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillUseType == 4)
     {
-        fU = (width / 256.f) * (Skill_Icon % 12);
-        fV = (height / 256.f) * ((Skill_Icon / 12) + 4);
+        fU = (kSkillIconCellWidth / 256.f) * (Skill_Icon % 12);
+        fV = (kSkillIconCellHeight / 256.f) * ((Skill_Icon / 12) + 4);
         iKindofSkill = KOS_SKILL2;
     }
     else if (bySkillType >= AT_SKILL_KILLING_BLOW)
     {
-        fU = ((bySkillType - AT_SKILL_KILLING_BLOW) % 12) * width / 256.f;
-        fV = ((bySkillType - AT_SKILL_KILLING_BLOW) / 12) * height / 256.f;
+        fU = ((bySkillType - AT_SKILL_KILLING_BLOW) % 12) * kSkillIconCellWidth / 256.f;
+        fV = ((bySkillType - AT_SKILL_KILLING_BLOW) / 12) * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL3;
     }
     else if (bySkillType >= AT_SKILL_SPIRAL_SLASH)
     {
-        fU = ((bySkillType - AT_SKILL_SPIRAL_SLASH) % 8) * width / 256.f;
-        fV = ((bySkillType - AT_SKILL_SPIRAL_SLASH) / 8) * height / 256.f;
+        fU = ((bySkillType - AT_SKILL_SPIRAL_SLASH) % 8) * kSkillIconCellWidth / 256.f;
+        fV = ((bySkillType - AT_SKILL_SPIRAL_SLASH) / 8) * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
     else
     {
-        fU = ((bySkillType - 1) % 8) * width / 256.f;
-        fV = ((bySkillType - 1) / 8) * height / 256.f;
+        fU = ((bySkillType - 1) % 8) * kSkillIconCellWidth / 256.f;
+        fV = ((bySkillType - 1) / 8) * kSkillIconCellHeight / 256.f;
         iKindofSkill = KOS_SKILL1;
     }
     int iSkillIndex = 0;
@@ -2566,7 +2398,7 @@ void SEASON3B::CNewUISkillList::RenderSkillIcon(int iIndex, float x, float y, fl
 
         if (iSkillIndex != 0)
         {
-            RenderBitmap(iSkillIndex, x, y, width, height, fU, fV, width / 256.f, height / 256.f);
+            RenderBitmap(iSkillIndex, x, y, width, height, fU, fV, kSkillIconCellWidth / 256.f, kSkillIconCellHeight / 256.f);
         }
     }
 
@@ -2582,7 +2414,7 @@ void SEASON3B::CNewUISkillList::RenderSkillIcon(int iIndex, float x, float y, fl
 
     if (iHotKey != -1)
     {
-        SEASON3B::RenderNumber(x + 20, y + 20, iHotKey);
+        SEASON3B::RenderNumber(x + width, y + height - kSkillHotKeyNumberLift, iHotKey);
     }
 
     if ((bySkillType == AT_SKILL_CHAIN_DRIVE
@@ -2683,109 +2515,8 @@ void SEASON3B::CNewUIMainFrameWindow::SetGetExp(__int64 dwGetExp)
 
 void SEASON3B::CNewUIMainFrameWindow::SetBtnState(int iBtnType, bool bStateDown)
 {
-    switch (iBtnType)
-    {
-#ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    case MAINFRAME_BTN_PARTCHARGE:
-    {
-        if (bStateDown)
-        {
-            m_BtnCShop.UnRegisterButtonState();
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_CSHOP, 2);
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_CSHOP, 3);
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_CSHOP, 2);
-            m_BtnCShop.ChangeImgIndex(IMAGE_MENU_BTN_CSHOP, 2);
-        }
-        else
-        {
-            m_BtnCShop.UnRegisterButtonState();
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_CSHOP, 0);
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_CSHOP, 1);
-            m_BtnCShop.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_CSHOP, 2);
-            m_BtnCShop.ChangeImgIndex(IMAGE_MENU_BTN_CSHOP, 0);
-        }
-    }
-    break;
-#endif //defined defined PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    case MAINFRAME_BTN_CHAINFO:
-    {
-        if (bStateDown)
-        {
-            m_BtnChaInfo.UnRegisterButtonState();
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_CHAINFO, 2);
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_CHAINFO, 3);
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_CHAINFO, 2);
-            m_BtnChaInfo.ChangeImgIndex(IMAGE_MENU_BTN_CHAINFO, 2);
-        }
-        else
-        {
-            m_BtnChaInfo.UnRegisterButtonState();
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_CHAINFO, 0);
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_CHAINFO, 1);
-            m_BtnChaInfo.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_CHAINFO, 2);
-            m_BtnChaInfo.ChangeImgIndex(IMAGE_MENU_BTN_CHAINFO, 0);
-        }
-    }
-    break;
-    case MAINFRAME_BTN_MYINVEN:
-    {
-        if (bStateDown)
-        {
-            m_BtnMyInven.UnRegisterButtonState();
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_MYINVEN, 2);
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_MYINVEN, 3);
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_MYINVEN, 2);
-            m_BtnMyInven.ChangeImgIndex(IMAGE_MENU_BTN_MYINVEN, 2);
-        }
-        else
-        {
-            m_BtnMyInven.UnRegisterButtonState();
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_MYINVEN, 0);
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_MYINVEN, 1);
-            m_BtnMyInven.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_MYINVEN, 2);
-            m_BtnMyInven.ChangeImgIndex(IMAGE_MENU_BTN_MYINVEN, 0);
-        }
-    }
-    break;
-    case MAINFRAME_BTN_FRIEND:
-    {
-        if (bStateDown)
-        {
-            m_BtnFriend.UnRegisterButtonState();
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_FRIEND, 2);
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_FRIEND, 3);
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_FRIEND, 2);
-            m_BtnFriend.ChangeImgIndex(IMAGE_MENU_BTN_FRIEND, 2);
-        }
-        else
-        {
-            m_BtnFriend.UnRegisterButtonState();
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_FRIEND, 0);
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_FRIEND, 1);
-            m_BtnFriend.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_FRIEND, 2);
-            m_BtnFriend.ChangeImgIndex(IMAGE_MENU_BTN_FRIEND, 0);
-        }
-    }
-    break;
-    case MAINFRAME_BTN_WINDOW:
-    {
-        if (bStateDown)
-        {
-            m_BtnWindow.UnRegisterButtonState();
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_WINDOW, 2);
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_WINDOW, 3);
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_WINDOW, 2);
-            m_BtnWindow.ChangeImgIndex(IMAGE_MENU_BTN_WINDOW, 2);
-        }
-        else
-        {
-            m_BtnWindow.UnRegisterButtonState();
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_UP, IMAGE_MENU_BTN_WINDOW, 0);
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_OVER, IMAGE_MENU_BTN_WINDOW, 1);
-            m_BtnWindow.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_MENU_BTN_WINDOW, 2);
-            m_BtnWindow.ChangeImgIndex(IMAGE_MENU_BTN_WINDOW, 0);
-        }
-    }
-    break;
-    }
+    if (iBtnType < 0 || iBtnType >= MAINFRAME_BTN_COUNT)
+        return;
+
+    m_bButtonActive[iBtnType] = bStateDown;
 }

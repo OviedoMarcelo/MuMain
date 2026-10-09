@@ -822,6 +822,8 @@ void CNewUISystem::Show(DWORD dwKey)
     {
         HideGroupBeforeOpenInterface();
 
+        g_pMainFrame->SetBtnState(MAINFRAME_BTN_QUEST, true);
+
         if (IsVisible(INTERFACE_CHARACTER))
         {
             g_pMyQuestInfoWindow->SetPos(PanelColumnX(2), 0);
@@ -1385,6 +1387,7 @@ void CNewUISystem::Hide(DWORD dwKey)
     }
     else if (dwKey == INTERFACE_MYQUEST)
     {
+        g_pMainFrame->SetBtnState(MAINFRAME_BTN_QUEST, false);
         m_pNewMyQuestInfoWindow->ClosingProcess();
 
         m_pNewMyQuestInfoWindow->SetPos(PanelColumnX(1), 0);
