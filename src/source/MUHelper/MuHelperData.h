@@ -43,6 +43,9 @@ namespace MUHelper
 			static_cast<uint32_t>(ON_MORE_THAN_FOUR_MOBS) | 
 			static_cast<uint32_t>(ON_MORE_THAN_FIVE_MOBS));
 
+	// Mana percentage under which the helper drinks a mana potion, until the player sets another one.
+	constexpr int DEFAULT_MANA_POTION_THRESHOLD = 30;
+
 	enum EPetAttackMode : BYTE
 	{
 		PET_ATTACK_CEASE = 0x00,
@@ -78,6 +81,7 @@ namespace MUHelper
 
 		bool bUseHealPotion = false;
 		int iPotionThreshold = 0;
+		int iManaPotionThreshold = DEFAULT_MANA_POTION_THRESHOLD;
 
 		bool bUseDrainLife = false;
 		bool bUseDarkRaven = false;
@@ -95,7 +99,7 @@ namespace MUHelper
 		bool bPickExtraItems = false;
 		std::set<std::wstring> aExtraItems;
 
-		// Client-local settings (byte index 33, bits 0-3).
+		// Client-local settings (byte index 33, bits 0-3; the mana potion threshold uses bits 4-7).
 		// The server (OpenMU) stores MuHelperConfiguration as byte[] echoed
 		// unchanged. It does not parse or enforce these bits. Adding new bits
 		// in unused positions is safe. However, changing existing bits will

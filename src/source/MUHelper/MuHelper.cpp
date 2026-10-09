@@ -27,6 +27,7 @@
 
 constexpr int MAX_ACTIONABLE_DISTANCE = 10;
 constexpr int DEFAULT_DURABILITY_THRESHOLD = 50;
+constexpr int MANA_POTION_COOLDOWN_LOOPS = 3;  // helper loops (~200 ms each) between two mana potions
 
 SpinLock _targetsLock;
 SpinLock _itemsLock;
@@ -126,6 +127,7 @@ namespace MUHelper
         m_bPetActivated = false;
 
         m_iLoopCounter = 0;
+        m_iManaPotionCooldown = 0;
 
         m_bActive = true;
         g_ConsoleDebug->Write(MCD_NORMAL, L"[MU Helper] Started");
@@ -587,7 +589,41 @@ namespace MUHelper
             }
         }
 
+        ConsumeManaPotion();
+
         return 1;
+    }
+
+    // Refills mana below the "MP Status" of the Auto Recovery window (30% until the player sets it).
+    // Without this, mana was only refilled by the skill code once a cast had already failed for lack
+    // of it, losing casts while hunting.
+    void CMuHelper::ConsumeManaPotion()
+    {
+        // The new mana arrives with the server's answer: wait a moment so one dip doesn't drink several potions.
+        if (m_iManaPotionCooldown > 0)
+        {
+            m_iManaPotionCooldown--;
+            return;
+        }
+
+        if (!m_config.bUseHealPotion)
+        {
+            return;
+        }
+
+        const int64_t iMana = CharacterAttribute->Mana;
+        const int64_t iManaMax = CharacterAttribute->ManaMax;
+        if (iManaMax <= 0 || iMana * 100 > iManaMax * m_config.iManaPotionThreshold)
+        {
+            return;
+        }
+
+        int iPotionIndex = g_pMyInventory->FindManaItemIndex();
+        if (iPotionIndex != -1)
+        {
+            SendRequestUse(iPotionIndex, 0);
+            m_iManaPotionCooldown = MANA_POTION_COOLDOWN_LOOPS;
+        }
     }
 
     int CMuHelper::RecoverHealth()

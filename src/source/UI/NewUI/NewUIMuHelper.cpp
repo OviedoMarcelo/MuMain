@@ -1016,6 +1016,7 @@ void CNewUIMuHelper::Reset()
     _TempConfig.bUseDrainLife = false;
     _TempConfig.bUseHealPotion = false;
     _TempConfig.iPotionThreshold = 40;
+    _TempConfig.iManaPotionThreshold = MUHelper::DEFAULT_MANA_POTION_THRESHOLD;
     _TempConfig.bSupportParty = false;
     _TempConfig.bAutoHealParty = false;
     _TempConfig.iHealPartyThreshold = 60;
@@ -2486,28 +2487,21 @@ bool CNewUIMuHelperExt::Render()
 
     if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG_ELF)
     {
-        g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 13, I18N::Game::AutoRecovery, 190, 0, RT3_SORT_CENTER); // "Auto Recovery"
-        RenderBackPane(m_Pos.x + 12, m_Pos.y + 55, 165, 45, I18N::Game::AutoPotion); // "Auto Potion"
-        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 80, 124.f, 16.f, m_iCurrentPotionThreshold, I18N::Game::HPStatus); // "HP Status"
+        RenderAutoPotionPane();
 
-        RenderBackPane(m_Pos.x + 12, m_Pos.y + 120, 165, 45, I18N::Game::AutoHeal); // "Auto Heal"
-        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 145, 124.f, 16.f, m_iCurrentHealThreshold, I18N::Game::HPStatus); // "HP Status"
+        RenderBackPane(m_Pos.x + 12, m_Pos.y + 155, 165, 45, I18N::Game::AutoHeal); // "Auto Heal"
+        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 180, 124.f, 16.f, m_iCurrentHealThreshold, I18N::Game::HPStatus); // "HP Status"
     }
     else if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG_SUMMY)
     {
-        g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 13, I18N::Game::AutoRecovery, 190, 0, RT3_SORT_CENTER); // "Auto Recovery"
-        RenderBackPane(m_Pos.x + 12, m_Pos.y + 55, 165, 45, I18N::Game::AutoPotion); // "Auto Potion"
-        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 80, 124.f, 16.f, m_iCurrentPotionThreshold, I18N::Game::HPStatus); // "HP Status"
+        RenderAutoPotionPane();
 
-        RenderBackPane(m_Pos.x + 12, m_Pos.y + 120, 165, 45, I18N::Game::DrainLife); // "Drain Life"
-        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 145, 124.f, 16.f, m_iCurrentHealThreshold, I18N::Game::HPStatus); // "HP Status"
+        RenderBackPane(m_Pos.x + 12, m_Pos.y + 155, 165, 45, I18N::Game::DrainLife); // "Drain Life"
+        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 180, 124.f, 16.f, m_iCurrentHealThreshold, I18N::Game::HPStatus); // "HP Status"
     }
     else if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG)
     {
-        g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 13, I18N::Game::AutoRecovery, 190, 0, RT3_SORT_CENTER); // "Auto Recovery"
-        RenderBackPane(m_Pos.x + 12, m_Pos.y + 55, 165, 45, I18N::Game::AutoPotion); // "Auto Potion"
-
-        RenderHpLevel(m_Pos.x + 32, m_Pos.y + 80, 124.f, 16.f, m_iCurrentPotionThreshold, I18N::Game::HPStatus);
+        RenderAutoPotionPane();
     }
     else if (m_iCurrentPage == SUB_PAGE_SKILL2_CONFIG
         || m_iCurrentPage == SUB_PAGE_SKILL3_CONFIG)
@@ -2558,6 +2552,15 @@ bool CNewUIMuHelperExt::Render()
     DisableAlphaBlend();
 
     return true;
+}
+
+// "Auto Recovery" title and the "Auto Potion" pane: the life and the mana level at which potions are drunk.
+void CNewUIMuHelperExt::RenderAutoPotionPane()
+{
+    g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 13, I18N::Game::AutoRecovery, 190, 0, RT3_SORT_CENTER); // "Auto Recovery"
+    RenderBackPane(m_Pos.x + 12, m_Pos.y + 55, 165, 85, I18N::Game::AutoPotion); // "Auto Potion"
+    RenderHpLevel(m_Pos.x + 32, m_Pos.y + 80, 124.f, 16.f, m_iCurrentPotionThreshold, I18N::Game::HPStatus); // "HP Status"
+    RenderHpLevel(m_Pos.x + 32, m_Pos.y + 115, 124.f, 16.f, m_iCurrentManaPotionThreshold, I18N::Game::MPStatus); // "MP Status"
 }
 
 void CNewUIMuHelperExt::RenderHpLevel(int x, int y, int width, int height, int level, const wchar_t* pszLabel)
@@ -2742,77 +2745,17 @@ bool CNewUIMuHelperExt::UpdateMouseEvent()
         return true;
     }
 
-    if (CheckMouseIn(m_Pos.x + 33 - 8, m_Pos.y + 80, 124 + 8, 16))
+    if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG
+        || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_ELF
+        || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_SUMMY)
     {
-        if (MouseWheel > 0)
-        {
-            MouseWheel = 0;
-            m_iCurrentPotionThreshold++;
-            if (m_iCurrentPotionThreshold > 10)
-            {
-                m_iCurrentPotionThreshold = 10;
-            }
-        }
-        else if (MouseWheel < 0)
-        {
-            MouseWheel = 0;
-            m_iCurrentPotionThreshold--;
-            if (m_iCurrentPotionThreshold < 0)
-            {
-                m_iCurrentPotionThreshold = 0;
-            }
-        }
-        if (IsRepeat(VK_LBUTTON))
-        {
-            int x = MouseX - (m_Pos.x + 33);
-            if (x < 0)
-            {
-                m_iCurrentPotionThreshold = 0;
-            }
-            else
-            {
-                float fValue = (10.f * x) / 124.f;
-                m_iCurrentPotionThreshold = (int)fValue + 1;
-            }
-        }
+        UpdateLevelBar(m_Pos.y + 80, m_iCurrentPotionThreshold);
+        UpdateLevelBar(m_Pos.y + 115, m_iCurrentManaPotionThreshold);
     }
 
     if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG_ELF || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_SUMMY)
     {
-        if (CheckMouseIn(m_Pos.x + 33 - 8, m_Pos.y + 145, 124 + 8, 16))
-        {
-            if (MouseWheel > 0)
-            {
-                MouseWheel = 0;
-                m_iCurrentHealThreshold++;
-                if (m_iCurrentHealThreshold > 10)
-                {
-                    m_iCurrentHealThreshold = 10;
-                }
-            }
-            else if (MouseWheel < 0)
-            {
-                MouseWheel = 0;
-                m_iCurrentHealThreshold--;
-                if (m_iCurrentHealThreshold < 0)
-                {
-                    m_iCurrentHealThreshold = 0;
-                }
-            }
-            if (IsRepeat(VK_LBUTTON))
-            {
-                int x = MouseX - (m_Pos.x + 33);
-                if (x < 0)
-                {
-                    m_iCurrentHealThreshold = 0;
-                }
-                else
-                {
-                    float fValue = (10.f * x) / 124.f;
-                    m_iCurrentHealThreshold = (int)fValue + 1;
-                }
-            }
-        }
+        UpdateLevelBar(m_Pos.y + 180, m_iCurrentHealThreshold);
     }
     else if (m_iCurrentPage == SUB_PAGE_PARTY_CONFIG_ELF)
     {
@@ -2876,6 +2819,32 @@ bool CNewUIMuHelperExt::UpdateMouseEvent()
     return false;
 }
 
+// A 0-10 level bar of the Auto Recovery page: the mouse wheel moves it one step, a click sets it.
+void CNewUIMuHelperExt::UpdateLevelBar(int y, int& level)
+{
+    if (!CheckMouseIn(m_Pos.x + 33 - 8, y, 124 + 8, 16))
+    {
+        return;
+    }
+
+    if (MouseWheel > 0)
+    {
+        MouseWheel = 0;
+        level = std::min(level + 1, 10);
+    }
+    else if (MouseWheel < 0)
+    {
+        MouseWheel = 0;
+        level = std::max(level - 1, 0);
+    }
+
+    if (IsRepeat(VK_LBUTTON))
+    {
+        int x = MouseX - (m_Pos.x + 33);
+        level = x < 0 ? 0 : std::min((int)((10.f * x) / 124.f) + 1, 10);
+    }
+}
+
 bool CNewUIMuHelperExt::UpdateKeyEvent()
 {
     if (IsVisible())
@@ -2926,6 +2895,7 @@ void CNewUIMuHelperExt::Toggle(int iPageId)
     else if (m_iCurrentPage == SUB_PAGE_POTION_CONFIG || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_ELF || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_SUMMY)
     {
         m_iCurrentPotionThreshold = _TempConfig.iPotionThreshold / 10;
+        m_iCurrentManaPotionThreshold = _TempConfig.iManaPotionThreshold / 10;
         m_iCurrentHealThreshold = _TempConfig.iHealThreshold / 10;
     }
     else if (m_iCurrentPage == SUB_PAGE_PARTY_CONFIG)
@@ -2964,6 +2934,7 @@ void CNewUIMuHelperExt::Save()
     _TempConfig.iBuffCastInterval = CNewUIMuHelper::GetIntFromTextInput(wsNumberInput);
 
     _TempConfig.iPotionThreshold = m_iCurrentPotionThreshold * 10;
+    _TempConfig.iManaPotionThreshold = m_iCurrentManaPotionThreshold * 10;
     _TempConfig.iHealThreshold = m_iCurrentHealThreshold * 10;
     _TempConfig.iHealPartyThreshold = m_iCurrentPartyHealThreshold * 10;
 }
@@ -2971,6 +2942,7 @@ void CNewUIMuHelperExt::Save()
 void CNewUIMuHelperExt::ApplySavedConfig()
 {
     m_iCurrentPotionThreshold = _TempConfig.iPotionThreshold / 10;
+    m_iCurrentManaPotionThreshold = _TempConfig.iManaPotionThreshold / 10;
     m_iCurrentHealThreshold = _TempConfig.iHealThreshold / 10;
     m_iCurrentPartyHealThreshold = _TempConfig.iHealPartyThreshold / 10;
 }
@@ -2979,6 +2951,7 @@ void CNewUIMuHelperExt::ApplySavedConfig()
 void CNewUIMuHelperExt::InitConfig()
 {
     _TempConfig.iPotionThreshold = 40;
+    _TempConfig.iManaPotionThreshold = MUHelper::DEFAULT_MANA_POTION_THRESHOLD;
     _TempConfig.iHealThreshold = 60;
     _TempConfig.iBuffCastInterval = 0;
     _TempConfig.iHealPartyThreshold = 60;
@@ -3008,9 +2981,11 @@ void CNewUIMuHelperExt::Reset()
         || m_iCurrentPage == SUB_PAGE_POTION_CONFIG_SUMMY)
     {
         _TempConfig.iPotionThreshold = 0;
+        _TempConfig.iManaPotionThreshold = 0;
         _TempConfig.iHealThreshold = 0;
 
         m_iCurrentPotionThreshold = _TempConfig.iPotionThreshold / 10;
+        m_iCurrentManaPotionThreshold = _TempConfig.iManaPotionThreshold / 10;
         m_iCurrentHealThreshold = _TempConfig.iHealThreshold / 10;
     }
 }

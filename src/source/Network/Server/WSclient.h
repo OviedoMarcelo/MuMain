@@ -3695,7 +3695,7 @@ typedef struct
     BYTE bAutoAcceptFriend : 1;              // Index: 33 (bit 1)
     BYTE bAutoAcceptGuild : 1;               // Index: 33 (bit 2)
     BYTE bFallbackBasicAttack : 1;           // Index: 33 (bit 3)
-    BYTE : 4;                                // Unused bits of Index 33
+    BYTE MPStatusAutoPotion : 4;             // Index: 33 (bits 4-7): mana potion level + 1, 0 = never set
 
     BYTE _UnusedPadding[35];                 // Index: 34 (35 bytes remaining)
     char ExtraItems[12][15];                 // Index: 69

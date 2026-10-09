@@ -12037,6 +12037,9 @@
     <value>HP Status</value>
     <comment>legacy_id=3547</comment>
   </data>
+  <data name="MP Status" xml:space="preserve">
+    <value>MP Status</value>
+  </data>
   <data name="Heal Support" xml:space="preserve">
     <value>Heal Support</value>
     <comment>legacy_id=3548</comment>
