@@ -51,6 +51,21 @@ extern bool SelectFlag;
 
 namespace GameLogic::Combat
 {
+namespace
+{
+bool hasCursorFreeAim = false;
+vec3_t cursorFreeAim;
+}
+
+void SetCursorFreeAim(const float* position)
+{
+    hasCursorFreeAim = position != nullptr;
+    if (hasCursorFreeAim)
+    {
+        VectorCopy(position, cursorFreeAim);
+    }
+}
+
 bool CheckTarget(CHARACTER* c)
 {
     if (SelectedCharacter >= 0 && SelectedCharacter < MAX_CHARACTERS_CLIENT)
@@ -58,6 +73,13 @@ bool CheckTarget(CHARACTER* c)
         TargetX = (int)(CharactersClient[SelectedCharacter].Object.Position[0] / TERRAIN_SCALE);
         TargetY = (int)(CharactersClient[SelectedCharacter].Object.Position[1] / TERRAIN_SCALE);
         VectorCopy(CharactersClient[SelectedCharacter].Object.Position, c->TargetPosition);
+        return true;
+    }
+    else if (hasCursorFreeAim)
+    {
+        VectorCopy(cursorFreeAim, c->TargetPosition);
+        TargetX = (int)(c->TargetPosition[0] / TERRAIN_SCALE);
+        TargetY = (int)(c->TargetPosition[1] / TERRAIN_SCALE);
         return true;
     }
     else
