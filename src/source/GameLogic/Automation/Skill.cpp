@@ -2,6 +2,7 @@
 #include "GameLogic/Automation/Skill.h"
 
 #include "GameLogic/Automation/Attack.h"
+#include "GameLogic/Automation/ScopedCasterAim.h"
 #include "GameLogic/Combat/SkillExecution.h"
 #include "GameLogic/Skills/SkillManager.h"
 #include "Engine/AI/ZzzAI.h"
@@ -152,6 +153,17 @@ static SkillResult AimAtTarget(int targetKey, bool allowPlayers, int huntingDist
     return SkillResult::NotReady;
 }
 
+// Executes a self or untargeted skill. Every class but the wizard resolves its
+// target again inside the execution (CheckTarget), from the selection under
+// the cursor or, failing that, the ground under it; with a wall between the
+// hero and that spot the execution then walks there. The cast is aimed at the
+// hero instead, whatever the mouse is over.
+static int ExecuteAtCaster(ActionSkillType skill, float skillDistance)
+{
+    const ScopedCasterAim casterAim(Hero);
+    return GameLogic::Combat::ExecuteSkill(Hero, skill, skillDistance);
+}
+
 SkillResult CastSkill(ActionSkillType skill, bool targetRequired, int targetKey, bool allowPlayers, int huntingDistance)
 {
     // Let the current swing finish before issuing another action.
@@ -168,8 +180,8 @@ SkillResult CastSkill(ActionSkillType skill, bool targetRequired, int targetKey,
         TargetY = Hero->PositionY;
         // The aim, and only the aim: without this an untargeted skill would
         // be cast at whatever the previous targeted one aimed at.
-        // `SelectedCharacter` is the player's own selection and the helper
-        // path this was extracted from never touched it here.
+        // `SelectedCharacter` is the player's own selection: it is only set
+        // aside for the cast itself (ExecuteAtCaster), never cleared here.
         g_MovementSkill.m_iTarget = -1;
     }
     else if (IsSelfPositionSkill(skill))
@@ -195,7 +207,9 @@ SkillResult CastSkill(ActionSkillType skill, bool targetRequired, int targetKey,
     g_MovementSkill.m_iSkill = skill;
     g_MovementSkill.m_bMagic = true;
 
-    const int executed = GameLogic::Combat::ExecuteSkill(Hero, skill, skillDistance);
+    const bool aimsAtCaster = !targetRequired || IsSelfPositionSkill(skill);
+    const int executed = aimsAtCaster ? ExecuteAtCaster(skill, skillDistance)
+                                      : GameLogic::Combat::ExecuteSkill(Hero, skill, skillDistance);
     if (executed == SkillExecutionRefused)
     {
         return SkillResult::Refused;
