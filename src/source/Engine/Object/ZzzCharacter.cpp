@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <span>
 #include "UI/Chat/Chat.h"
+#include "Render/Monsters/MonsterGlow.h"
 #include "Core/Globals/_enum.h"
 #ifdef _WIN32
 #include <eh.h>
@@ -8710,6 +8711,8 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
         }
     }
 
+    Render::Monsters::Glow::Render(c, o);
+
     if (c->MonsterIndex == MONSTER_BALROG || c->MonsterIndex == MONSTER_GOLDEN_BUDGE_DRAGON || c->MonsterIndex == MONSTER_SILVER_VALKYRIE || c->MonsterIndex == MONSTER_ZAIKAN || c->MonsterIndex == MONSTER_METAL_BALROG || (78 <= c->MonsterIndex && c->MonsterIndex <= MONSTER_GOLDEN_WHEEL) || (c->MonsterIndex >= MONSTER_GOLDEN_DARK_KNIGHT && c->MonsterIndex <= MONSTER_GOLDEN_RABBIT))
     {
         vec3_t vBackupBodyLight;
@@ -11660,6 +11663,7 @@ void CreateCharacterPointer(CHARACTER* c, int Type, unsigned char PositionX, uns
 {
     OBJECT* o = &c->Object;
     c->ClearDisplayName();
+    c->AppearanceGlow = 0;
     c->PositionX = PositionX;
     c->PositionY = PositionY;
     c->TargetX = PositionX;
