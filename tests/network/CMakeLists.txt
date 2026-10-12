@@ -93,6 +93,29 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME test_monster_appearance
+    SOURCES
+        test_monster_appearance.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/MonsterAppearance.cpp
+)
+
+mu_add_test(
+    NAME test_boss_health
+    SOURCES
+        test_boss_health.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/BossHealth.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/BossHealthState.cpp
+)
+
+mu_add_test(
+    NAME test_ground_marker
+    SOURCES
+        test_ground_marker.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/GroundMarker.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Monsters/GroundMarkerList.cpp
+)
+
+mu_add_test(
     NAME test_season_pass_catalog
     SOURCES
         test_season_pass_catalog.cpp

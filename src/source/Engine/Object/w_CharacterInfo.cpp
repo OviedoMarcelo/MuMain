@@ -69,6 +69,7 @@ void CHARACTER::Initialize()
     CastRenderTime = 0;
     m_byFriend = 0;
     MonsterSkill = 0;
+    AppearanceGlow = 0;
 
     ClearDisplayName();
 

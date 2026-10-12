@@ -34,7 +34,9 @@
 #include "World/MapInfra/PortalMgr.h"
 #include "Guild/GuildCache.h"
 #include "UI/Legacy/UIMapName.h"
+#include "UI/NewUI/HUD/Bosses/BossHealthBar.h"
 #include "UI/Scaling/UITransform.h"
+#include "Render/Monsters/GroundMarkerRender.h"
 #include "Camera/CameraProjection.h"
 #include "Camera/CameraManager.h"
 #include "Camera/CameraMode.h"
@@ -518,6 +520,9 @@ static void RenderGameWorld(BYTE& byWaterMap, int width, int height)
 
     { FRAME_PROFILE(Characters); RenderCharactersClient(); }
 
+    if (renderEffects)
+        Render::Monsters::GroundMarkers::Render();
+
     if (EditFlag != EDIT_NONE && renderTerrain)
     {
         FRAME_PROFILE(Terrain); RenderTerrain(true);
@@ -623,6 +628,7 @@ static void RenderMainSceneUI()
 
     BeginBitmap();
     RenderInfomation();
+    UI::Bosses::HealthBar::Render();
 
 #ifdef ENABLE_EDIT
     RenderDebugWindow();
