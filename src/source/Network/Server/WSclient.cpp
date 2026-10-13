@@ -14162,6 +14162,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         {
             GameLogic::Quests::WeeklyQuests().AddDetailsFromPacket(ReceiveBuffer, Size);
         }
+        else if (subcode == 0x0D)
+        {
+            GameLogic::Quests::WeeklyQuests().AddChapterFromPacket(ReceiveBuffer, Size);
+        }
         else if (subcode == 0x04)
         {
             if (GameLogic::Skills::ServerRequirements().AddSkillsFromPacket(ReceiveBuffer, Size))
@@ -14202,6 +14206,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x0B)
         {
             ReceiveGroundMarker(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x0C)
+        {
+            GameLogic::Quests::SeasonPass().AddSettingsFromPacket(ReceiveBuffer, Size);
         }
         else
         {

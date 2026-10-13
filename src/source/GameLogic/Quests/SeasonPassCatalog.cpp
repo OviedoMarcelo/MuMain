@@ -30,6 +30,14 @@ constexpr int32_t EntryFreeRewardsOffset = 4;
 constexpr int32_t EntryPremiumRewardsOffset = 68;
 constexpr int32_t RewardsLength = 64;
 
+// Offsets of the SeasonPassSettings message (C2 header with sub code).
+constexpr int32_t PremiumEnabledOffset = 5;
+constexpr int32_t ProgramNameOffset = 6;
+constexpr int32_t ProgramNameLength = 32;
+constexpr int32_t SettingsSize = ProgramNameOffset + ProgramNameLength;
+constexpr int32_t PointsNameOffset = SettingsSize;
+constexpr int32_t PointsNameLength = 32;
+
 WORD ReadWord(const BYTE* data, int32_t offset)
 {
     return static_cast<WORD>(data[offset] | (data[offset + 1] << 8));
@@ -71,6 +79,20 @@ SeasonPassCatalog& SeasonPassCatalog::Instance()
 void SeasonPassCatalog::Reset()
 {
     *this = SeasonPassCatalog();
+}
+
+bool SeasonPassCatalog::AddSettingsFromPacket(const BYTE* data, int32_t size)
+{
+    if (data == nullptr || size < SettingsSize)
+    {
+        return false;
+    }
+
+    m_premiumEnabled = data[PremiumEnabledOffset] != 0;
+    m_programName = ReadString(data, ProgramNameOffset, ProgramNameLength);
+    m_pointsName = size >= PointsNameOffset + PointsNameLength ? ReadString(data, PointsNameOffset, PointsNameLength) : std::wstring();
+    ++m_revision;
+    return true;
 }
 
 bool SeasonPassCatalog::AddFromPacket(const BYTE* data, int32_t size)
@@ -120,7 +142,7 @@ bool SeasonPassCatalog::IsClaimable(const SeasonPassLevel& level) const
     }
 
     const bool freeOpen = !level.IsFreeClaimed && !level.FreeRewards.empty();
-    const bool premiumOpen = m_isPremium && !level.IsPremiumClaimed && !level.PremiumRewards.empty();
+    const bool premiumOpen = m_premiumEnabled && m_isPremium && !level.IsPremiumClaimed && !level.PremiumRewards.empty();
     return freeOpen || premiumOpen;
 }
 

@@ -152,6 +152,8 @@ private:
     void WrapSeasonPass();
     void AddSeasonSummaryLines();
     void AddSeasonLevelLines(const GameLogic::Quests::SeasonPassLevel& level);
+    // The button shows the name of the pass which the server configured.
+    void UpdateSeasonButtonText();
     bool UpdateSeasonPageMouseEvent();
     void WrapHint();
     int GetScrollableRowCount() const;
@@ -204,6 +206,8 @@ private:
 
     // The revision of the season pass which the season page shows.
     uint32_t m_seasonRevision;
+    // The name of the pass which the season button shows; empty for the default text.
+    std::wstring m_seasonButtonText;
 
     CNewUIButton m_BtnExit;
     CNewUIButton m_BtnBack;

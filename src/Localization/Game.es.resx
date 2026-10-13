@@ -13175,6 +13175,9 @@
   <data name="SeasonPassFreeReward" xml:space="preserve">
     <value>Gratis: %ls</value>
   </data>
+  <data name="SeasonPassReward" xml:space="preserve">
+    <value>Premio: %ls</value>
+  </data>
   <data name="SeasonPassPremiumReward" xml:space="preserve">
     <value>Premium: %ls</value>
   </data>
@@ -13183,5 +13186,14 @@
   </data>
   <data name="SeasonPassHint" xml:space="preserve">
     <value>Ganás XP del pase completando quests y jugando.</value>
+  </data>
+  <data name="SeasonPassPointsHint" xml:space="preserve">
+    <value>Ganás %ls completando quests y jugando.</value>
+  </data>
+  <data name="QuestTrackerTitle" xml:space="preserve">
+    <value>Misiones en curso</value>
+  </data>
+  <data name="QuestTrackerRewardPending" xml:space="preserve">
+    <value> Liberá espacio para el premio</value>
   </data>
 </root>

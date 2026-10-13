@@ -69,6 +69,8 @@ struct WeeklyQuest
     size_t CurrentStep = 0;
     std::vector<QuestObjective> Objectives;
     Clock::time_point ResetTime = {};
+    // The name of the chapter of the story which the quest belongs to; empty without one.
+    std::wstring Chapter;
 
     bool IsRewardPending() const
     {
@@ -126,6 +128,10 @@ public:
     // know from its WeeklyQuestEntry message. Returns false when the data isn't
     // plausible or the quest is unknown.
     bool AddDetailsFromPacket(const BYTE* data, int32_t size);
+
+    // Takes one QuestChapter message with the chapter of a quest which we already
+    // know. Returns false when the data is too short or the quest is unknown.
+    bool AddChapterFromPacket(const BYTE* data, int32_t size);
 
 private:
     bool AddToList(WeeklyQuest quest, BYTE index, BYTE count);
