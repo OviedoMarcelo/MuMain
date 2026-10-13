@@ -626,7 +626,9 @@ void SEASON3B::CWeeklyQuestWindow::AddSeasonLevelLines(const SeasonPassLevel& le
         AddDetailLines(line, isClaimed ? STYLE_STEP_DONE : isOpen ? STYLE_VALUE : STYLE_STEP_LATER);
     };
 
-    addTrack(I18N::Game::SeasonPassFreeReward, level.FreeRewards, level.IsFreeClaimed, isReached);
+    // Without the premium track there is only one, so it isn't called "free".
+    addTrack(pass.IsPremiumEnabled() ? I18N::Game::SeasonPassFreeReward : I18N::Game::SeasonPassReward, level.FreeRewards,
+             level.IsFreeClaimed, isReached);
     if (pass.IsPremiumEnabled())
     {
         addTrack(I18N::Game::SeasonPassPremiumReward, level.PremiumRewards, level.IsPremiumClaimed, isReached && pass.IsPremium());

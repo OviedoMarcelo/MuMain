@@ -13258,6 +13258,9 @@
   <data name="SeasonPassFreeReward" xml:space="preserve">
     <value>Free: %ls</value>
   </data>
+  <data name="SeasonPassReward" xml:space="preserve">
+    <value>Reward: %ls</value>
+  </data>
   <data name="SeasonPassPremiumReward" xml:space="preserve">
     <value>Premium: %ls</value>
   </data>
