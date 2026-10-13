@@ -14160,6 +14160,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         {
             GameLogic::Quests::SeasonPass().AddFromPacket(ReceiveBuffer, Size);
         }
+        else if (subcode == 0x09)
+        {
+            GameLogic::Quests::SeasonPass().AddSettingsFromPacket(ReceiveBuffer, Size);
+        }
         else
         {
             g_ConsoleDebug->Write(MCD_RECEIVE, L"Recv [0xF5][0x%02x] (unknown)", subcode);

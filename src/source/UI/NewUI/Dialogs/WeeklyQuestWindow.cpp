@@ -550,9 +550,18 @@ void SEASON3B::CWeeklyQuestWindow::AddSeasonSummaryLines()
     const auto& pass = SeasonPass();
     constexpr const wchar_t* Separator = L" · ";
     AddDetailLines(pass.GetSeasonName(), STYLE_TITLE);
-    AddDetailLines(std::wstring(pass.IsPremium() ? I18N::Game::SeasonPassPremium : I18N::Game::SeasonPassFree) + Separator +
-                       FormatDaysHoursMinutes(I18N::Game::SeasonPassEndsIn, pass.GetTimeUntilEnd()),
-                   STYLE_TYPE);
+    const auto endsIn = FormatDaysHoursMinutes(I18N::Game::SeasonPassEndsIn, pass.GetTimeUntilEnd());
+    if (pass.IsPremiumEnabled())
+    {
+        AddDetailLines(std::wstring(pass.IsPremium() ? I18N::Game::SeasonPassPremium : I18N::Game::SeasonPassFree) + Separator + endsIn,
+                       STYLE_TYPE);
+    }
+    else
+    {
+        // Without a premium track, there's only one pass: no need to tell which one.
+        AddDetailLines(endsIn, STYLE_TYPE);
+    }
+
     m_detailLines.push_back({});
 
     wchar_t text[FormattedTextLength] = {};
@@ -601,7 +610,29 @@ void SEASON3B::CWeeklyQuestWindow::AddSeasonLevelLines(const SeasonPassLevel& le
     };
 
     addTrack(I18N::Game::SeasonPassFreeReward, level.FreeRewards, level.IsFreeClaimed, isReached);
-    addTrack(I18N::Game::SeasonPassPremiumReward, level.PremiumRewards, level.IsPremiumClaimed, isReached && pass.IsPremium());
+    if (pass.IsPremiumEnabled())
+    {
+        addTrack(I18N::Game::SeasonPassPremiumReward, level.PremiumRewards, level.IsPremiumClaimed, isReached && pass.IsPremium());
+    }
+}
+
+void SEASON3B::CWeeklyQuestWindow::UpdateSeasonButtonText()
+{
+    const auto& name = SeasonPass().GetProgramName();
+    if (name == m_seasonButtonText)
+    {
+        return;
+    }
+
+    m_seasonButtonText = name;
+    if (name.empty())
+    {
+        m_BtnSeason.ChangeText(&I18N::Game::SeasonPassButton);
+    }
+    else
+    {
+        m_BtnSeason.ChangeText(name);
+    }
 }
 
 bool SEASON3B::CWeeklyQuestWindow::IsRowHovered(int y) const
@@ -828,6 +859,7 @@ bool SEASON3B::CWeeklyQuestWindow::Render()
         RenderTimeUntilReset();
         if (SeasonPass().IsAvailable())
         {
+            UpdateSeasonButtonText();
             m_BtnSeason.SetFont(g_hFont);
             m_BtnSeason.Render();
         }
