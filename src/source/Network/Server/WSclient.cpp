@@ -42,6 +42,13 @@
 #include "GameLogic/Items/InventoryUtils.h"
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Monsters/BossHealth.h"
+#include "GameLogic/Monsters/BossHealthState.h"
+#include "GameLogic/Monsters/GroundMarker.h"
+#include "GameLogic/Monsters/GroundMarkerList.h"
+#include "GameLogic/Monsters/MonsterAppearance.h"
+#include "GameLogic/Monsters/MonsterAppearanceApplier.h"
+#include "Render/Monsters/GroundMarkerRender.h"
 #include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
 #include "GameLogic/Social/PlayerTitleCatalog.h"
 #include "GameLogic/Quests/SeasonPassCatalog.h"
@@ -572,6 +579,8 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
         GameLogic::Monsters::ServerMonsterLevels().Reset();
         GameLogic::Social::PlayerTitles().Reset();
         GameLogic::Quests::SeasonPass().Reset();
+        GameLogic::Monsters::BossHealthBar().Reset();
+        GameLogic::Monsters::GroundMarkers().Reset();
 
         CUIMng& rUIMng = CUIMng::Instance();
 
@@ -13440,6 +13449,22 @@ void ReceiveDarkside(const BYTE* ReceiveBuffer)
     }
 }
 
+// A warning on the ground where an attack of a boss hits after a delay, or the hit.
+static void ReceiveGroundMarker(const BYTE* ReceiveBuffer, int32_t Size)
+{
+    const auto marker = GameLogic::Monsters::ReadGroundMarker(ReceiveBuffer, Size);
+    if (!marker)
+    {
+        return;
+    }
+
+    GameLogic::Monsters::GroundMarkers().Add(*marker, GetMillisecondsTimestamp());
+    if (marker->Kind == GameLogic::Monsters::GroundMarkerKind::Hit)
+    {
+        Render::Monsters::GroundMarkers::ShowHit(*marker);
+    }
+}
+
 static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
 {
     auto received_span = std::span<const BYTE>(ReceiveBuffer, Size);
@@ -14137,7 +14162,7 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         {
             GameLogic::Quests::WeeklyQuests().AddDetailsFromPacket(ReceiveBuffer, Size);
         }
-        else if (subcode == 0x0A)
+        else if (subcode == 0x0D)
         {
             GameLogic::Quests::WeeklyQuests().AddChapterFromPacket(ReceiveBuffer, Size);
         }
@@ -14165,6 +14190,24 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
             GameLogic::Quests::SeasonPass().AddFromPacket(ReceiveBuffer, Size);
         }
         else if (subcode == 0x09)
+        {
+            if (const auto appearance = GameLogic::Monsters::ReadMonsterAppearance(ReceiveBuffer, Size))
+            {
+                GameLogic::Monsters::ApplyMonsterAppearance(*appearance);
+            }
+        }
+        else if (subcode == 0x0A)
+        {
+            if (const auto health = GameLogic::Monsters::ReadBossHealth(ReceiveBuffer, Size))
+            {
+                GameLogic::Monsters::BossHealthBar().Apply(*health);
+            }
+        }
+        else if (subcode == 0x0B)
+        {
+            ReceiveGroundMarker(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x0C)
         {
             GameLogic::Quests::SeasonPass().AddSettingsFromPacket(ReceiveBuffer, Size);
         }

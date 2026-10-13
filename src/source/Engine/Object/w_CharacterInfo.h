@@ -166,6 +166,9 @@ public:
     BYTE        CastRenderTime; // unused?
     BYTE        m_byFriend;
     WORD        MonsterSkill;
+    // The glow of a monster which looks different than the others of its
+    // kind (GameLogic::Monsters::MonsterGlow), e.g. the boss of an encounter.
+    BYTE        AppearanceGlow;
 
     wchar_t     ID[MAX_MONSTER_NAME + 1]{};
     char 		Movement;
