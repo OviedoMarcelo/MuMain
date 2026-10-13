@@ -573,12 +573,29 @@ void SEASON3B::CWeeklyQuestWindow::AddSeasonSummaryLines()
     }
     else
     {
-        mu_swprintf_s(text, I18N::Game::SeasonPassExperience, static_cast<int>(pass.GetExperienceInLevel()),
-                      static_cast<int>(pass.GetExperiencePerLevel()));
+        if (pass.GetPointsName().empty())
+        {
+            mu_swprintf_s(text, I18N::Game::SeasonPassExperience, static_cast<int>(pass.GetExperienceInLevel()),
+                          static_cast<int>(pass.GetExperiencePerLevel()));
+        }
+        else
+        {
+            mu_swprintf_s(text, L"%ls %d / %d", pass.GetPointsName().c_str(), static_cast<int>(pass.GetExperienceInLevel()),
+                          static_cast<int>(pass.GetExperiencePerLevel()));
+        }
+
         AddDetailLines(text, STYLE_VALUE);
     }
 
-    AddDetailLines(I18N::Game::SeasonPassHint, STYLE_TYPE);
+    if (pass.GetPointsName().empty())
+    {
+        AddDetailLines(I18N::Game::SeasonPassHint, STYLE_TYPE);
+    }
+    else
+    {
+        mu_swprintf_s(text, I18N::Game::SeasonPassPointsHint, pass.GetPointsName().c_str());
+        AddDetailLines(text, STYLE_TYPE);
+    }
 }
 
 void SEASON3B::CWeeklyQuestWindow::AddSeasonLevelLines(const SeasonPassLevel& level)

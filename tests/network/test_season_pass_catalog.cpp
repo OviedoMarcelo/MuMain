@@ -146,15 +146,17 @@ TEST_CASE("season pass catalog keeps the defaults until the server sends its set
     CHECK(SeasonPass().IsPremiumEnabled());
 }
 
-TEST_CASE("season pass catalog takes the name and the premium track from the settings")
+TEST_CASE("season pass catalog takes the names and the premium track from the settings")
 {
     SeasonPass().Reset();
-    std::vector<BYTE> settings(38);
+    std::vector<BYTE> settings(70);
     settings[5] = 0;
     WriteText(settings, 6, "Camino del Guerrero");
+    WriteText(settings, 38, "Cyber Points");
     REQUIRE(SeasonPass().AddSettingsFromPacket(settings.data(), static_cast<int32_t>(settings.size())));
 
     CHECK(SeasonPass().GetProgramName() == L"Camino del Guerrero");
+    CHECK(SeasonPass().GetPointsName() == L"Cyber Points");
     CHECK_FALSE(SeasonPass().IsPremiumEnabled());
 
     // Without the premium track, its rewards can't be claimed, even with the premium pass.
@@ -162,6 +164,17 @@ TEST_CASE("season pass catalog takes the name and the premium track from the set
     WriteLevel(packet, 0, 1, true, false, "1000000 Zen", "2000000 EXP");
     REQUIRE(Add(packet));
     CHECK_FALSE(SeasonPass().HasClaimableRewards());
+}
+
+TEST_CASE("season pass catalog keeps the default points name with settings which don't have it")
+{
+    SeasonPass().Reset();
+    std::vector<BYTE> settings(38);
+    WriteText(settings, 6, "Pase");
+    REQUIRE(SeasonPass().AddSettingsFromPacket(settings.data(), static_cast<int32_t>(settings.size())));
+
+    CHECK(SeasonPass().GetProgramName() == L"Pase");
+    CHECK(SeasonPass().GetPointsName().empty());
 }
 
 TEST_CASE("season pass catalog ignores truncated settings")

@@ -13267,4 +13267,7 @@
   <data name="SeasonPassHint" xml:space="preserve">
     <value>Earn pass XP by completing quests and by playing.</value>
   </data>
+  <data name="SeasonPassPointsHint" xml:space="preserve">
+    <value>Earn %ls by completing quests and by playing.</value>
+  </data>
 </root>

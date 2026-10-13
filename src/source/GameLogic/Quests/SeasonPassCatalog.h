@@ -32,8 +32,9 @@ public:
     // Forgets everything, e.g. when we connect to another server.
     void Reset();
 
-    // Takes the SeasonPassSettings message: the configured name of the pass and
-    // whether it has a premium track. Returns false when the data is too short.
+    // Takes the SeasonPassSettings message: the configured names of the pass and
+    // of its points, and whether it has a premium track. Returns false when the
+    // data is too short.
     bool AddSettingsFromPacket(const BYTE* data, int32_t size);
 
     // Takes the SeasonPassState message. Returns false when the data isn't
@@ -49,6 +50,9 @@ public:
     // The name of the pass configured on the server; empty when the server
     // didn't send one, so that the default text is used.
     const std::wstring& GetProgramName() const { return m_programName; }
+    // The name of the points of the pass configured on the server; empty when
+    // the server didn't send one, so that the default text is used.
+    const std::wstring& GetPointsName() const { return m_pointsName; }
     // Servers which don't send the settings keep the premium track.
     bool IsPremiumEnabled() const { return m_premiumEnabled; }
     bool IsPremium() const { return m_isPremium; }
@@ -70,6 +74,7 @@ private:
     bool m_isAvailable = false;
     std::wstring m_seasonName;
     std::wstring m_programName;
+    std::wstring m_pointsName;
     bool m_premiumEnabled = true;
     bool m_isPremium = false;
     int m_level = 0;

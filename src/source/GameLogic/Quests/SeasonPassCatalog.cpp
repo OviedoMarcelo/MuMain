@@ -35,6 +35,8 @@ constexpr int32_t PremiumEnabledOffset = 5;
 constexpr int32_t ProgramNameOffset = 6;
 constexpr int32_t ProgramNameLength = 32;
 constexpr int32_t SettingsSize = ProgramNameOffset + ProgramNameLength;
+constexpr int32_t PointsNameOffset = SettingsSize;
+constexpr int32_t PointsNameLength = 32;
 
 WORD ReadWord(const BYTE* data, int32_t offset)
 {
@@ -88,6 +90,7 @@ bool SeasonPassCatalog::AddSettingsFromPacket(const BYTE* data, int32_t size)
 
     m_premiumEnabled = data[PremiumEnabledOffset] != 0;
     m_programName = ReadString(data, ProgramNameOffset, ProgramNameLength);
+    m_pointsName = size >= PointsNameOffset + PointsNameLength ? ReadString(data, PointsNameOffset, PointsNameLength) : std::wstring();
     ++m_revision;
     return true;
 }
