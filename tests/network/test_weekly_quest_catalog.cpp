@@ -2,6 +2,7 @@
 #include "Data/Translation/MultiLanguage.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "UI/Quests/QuestList.h"
+#include "UI/Quests/QuestTracker.h"
 
 #include "doctest.h"
 
@@ -336,4 +337,90 @@ TEST_CASE("quest step line shows the counter only while it's open")
     objective.IsDone = false;
     objective.RequiredCount = 1;
     CHECK(UI::Quests::FormatObjectiveLine(objective) == L"[  ] Kill 50 Skeletons");
+}
+
+namespace
+{
+constexpr size_t ChapterNameOffset = 69;
+constexpr size_t ChapterSize = 117;
+
+std::vector<BYTE> MakeChapterPacket(const std::string& id, const std::string& chapter)
+{
+    std::vector<BYTE> packet(ChapterSize);
+    WriteString(packet, 5, id);
+    WriteString(packet, ChapterNameOffset, chapter);
+    return packet;
+}
+
+bool AddChapter(const std::vector<BYTE>& packet)
+{
+    return WeeklyQuests().AddChapterFromPacket(packet.data(), static_cast<int32_t>(packet.size()));
+}
+} // namespace
+
+TEST_CASE("quest chapter is kept by updates of the quest")
+{
+    WeeklyQuests().Reset();
+    CHECK(Add(MakePacket(0, 1, "main-1")));
+    CHECK(AddChapter(MakeChapterPacket("main-1", "Chapter I")));
+    CHECK(WeeklyQuests().GetQuests().front().Chapter == L"Chapter I");
+
+    CHECK(Add(MakePacket(0, 1, "main-1", 1, true)));
+    CHECK(WeeklyQuests().GetQuests().front().Chapter == L"Chapter I");
+
+    CHECK_FALSE(AddChapter(MakeChapterPacket("unknown", "Chapter II")));
+    auto truncated = MakeChapterPacket("main-1", "Chapter II");
+    truncated.resize(ChapterSize - 1);
+    CHECK_FALSE(AddChapter(truncated));
+}
+
+TEST_CASE("quest tracker shows the chapter, the story first and only the quests in progress")
+{
+    WeeklyQuests().Reset();
+    CHECK(Add(MakePacket(0, 4, "daily-new")));
+    CHECK(Add(MakePacket(1, 4, "daily-started", 3)));
+    CHECK(Add(MakePacket(2, 4, "main-1")));
+    CHECK(Add(MakePacket(3, 4, "main-done")));
+
+    auto daily = MakeDetailsPacket("daily-new", Category::Daily, {{"Kill 10", 0, 10, false}});
+    daily[DetailsPeriodOffset] = 1;
+    CHECK(AddDetails(daily));
+    auto started = MakeDetailsPacket("daily-started", Category::Daily, {{"Kill 10", 3, 10, false}});
+    started[DetailsPeriodOffset] = 1;
+    CHECK(AddDetails(started));
+    CHECK(AddDetails(MakeDetailsPacket("main-1", Category::Main, {{"Talk to the Guardian", 1, 1, true},
+                                                                  {"Kill 50 Skeletons", 12, 50, false}})));
+    CHECK(AddChapter(MakeChapterPacket("main-1", "Chapter I")));
+
+    auto done = MakePacket(0, 1, "main-done", 10, true);
+    done[IsCompletedOffset] = 1;
+    done[IsCompletedOffset + 1] = 1;
+    CHECK(Add(done));
+    CHECK(AddDetails(MakeDetailsPacket("main-done", Category::Main, {{"Enter Devias", 1, 1, true}})));
+
+    const auto content = UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 3);
+
+    CHECK(content.Chapter == L"Chapter I");
+    REQUIRE(content.Quests.size() == 2);
+    CHECK(content.Quests[0].Name == L"Quest main-1");
+    CHECK(content.Quests[0].Step == L"Kill 50 Skeletons 12/50");
+    CHECK(content.Quests[1].Name == L"Quest daily-started");
+    CHECK(content.Quests[1].Step == L"Kill 10 3/10");
+
+    CHECK(UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 1).Quests.size() == 1);
+}
+
+TEST_CASE("quest tracker shows a completed quest which waits for its reward")
+{
+    WeeklyQuests().Reset();
+    auto pending = MakePacket(0, 1, "a", 10);
+    pending[IsCompletedOffset] = 1;
+    CHECK(Add(pending));
+
+    const auto content = UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 3);
+
+    CHECK(content.Chapter.empty());
+    REQUIRE(content.Quests.size() == 1);
+    CHECK(content.Quests[0].IsRewardPending);
+    CHECK(content.Quests[0].Step.empty());
 }

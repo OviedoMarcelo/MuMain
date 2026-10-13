@@ -43,6 +43,11 @@ constexpr int32_t ObjectiveRequiredCountOffset = 4;
 constexpr int32_t ObjectiveIsDoneOffset = 8;
 constexpr int32_t ObjectiveTextOffset = 12;
 constexpr int32_t ObjectiveTextLength = 64;
+// Offsets of the QuestChapter message (C2 header with sub code).
+constexpr int32_t ChapterIdOffset = 5;
+constexpr int32_t ChapterNameOffset = ChapterIdOffset + IdLength;
+constexpr int32_t ChapterNameLength = 48;
+constexpr int32_t ChapterSize = ChapterNameOffset + ChapterNameLength;
 constexpr BYTE HighestCategory = static_cast<BYTE>(QuestCategory::Zone);
 constexpr BYTE HighestPeriod = static_cast<BYTE>(QuestPeriod::Once);
 
@@ -124,6 +129,7 @@ void KeepDetails(const WeeklyQuest& known, WeeklyQuest& update)
     update.CurrentStep = known.CurrentStep;
     update.Objectives = known.Objectives;
     update.ResetTime = known.ResetTime;
+    update.Chapter = known.Chapter;
 }
 } // namespace
 
@@ -251,6 +257,24 @@ bool WeeklyQuestCatalog::AddDetailsFromPacket(const BYTE* data, int32_t size)
     }
 
     ReadDetails(data, *quest);
+    ++m_revision;
+    return true;
+}
+
+bool WeeklyQuestCatalog::AddChapterFromPacket(const BYTE* data, int32_t size)
+{
+    if (data == nullptr || size < ChapterSize)
+    {
+        return false;
+    }
+
+    auto* quest = Find(ReadString(data, ChapterIdOffset, IdLength));
+    if (quest == nullptr)
+    {
+        return false;
+    }
+
+    quest->Chapter = ReadString(data, ChapterNameOffset, ChapterNameLength);
     ++m_revision;
     return true;
 }

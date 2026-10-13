@@ -13187,4 +13187,10 @@
   <data name="SeasonPassPointsHint" xml:space="preserve">
     <value>Ganás %ls completando quests y jugando.</value>
   </data>
+  <data name="QuestTrackerTitle" xml:space="preserve">
+    <value>Misiones en curso</value>
+  </data>
+  <data name="QuestTrackerRewardPending" xml:space="preserve">
+    <value> Liberá espacio para el premio</value>
+  </data>
 </root>

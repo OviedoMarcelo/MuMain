@@ -1,0 +1,39 @@
+#pragma once
+
+#include "GameLogic/Quests/WeeklyQuestCatalog.h"
+
+#include <cstddef>
+#include <string>
+#include <vector>
+
+// What the tracker at the top right of the screen shows: the chapter of the
+// story and the quests in progress, so that a player sees what to do next
+// without opening the quest window.
+namespace UI::Quests
+{
+struct TrackedQuest
+{
+    std::wstring Name;
+    // What to do now, e.g. "Kill 50 Skeletons 12/50"; empty when the quest waits for its reward.
+    std::wstring Step;
+    // The quest is completed, but its rewards wait for free inventory space.
+    bool IsRewardPending = false;
+};
+
+struct QuestTrackerContent
+{
+    // The chapter of the first story quest in progress; empty without one.
+    std::wstring Chapter;
+    std::vector<TrackedQuest> Quests;
+
+    bool IsEmpty() const
+    {
+        return Quests.empty();
+    }
+};
+
+// Picks the quests in progress: the story quests which aren't done yet, and the
+// other quests which made progress or wait for their reward. The story comes
+// first; otherwise the quests keep the order of the server. At most maxQuests.
+QuestTrackerContent BuildQuestTracker(const std::vector<GameLogic::Quests::WeeklyQuest>& quests, size_t maxQuests);
+} // namespace UI::Quests

@@ -13270,4 +13270,10 @@
   <data name="SeasonPassPointsHint" xml:space="preserve">
     <value>Earn %ls by completing quests and by playing.</value>
   </data>
+  <data name="QuestTrackerTitle" xml:space="preserve">
+    <value>Quests in progress</value>
+  </data>
+  <data name="QuestTrackerRewardPending" xml:space="preserve">
+    <value> Free some space for the reward</value>
+  </data>
 </root>

@@ -46,6 +46,7 @@
 #include "UI/NewUI/Dialogs/NewUIHelpWindow.h"
 #include "UI/NewUI/Dialogs/NewUIChatCommandWindow.h"
 #include "UI/NewUI/Dialogs/WeeklyQuestWindow.h"
+#include "UI/NewUI/Quests/NewUIQuestTracker.h"
 #include "UI/NewUI/Inventory/NewUIItemExplanationWindow.h"
 #include "UI/NewUI/Inventory/NewUISetItemExplanation.h"
 #include "UI/NewUI/HUD/NewUIQuickCommandWindow.h"
@@ -193,6 +194,7 @@ namespace SEASON3B
         CNewUIHelpWindow* m_pNewHelpWindow;
         CNewUIChatCommandWindow* m_pNewChatCommandWindow;
         CWeeklyQuestWindow* m_pWeeklyQuestWindow;
+        CNewUIQuestTracker* m_pQuestTracker;
         CNewUIItemExplanationWindow* m_pNewItemExplanationWindow;
         CNewUISetItemExplanation* m_pNewSetItemExplanation;
         CNewUIQuickCommandWindow* m_pNewQuickCommandWindow;
@@ -234,6 +236,7 @@ namespace SEASON3B
 
         bool CreateChatCommandWindow();
         bool CreateWeeklyQuestWindow();
+        bool CreateQuestTracker();
 
     public:
         CNewUIChatInputBox* GetUI_NewChatInputBox() const;

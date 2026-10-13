@@ -103,6 +103,7 @@ CNewUISystem::CNewUISystem()
     m_pNewHelpWindow = nullptr;
     m_pNewChatCommandWindow = nullptr;
     m_pWeeklyQuestWindow = nullptr;
+    m_pQuestTracker = nullptr;
     m_pNewItemExplanationWindow = nullptr;
     m_pNewSetItemExplanation = nullptr;
     m_pNewQuickCommandWindow = nullptr;
@@ -221,6 +222,18 @@ bool CNewUISystem::CreateWeeklyQuestWindow()
     }
 
     SAFE_DELETE(m_pWeeklyQuestWindow);
+    return false;
+}
+
+bool CNewUISystem::CreateQuestTracker()
+{
+    m_pQuestTracker = new CNewUIQuestTracker;
+    if (m_pQuestTracker->Create(m_pNewUIMng))
+    {
+        return true;
+    }
+
+    SAFE_DELETE(m_pQuestTracker);
     return false;
 }
 
@@ -404,6 +417,11 @@ bool CNewUISystem::LoadMainSceneInterface()
     }
 
     if (!CreateWeeklyQuestWindow())
+    {
+        return false;
+    }
+
+    if (!CreateQuestTracker())
     {
         return false;
     }
@@ -598,6 +616,7 @@ void CNewUISystem::UnloadMainSceneInterface()
     SAFE_DELETE(m_pNewHelpWindow);
     SAFE_DELETE(m_pNewChatCommandWindow);
     SAFE_DELETE(m_pWeeklyQuestWindow);
+    SAFE_DELETE(m_pQuestTracker);
     SAFE_DELETE(m_pNewItemExplanationWindow);
     SAFE_DELETE(m_pNewSetItemExplanation);
     SAFE_DELETE(m_pNewQuickCommandWindow);

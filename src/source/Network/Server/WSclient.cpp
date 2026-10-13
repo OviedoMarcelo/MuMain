@@ -14137,6 +14137,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         {
             GameLogic::Quests::WeeklyQuests().AddDetailsFromPacket(ReceiveBuffer, Size);
         }
+        else if (subcode == 0x0A)
+        {
+            GameLogic::Quests::WeeklyQuests().AddChapterFromPacket(ReceiveBuffer, Size);
+        }
         else if (subcode == 0x04)
         {
             if (GameLogic::Skills::ServerRequirements().AddSkillsFromPacket(ReceiveBuffer, Size))

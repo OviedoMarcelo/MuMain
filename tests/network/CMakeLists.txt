@@ -76,6 +76,7 @@ mu_add_test(
         test_weekly_quest_catalog.cpp
         ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Quests/WeeklyQuestCatalog.cpp
         ${CMAKE_SOURCE_DIR}/src/source/UI/Quests/QuestList.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/UI/Quests/QuestTracker.cpp
 )
 
 mu_add_test(
