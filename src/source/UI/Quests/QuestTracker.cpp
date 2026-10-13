@@ -22,14 +22,16 @@ bool HasProgress(const WeeklyQuest& quest)
                        [](const QuestObjective& objective) { return objective.CurrentCount > 0 || objective.IsDone; });
 }
 
-bool IsInProgress(const WeeklyQuest& quest)
+// A quest which is done and rewarded has nothing left to do.
+bool IsOpen(const WeeklyQuest& quest)
 {
-    if (quest.IsRewarded)
-    {
-        return false;
-    }
+    return !quest.IsRewarded;
+}
 
-    return quest.IsCompleted || IsStory(quest) || HasProgress(quest);
+// The quests which the player already works on, or which wait for their reward.
+bool IsStarted(const WeeklyQuest& quest)
+{
+    return quest.IsCompleted || HasProgress(quest);
 }
 
 std::wstring FormatCount(uint32_t current, uint32_t required)
@@ -87,22 +89,19 @@ void Add(const WeeklyQuest& quest, QuestTrackerContent& content)
 QuestTrackerContent BuildQuestTracker(const std::vector<WeeklyQuest>& quests, size_t maxQuests)
 {
     QuestTrackerContent content;
-    for (const auto& quest : quests)
-    {
-        if (content.Quests.size() < maxQuests && IsStory(quest) && IsInProgress(quest))
+    const auto addAll = [&](auto&& isWanted) {
+        for (const auto& quest : quests)
         {
-            Add(quest, content);
+            if (content.Quests.size() < maxQuests && IsOpen(quest) && isWanted(quest))
+            {
+                Add(quest, content);
+            }
         }
-    }
+    };
 
-    for (const auto& quest : quests)
-    {
-        if (content.Quests.size() < maxQuests && !IsStory(quest) && IsInProgress(quest))
-        {
-            Add(quest, content);
-        }
-    }
-
+    addAll([](const WeeklyQuest& quest) { return IsStory(quest); });
+    addAll([](const WeeklyQuest& quest) { return !IsStory(quest) && IsStarted(quest); });
+    addAll([](const WeeklyQuest& quest) { return !IsStory(quest) && !IsStarted(quest); });
     return content;
 }
 } // namespace UI::Quests

@@ -32,8 +32,8 @@ struct QuestTrackerContent
     }
 };
 
-// Picks the quests in progress: the story quests which aren't done yet, and the
-// other quests which made progress or wait for their reward. The story comes
-// first; otherwise the quests keep the order of the server. At most maxQuests.
+// Picks the quests which aren't done yet: the story first, then the quests which
+// made progress or wait for their reward, then the others. Within each group
+// the quests keep the order of the server. At most maxQuests.
 QuestTrackerContent BuildQuestTracker(const std::vector<GameLogic::Quests::WeeklyQuest>& quests, size_t maxQuests);
 } // namespace UI::Quests

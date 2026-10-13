@@ -374,7 +374,7 @@ TEST_CASE("quest chapter is kept by updates of the quest")
     CHECK_FALSE(AddChapter(truncated));
 }
 
-TEST_CASE("quest tracker shows the chapter, the story first and only the quests in progress")
+TEST_CASE("quest tracker shows the chapter, the story first and the quests with progress before the others")
 {
     WeeklyQuests().Reset();
     CHECK(Add(MakePacket(0, 4, "daily-new")));
@@ -401,11 +401,13 @@ TEST_CASE("quest tracker shows the chapter, the story first and only the quests 
     const auto content = UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 3);
 
     CHECK(content.Chapter == L"Chapter I");
-    REQUIRE(content.Quests.size() == 2);
+    REQUIRE(content.Quests.size() == 3);
     CHECK(content.Quests[0].Name == L"Quest main-1");
     CHECK(content.Quests[0].Step == L"Kill 50 Skeletons 12/50");
     CHECK(content.Quests[1].Name == L"Quest daily-started");
     CHECK(content.Quests[1].Step == L"Kill 10 3/10");
+    // The rewarded story quest has nothing left to do.
+    CHECK(content.Quests[2].Name == L"Quest daily-new");
 
     CHECK(UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 1).Quests.size() == 1);
 }
