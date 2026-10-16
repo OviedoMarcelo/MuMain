@@ -418,10 +418,33 @@ namespace MUHelper
         return 1;
     }
 
+    // Whether the hero can cast the buff at all: it's learned, and its level and stat requirements are met.
+    // Mana isn't part of it - running short of it is temporary, and the cast drinks a potion.
+    static bool CanEverCastBuff(ActionSkillType iBuffSkill)
+    {
+        return g_pSkillList->GetSkillIndex(iBuffSkill) != -1
+            && gSkillManager.AreSkillAttributeRequirementsMet(iBuffSkill);
+    }
+
     int CMuHelper::Buff()
     {
         if (!HasAssignedBuffSkill())
         {
+            return 1;
+        }
+
+        // A buff the hero can't cast (yet), e.g. one which needs a higher level, would be tried again and again,
+        // and as a buff which isn't done holds up the rest of the work, the helper would stop attacking. It's skipped.
+        const auto iBuffSkill = static_cast<ActionSkillType>(m_config.aiBuff[m_iCurrentBuffIndex]);
+        if (iBuffSkill > AT_SKILL_UNDEFINED && !CanEverCastBuff(iBuffSkill))
+        {
+            m_iCurrentBuffPartyIndex = 0;
+            m_iCurrentBuffIndex = (m_iCurrentBuffIndex + 1) % m_config.aiBuff.size();
+            if (m_iCurrentBuffIndex == 0)
+            {
+                m_bTimerActivatedBuffOngoing = false;
+            }
+
             return 1;
         }
 
