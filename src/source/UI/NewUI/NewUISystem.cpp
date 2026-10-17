@@ -103,6 +103,7 @@ CNewUISystem::CNewUISystem()
     m_pNewHelpWindow = nullptr;
     m_pNewChatCommandWindow = nullptr;
     m_pWeeklyQuestWindow = nullptr;
+    m_pEventScheduleWindow = nullptr;
     m_pQuestTracker = nullptr;
     m_pNewItemExplanationWindow = nullptr;
     m_pNewSetItemExplanation = nullptr;
@@ -213,6 +214,18 @@ bool CNewUISystem::CreateChatCommandWindow()
     return false;
 }
 
+bool CNewUISystem::CreateEventScheduleWindow()
+{
+    m_pEventScheduleWindow = new CNewUIEventScheduleWindow;
+    if (m_pEventScheduleWindow->Create(m_pNewUIMng, PanelColumnX(1), 0))
+    {
+        return true;
+    }
+
+    SAFE_DELETE(m_pEventScheduleWindow);
+    return false;
+}
+
 bool CNewUISystem::CreateWeeklyQuestWindow()
 {
     m_pWeeklyQuestWindow = new CWeeklyQuestWindow;
@@ -222,6 +235,7 @@ bool CNewUISystem::CreateWeeklyQuestWindow()
     }
 
     SAFE_DELETE(m_pWeeklyQuestWindow);
+    SAFE_DELETE(m_pEventScheduleWindow);
     return false;
 }
 
@@ -417,6 +431,11 @@ bool CNewUISystem::LoadMainSceneInterface()
     }
 
     if (!CreateWeeklyQuestWindow())
+    {
+        return false;
+    }
+
+    if (!CreateEventScheduleWindow())
     {
         return false;
     }
@@ -1000,6 +1019,11 @@ void CNewUISystem::Show(DWORD dwKey)
         HideAllGroupA();
         m_pWeeklyQuestWindow->OpenningProcess();
     }
+    else if (dwKey == INTERFACE_EVENT_SCHEDULE)
+    {
+        HideAllGroupA();
+        m_pEventScheduleWindow->OpenningProcess();
+    }
     else if (dwKey == INTERFACE_GUILDINFO)
     {
         HideAllGroupA();
@@ -1497,6 +1521,10 @@ void CNewUISystem::Hide(DWORD dwKey)
     {
         m_pWeeklyQuestWindow->ClosingProcess();
     }
+    else if (dwKey == INTERFACE_EVENT_SCHEDULE)
+    {
+        m_pEventScheduleWindow->ClosingProcess();
+    }
     else if (dwKey == INTERFACE_WINDOW_MENU)
     {
         g_pMainFrame->SetBtnState(MAINFRAME_BTN_WINDOW, false);
@@ -1721,6 +1749,7 @@ void CNewUISystem::HideAllGroupA()
         INTERFACE_COMMAND,
         INTERFACE_COMMAND_LIST,
         INTERFACE_WEEKLY_QUESTS,
+        INTERFACE_EVENT_SCHEDULE,
         INTERFACE_GUILDINFO,
         INTERFACE_KANTURU2ND_ENTERNPC,
         INTERFACE_DUELWATCH,
@@ -1782,6 +1811,7 @@ void CNewUISystem::HideAllGroupB()
         INTERFACE_COMMAND,
         INTERFACE_COMMAND_LIST,
         INTERFACE_WEEKLY_QUESTS,
+        INTERFACE_EVENT_SCHEDULE,
         INTERFACE_GUILDINFO,
         INTERFACE_KANTURU2ND_ENTERNPC,
         INTERFACE_CURSEDTEMPLE_NPC,
@@ -1820,6 +1850,7 @@ void CNewUISystem::HideGroupBeforeOpenInterface()
 {
     DWORD dwGroupC[] = {
         INTERFACE_PARTY,     INTERFACE_COMMAND,      INTERFACE_COMMAND_LIST,        INTERFACE_WEEKLY_QUESTS,
+        INTERFACE_EVENT_SCHEDULE,
         INTERFACE_GUILDINFO, INTERFACE_GOLD_BOWMAN,  INTERFACE_GOLD_BOWMAN_LENA,    INTERFACE_GENSRANKING,
         INTERFACE_MUHELPER,  INTERFACE_MUHELPER_EXT, INTERFACE_MUHELPER_SKILL_LIST, 0,
     };
@@ -2417,6 +2448,11 @@ CNewUIChatCommandWindow* CNewUISystem::GetUI_NewChatCommandWindow() const
 CWeeklyQuestWindow* CNewUISystem::GetUI_WeeklyQuestWindow() const
 {
     return m_pWeeklyQuestWindow;
+}
+
+CNewUIEventScheduleWindow* CNewUISystem::GetUI_EventScheduleWindow() const
+{
+    return m_pEventScheduleWindow;
 }
 
 CNewUIItemExplanationWindow* CNewUISystem::GetUI_NewItemExplanationWindow() const

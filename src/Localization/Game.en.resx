@@ -13279,4 +13279,22 @@
   <data name="QuestTrackerRewardPending" xml:space="preserve">
     <value> Free some space for the reward</value>
   </data>
+  <data name="EventScheduleTitle" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="EventScheduleNone" xml:space="preserve">
+    <value>There are no events with a timetable.</value>
+  </data>
+  <data name="EventScheduleNextStart" xml:space="preserve">
+    <value>%ls, in %ls</value>
+  </data>
+  <data name="EventScheduleRunning" xml:space="preserve">
+    <value>Running, %ls left</value>
+  </data>
+  <data name="EventScheduleServerTime" xml:space="preserve">
+    <value>Server time: %ls</value>
+  </data>
+  <data name="EventScheduleZoneTime" xml:space="preserve">
+    <value>%ls time: %ls</value>
+  </data>
 </root>
