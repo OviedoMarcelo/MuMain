@@ -42,6 +42,7 @@
 #include "GameLogic/Items/InventoryUtils.h"
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Events/EventScheduleCatalog.h"
 #include "GameLogic/Monsters/BossHealth.h"
 #include "GameLogic/Monsters/BossHealthState.h"
 #include "GameLogic/Monsters/GroundMarker.h"
@@ -1278,6 +1279,7 @@ BOOL ReceiveJoinMapServer(std::span<const BYTE> ReceiveBuffer)
     GameLogic::Commands::Catalog().Reset();
     // The server sends the weekly quests of the new character with its answer to the request below.
     GameLogic::Quests::WeeklyQuests().Reset();
+    GameLogic::Events::EventSchedule().Reset();
     GameLogic::Commands::Catalog().RequestOnce();
 
     g_ConsoleDebug->Write(MCD_RECEIVE, L"0x03 [ReceiveJoinMapServer]");
@@ -14210,6 +14212,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x0C)
         {
             GameLogic::Quests::SeasonPass().AddSettingsFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x0F)
+        {
+            GameLogic::Events::EventSchedule().AddFromPacket(ReceiveBuffer, Size, GetTickCount64());
         }
         else
         {

@@ -46,6 +46,7 @@
 #include "UI/NewUI/Dialogs/NewUIHelpWindow.h"
 #include "UI/NewUI/Dialogs/NewUIChatCommandWindow.h"
 #include "UI/NewUI/Dialogs/WeeklyQuestWindow.h"
+#include "UI/NewUI/Dialogs/NewUIEventScheduleWindow.h"
 #include "UI/NewUI/Quests/NewUIQuestTracker.h"
 #include "UI/NewUI/Inventory/NewUIItemExplanationWindow.h"
 #include "UI/NewUI/Inventory/NewUISetItemExplanation.h"
@@ -194,6 +195,7 @@ namespace SEASON3B
         CNewUIHelpWindow* m_pNewHelpWindow;
         CNewUIChatCommandWindow* m_pNewChatCommandWindow;
         CWeeklyQuestWindow* m_pWeeklyQuestWindow;
+        CNewUIEventScheduleWindow* m_pEventScheduleWindow;
         CNewUIQuestTracker* m_pQuestTracker;
         CNewUIItemExplanationWindow* m_pNewItemExplanationWindow;
         CNewUISetItemExplanation* m_pNewSetItemExplanation;
@@ -236,6 +238,7 @@ namespace SEASON3B
 
         bool CreateChatCommandWindow();
         bool CreateWeeklyQuestWindow();
+        bool CreateEventScheduleWindow();
         bool CreateQuestTracker();
 
     public:
@@ -283,6 +286,7 @@ namespace SEASON3B
         CNewUIHelpWindow* GetUI_NewHelpWindow() const;
         CNewUIChatCommandWindow* GetUI_NewChatCommandWindow() const;
         CWeeklyQuestWindow* GetUI_WeeklyQuestWindow() const;
+        CNewUIEventScheduleWindow* GetUI_EventScheduleWindow() const;
         CNewUIItemExplanationWindow* GetUI_NewItemExplanationWindow() const;
         CNewUISetItemExplanation* GetUI_NewSetItemExplanation() const;
         CNewUIQuickCommandWindow* GetUI_NewQuickCommandWindow() const;
@@ -367,6 +371,7 @@ namespace SEASON3B
 #define g_pBattleSoccerScore SEASON3B::CNewUISystem::GetInstance()->GetUI_NewBattleSoccerScore()
 #define g_pChatCommandWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_NewChatCommandWindow()
 #define g_pWeeklyQuestWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_WeeklyQuestWindow()
+#define g_pEventScheduleWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_EventScheduleWindow()
 #define g_pCommandWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_NewCommandWindow()
 #define g_pWindowMenu SEASON3B::CNewUISystem::GetInstance()->GetUI_NewWindowMenu()
 #define g_pOption SEASON3B::CNewUISystem::GetInstance()->GetUI_NewOptionWindow()

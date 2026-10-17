@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Events/EventScheduleCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "I18N/All.h"
 
@@ -285,6 +286,17 @@ bool SEASON3B::CNewUIHotKey::UpdateKeyEvent()
         if (GameLogic::Quests::WeeklyQuests().IsAvailable())
         {
             g_pNewUISystem->Toggle(SEASON3B::INTERFACE_WEEKLY_QUESTS);
+            PlayBuffer(SOUND_CLICK01);
+        }
+
+        return false;
+    }
+    else if (SEASON3B::IsPress('H') == true)
+    {
+        // Only servers which send their event timetables have something to show.
+        if (GameLogic::Events::EventSchedule().IsAvailable())
+        {
+            g_pNewUISystem->Toggle(SEASON3B::INTERFACE_EVENT_SCHEDULE);
             PlayBuffer(SOUND_CLICK01);
         }
 
