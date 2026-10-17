@@ -103,6 +103,7 @@ CNewUISystem::CNewUISystem()
     m_pNewHelpWindow = nullptr;
     m_pNewChatCommandWindow = nullptr;
     m_pWeeklyQuestWindow = nullptr;
+    m_pCosmeticSetsWindow = nullptr;
     m_pEventScheduleWindow = nullptr;
     m_pQuestTracker = nullptr;
     m_pNewItemExplanationWindow = nullptr;
@@ -223,6 +224,19 @@ bool CNewUISystem::CreateEventScheduleWindow()
     }
 
     SAFE_DELETE(m_pEventScheduleWindow);
+    return false;
+}
+
+bool CNewUISystem::CreateCosmeticSetsWindow()
+{
+    // It's docked at the left of the inventory; Show() moves it there.
+    m_pCosmeticSetsWindow = new CCosmeticSetsWindow;
+    if (m_pCosmeticSetsWindow->Create(m_pNewUIMng, m_pNewUI3DRenderMng, PanelColumnX(2), 0))
+    {
+        return true;
+    }
+
+    SAFE_DELETE(m_pCosmeticSetsWindow);
     return false;
 }
 
@@ -435,6 +449,11 @@ bool CNewUISystem::LoadMainSceneInterface()
         return false;
     }
 
+    if (!CreateCosmeticSetsWindow())
+    {
+        return false;
+    }
+
     if (!CreateEventScheduleWindow())
     {
         return false;
@@ -635,6 +654,7 @@ void CNewUISystem::UnloadMainSceneInterface()
     SAFE_DELETE(m_pNewHelpWindow);
     SAFE_DELETE(m_pNewChatCommandWindow);
     SAFE_DELETE(m_pWeeklyQuestWindow);
+    SAFE_DELETE(m_pCosmeticSetsWindow);
     SAFE_DELETE(m_pQuestTracker);
     SAFE_DELETE(m_pNewItemExplanationWindow);
     SAFE_DELETE(m_pNewSetItemExplanation);
@@ -787,6 +807,11 @@ void CNewUISystem::Show(DWORD dwKey)
     }
     else if (dwKey == INTERFACE_INVENTORY_EXT)
     {
+        if (IsVisible(INTERFACE_COSMETIC_SETS))
+        {
+            Hide(INTERFACE_COSMETIC_SETS);
+        }
+
         if (IsVisible(INTERFACE_STORAGE_EXT))
         {
             Hide(INTERFACE_STORAGE_EXT);
@@ -839,6 +864,10 @@ void CNewUISystem::Show(DWORD dwKey)
     else if (dwKey == INTERFACE_CHARACTER)
     {
         HideGroupBeforeOpenInterface();
+        if (IsVisible(INTERFACE_COSMETIC_SETS))
+        {
+            Hide(INTERFACE_COSMETIC_SETS);
+        }
 
         g_pMainFrame->SetBtnState(MAINFRAME_BTN_CHAINFO, true);
 
@@ -867,12 +896,39 @@ void CNewUISystem::Show(DWORD dwKey)
         {
             Hide(INTERFACE_MYQUEST);
         }
+        if (IsVisible(INTERFACE_COSMETIC_SETS))
+        {
+            Hide(INTERFACE_COSMETIC_SETS);
+        }
 
         HideGroupBeforeOpenInterface();
 
         m_pNewUIMng->ShowInterface(INTERFACE_CHARACTER);
         g_pMainFrame->SetBtnState(MAINFRAME_BTN_CHAINFO, true);
         m_pNewPetInfoWindow->OpenningProcess();
+    }
+    else if (dwKey == INTERFACE_COSMETIC_SETS)
+    {
+        // The windows which would take the same place close.
+        if (IsVisible(INTERFACE_CHARACTER))
+        {
+            Hide(INTERFACE_CHARACTER);
+        }
+        if (IsVisible(INTERFACE_INVENTORY_EXT))
+        {
+            Hide(INTERFACE_INVENTORY_EXT);
+        }
+
+        HideGroupBeforeOpenInterface();
+
+        if (!IsVisible(INTERFACE_INVENTORY))
+        {
+            Show(INTERFACE_INVENTORY);
+        }
+
+        const POINT& inventoryPos = g_pMyInventory->GetPos();
+        m_pCosmeticSetsWindow->SetPos(inventoryPos.x - CCosmeticSetsWindow::WindowWidth, 0);
+        m_pCosmeticSetsWindow->OpenningProcess();
     }
     else if (dwKey == INTERFACE_MYQUEST)
     {
@@ -891,6 +947,10 @@ void CNewUISystem::Show(DWORD dwKey)
         if (IsVisible(INTERFACE_PET))
         {
             Hide(INTERFACE_PET);
+        }
+        if (IsVisible(INTERFACE_COSMETIC_SETS))
+        {
+            Hide(INTERFACE_COSMETIC_SETS);
         }
         g_pMyQuestInfoWindow->OpenningProcess();
     }
@@ -1325,6 +1385,10 @@ void CNewUISystem::Hide(DWORD dwKey)
         {
             Hide(INTERFACE_INVENTORY_EXT);
         }
+        if (IsVisible(INTERFACE_COSMETIC_SETS))
+        {
+            Hide(INTERFACE_COSMETIC_SETS);
+        }
 
         if (IsVisible(INTERFACE_MIXINVENTORY))
         {
@@ -1441,6 +1505,10 @@ void CNewUISystem::Hide(DWORD dwKey)
     else if (dwKey == INTERFACE_PET)
     {
         m_pNewPetInfoWindow->ClosingProcess();
+    }
+    else if (dwKey == INTERFACE_COSMETIC_SETS)
+    {
+        m_pCosmeticSetsWindow->ClosingProcess();
     }
     else if (dwKey == INTERFACE_PARTY)
     {
@@ -1741,6 +1809,7 @@ void CNewUISystem::HideAllGroupA()
         INTERFACE_MYSHOP_INVENTORY,
         INTERFACE_PURCHASESHOP_INVENTORY,
         INTERFACE_PET,
+        INTERFACE_COSMETIC_SETS,
         INTERFACE_MYQUEST,
         INTERFACE_NPCQUEST,
         INTERFACE_PARTY,
@@ -1803,6 +1872,7 @@ void CNewUISystem::HideAllGroupB()
         INTERFACE_MYSHOP_INVENTORY,
         INTERFACE_PURCHASESHOP_INVENTORY,
         INTERFACE_PET,
+        INTERFACE_COSMETIC_SETS,
         INTERFACE_MYQUEST,
         INTERFACE_NPCQUEST,
         INTERFACE_PARTY,
@@ -2448,6 +2518,11 @@ CNewUIChatCommandWindow* CNewUISystem::GetUI_NewChatCommandWindow() const
 CWeeklyQuestWindow* CNewUISystem::GetUI_WeeklyQuestWindow() const
 {
     return m_pWeeklyQuestWindow;
+}
+
+CCosmeticSetsWindow* CNewUISystem::GetUI_CosmeticSetsWindow() const
+{
+    return m_pCosmeticSetsWindow;
 }
 
 CNewUIEventScheduleWindow* CNewUISystem::GetUI_EventScheduleWindow() const

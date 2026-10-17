@@ -40,6 +40,7 @@
 
 #include "Engine/Physics/PhysicsManager.h"
 #include "Engine/AI/GOBoid.h"
+#include "GameLogic/Cosmetics/WornCosmeticSetApplier.h"
 #include "GameLogic/Items/CSItemOption.h"
 
 // Phase 5: Camera system includes for 3D frustum culling
@@ -12169,6 +12170,54 @@ void SetCharacterScale(CHARACTER* c)
     }
 }
 
+namespace
+{
+struct ArmorSlot
+{
+    int BodyPart;
+    int Equipment;
+    int EmptyModel;
+};
+
+constexpr ArmorSlot ArmorSlots[] = {
+    { BODYPART_HELM, EQUIPMENT_HELM, MODEL_BODY_HELM },
+    { BODYPART_ARMOR, EQUIPMENT_ARMOR, MODEL_BODY_ARMOR },
+    { BODYPART_PANTS, EQUIPMENT_PANTS, MODEL_BODY_PANTS },
+    { BODYPART_GLOVES, EQUIPMENT_GLOVES, MODEL_BODY_GLOVES },
+    { BODYPART_BOOTS, EQUIPMENT_BOOTS, MODEL_BODY_BOOTS },
+};
+
+// Sets the armor of the character from the equipment of the hero, or its bare
+// body where nothing is equipped. The hero wears its cosmetic set over it.
+void SetArmorFromEquipment(CHARACTER* c)
+{
+    const ITEM* equipment = CharacterMachine->Equipment;
+    for (const auto& slot : ArmorSlots)
+    {
+        PART_t& part = c->BodyPart[slot.BodyPart];
+        const ITEM& item = equipment[slot.Equipment];
+        if (item.Type == -1)
+        {
+            part.Type = slot.EmptyModel + c->SkinIndex;
+            part.Level = 0;
+            part.ExcellentFlags = 0;
+            part.AncientDiscriminator = 0;
+            continue;
+        }
+
+        part.Type = item.Type + MODEL_ITEM;
+        part.Level = item.Level;
+        part.ExcellentFlags = item.ExcellentFlags;
+        part.AncientDiscriminator = item.AncientDiscriminator;
+    }
+
+    if (c == Hero)
+    {
+        GameLogic::Cosmetics::ApplyWornSet(Hero);
+    }
+}
+} // namespace
+
 void SetCharacterClass(CHARACTER* c)
 {
     if (c->Object.Type != MODEL_PLAYER)
@@ -12242,80 +12291,7 @@ void SetCharacterClass(CHARACTER* c)
         SetPlayerStop(c);
     }
 
-    if (p[EQUIPMENT_HELM].Type == -1)
-    {
-        c->BodyPart[BODYPART_HELM].Type = static_cast<int>(MODEL_BODY_HELM) + c->SkinIndex;
-        c->BodyPart[BODYPART_HELM].Level = 0;
-        c->BodyPart[BODYPART_HELM].ExcellentFlags = 0;
-        c->BodyPart[BODYPART_HELM].AncientDiscriminator = 0;
-    }
-    else
-    {
-        c->BodyPart[BODYPART_HELM].Type = p[EQUIPMENT_HELM].Type + MODEL_ITEM;
-        c->BodyPart[BODYPART_HELM].Level = p[EQUIPMENT_HELM].Level;
-        c->BodyPart[BODYPART_HELM].ExcellentFlags = p[EQUIPMENT_HELM].ExcellentFlags;
-        c->BodyPart[BODYPART_HELM].AncientDiscriminator = p[EQUIPMENT_HELM].AncientDiscriminator;
-    }
-
-    if (p[EQUIPMENT_ARMOR].Type == -1)
-    {
-        c->BodyPart[BODYPART_ARMOR].Type = static_cast<int>(MODEL_BODY_ARMOR) + c->SkinIndex;
-        c->BodyPart[BODYPART_ARMOR].Level = 0;
-        c->BodyPart[BODYPART_ARMOR].ExcellentFlags = 0;
-        c->BodyPart[BODYPART_ARMOR].AncientDiscriminator = 0;
-    }
-    else
-    {
-        c->BodyPart[BODYPART_ARMOR].Type = p[EQUIPMENT_ARMOR].Type + MODEL_ITEM;
-        c->BodyPart[BODYPART_ARMOR].Level = p[EQUIPMENT_ARMOR].Level;
-        c->BodyPart[BODYPART_ARMOR].ExcellentFlags = p[EQUIPMENT_ARMOR].ExcellentFlags;
-        c->BodyPart[BODYPART_ARMOR].AncientDiscriminator = p[EQUIPMENT_ARMOR].AncientDiscriminator;
-    }
-
-    if (p[EQUIPMENT_PANTS].Type == -1)
-    {
-        c->BodyPart[BODYPART_PANTS].Type = static_cast<int>(MODEL_BODY_PANTS) + c->SkinIndex;
-        c->BodyPart[BODYPART_PANTS].Level = 0;
-        c->BodyPart[BODYPART_PANTS].ExcellentFlags = 0;
-        c->BodyPart[BODYPART_PANTS].AncientDiscriminator = 0;
-    }
-    else
-    {
-        c->BodyPart[BODYPART_PANTS].Type = p[EQUIPMENT_PANTS].Type + MODEL_ITEM;
-        c->BodyPart[BODYPART_PANTS].Level = p[EQUIPMENT_PANTS].Level;
-        c->BodyPart[BODYPART_PANTS].ExcellentFlags = p[EQUIPMENT_PANTS].ExcellentFlags;
-        c->BodyPart[BODYPART_PANTS].AncientDiscriminator = p[EQUIPMENT_PANTS].AncientDiscriminator;
-    }
-
-    if (p[EQUIPMENT_GLOVES].Type == -1)
-    {
-        c->BodyPart[BODYPART_GLOVES].Type = static_cast<int>(MODEL_BODY_GLOVES) + c->SkinIndex;
-        c->BodyPart[BODYPART_GLOVES].Level = 0;
-        c->BodyPart[BODYPART_GLOVES].ExcellentFlags = 0;
-        c->BodyPart[BODYPART_GLOVES].AncientDiscriminator = 0;
-    }
-    else
-    {
-        c->BodyPart[BODYPART_GLOVES].Type = p[EQUIPMENT_GLOVES].Type + MODEL_ITEM;
-        c->BodyPart[BODYPART_GLOVES].Level = p[EQUIPMENT_GLOVES].Level;
-        c->BodyPart[BODYPART_GLOVES].ExcellentFlags = p[EQUIPMENT_GLOVES].ExcellentFlags;
-        c->BodyPart[BODYPART_GLOVES].AncientDiscriminator = p[EQUIPMENT_GLOVES].AncientDiscriminator;
-    }
-
-    if (p[EQUIPMENT_BOOTS].Type == -1)
-    {
-        c->BodyPart[BODYPART_BOOTS].Type = static_cast<int>(MODEL_BODY_BOOTS) + c->SkinIndex;
-        c->BodyPart[BODYPART_BOOTS].Level = 0;
-        c->BodyPart[BODYPART_BOOTS].ExcellentFlags = 0;
-        c->BodyPart[BODYPART_BOOTS].AncientDiscriminator = 0;
-    }
-    else
-    {
-        c->BodyPart[BODYPART_BOOTS].Type = p[EQUIPMENT_BOOTS].Type + MODEL_ITEM;
-        c->BodyPart[BODYPART_BOOTS].Level = p[EQUIPMENT_BOOTS].Level;
-        c->BodyPart[BODYPART_BOOTS].ExcellentFlags = p[EQUIPMENT_BOOTS].ExcellentFlags;
-        c->BodyPart[BODYPART_BOOTS].AncientDiscriminator = p[EQUIPMENT_BOOTS].AncientDiscriminator;
-    }
+    SetArmorFromEquipment(c);
 
     ChangeChaosCastleUnit(c);
 
@@ -12327,6 +12303,17 @@ void SetCharacterClass(CHARACTER* c)
     }
 
     CharacterMachine->CalculateAll();
+}
+
+void RefreshHeroArmor()
+{
+    if (Hero == nullptr || Hero->Object.Type != MODEL_PLAYER)
+    {
+        return;
+    }
+
+    SetArmorFromEquipment(Hero);
+    ChangeChaosCastleUnit(Hero);
 }
 
 void SetChangeClass(CHARACTER* c)

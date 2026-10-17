@@ -49,6 +49,7 @@ namespace SEASON3B
             IMAGE_INVENTORY_EXIT_BTN, //"newui_exit_00.tga"
             IMAGE_INVENTORY_REPAIR_BTN, //"newui_repair_00.tga"
             IMAGE_INVENTORY_EXPAND_BTN, //"newui_expansion_btn.tga"
+            IMAGE_INVENTORY_COSMETIC_SETS_BTN, //"newui_cosmetic_sets_btn.tga"
         };
 
         enum MYSHOP_MODE
@@ -66,6 +67,14 @@ namespace SEASON3B
 
         static constexpr float INVENTORY_WIDTH  = 190.0f;
         static constexpr float INVENTORY_HEIGHT = 429.0f;
+
+        // The buttons in the bottom row: close, repair, personal store, expansion and cosmetic sets.
+        // They are a bit narrower than their images, so that five fit between the sides of the frame.
+        static constexpr int BOTTOM_BUTTON_LEFT = 13;
+        static constexpr int BOTTOM_BUTTON_Y = 391;
+        static constexpr int BOTTOM_BUTTON_WIDTH = 32;
+        static constexpr int BOTTOM_BUTTON_HEIGHT = 29;
+        static constexpr int BOTTOM_BUTTON_STEP = BOTTOM_BUTTON_WIDTH + 1;
 
         typedef struct tagEQUIPMENT_ITEM
         {
@@ -87,6 +96,7 @@ namespace SEASON3B
         CNewUIButton m_BtnExit;
         CNewUIButton m_BtnMyShop;
         CNewUIButton m_BtnExpand;
+        CNewUIButton m_BtnCosmeticSets;
 
         MYSHOP_MODE m_MyShopMode;
         SEASON3B::REPAIR_MODE m_RepairMode;
@@ -98,6 +108,9 @@ namespace SEASON3B
         // The repair and personal-shop buttons hide while a window that trades
         // or stores items is open.
         bool AreShopButtonsShown() const;
+        // The x of a button in the bottom row, counted from the left.
+        int GetBottomButtonX(int index) const;
+        void PlaceBottomButtons();
 
     public:
         CNewUIMyInventory();

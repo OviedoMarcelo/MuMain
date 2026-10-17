@@ -16,6 +16,7 @@
 #include "UI/NewUI/Inventory/NewUIMyInventory.h"
 #include "UI/NewUI/NPCs/NewUINPCShop.h"
 #include "UI/NewUI/Character/NewUIPetInfoWindow.h"
+#include "UI/NewUI/Inventory/CosmeticSetsWindow.h"
 #include "UI/NewUI/Inventory/NewUIMixInventory.h"
 #include "UI/NewUI/Combat/NewUICastleWindow.h"
 #include "UI/NewUI/Combat/NewUIGuardWindow.h"
@@ -195,6 +196,7 @@ namespace SEASON3B
         CNewUIHelpWindow* m_pNewHelpWindow;
         CNewUIChatCommandWindow* m_pNewChatCommandWindow;
         CWeeklyQuestWindow* m_pWeeklyQuestWindow;
+        CCosmeticSetsWindow* m_pCosmeticSetsWindow;
         CNewUIEventScheduleWindow* m_pEventScheduleWindow;
         CNewUIQuestTracker* m_pQuestTracker;
         CNewUIItemExplanationWindow* m_pNewItemExplanationWindow;
@@ -238,6 +240,7 @@ namespace SEASON3B
 
         bool CreateChatCommandWindow();
         bool CreateWeeklyQuestWindow();
+        bool CreateCosmeticSetsWindow();
         bool CreateEventScheduleWindow();
         bool CreateQuestTracker();
 
@@ -286,6 +289,7 @@ namespace SEASON3B
         CNewUIHelpWindow* GetUI_NewHelpWindow() const;
         CNewUIChatCommandWindow* GetUI_NewChatCommandWindow() const;
         CWeeklyQuestWindow* GetUI_WeeklyQuestWindow() const;
+        CCosmeticSetsWindow* GetUI_CosmeticSetsWindow() const;
         CNewUIEventScheduleWindow* GetUI_EventScheduleWindow() const;
         CNewUIItemExplanationWindow* GetUI_NewItemExplanationWindow() const;
         CNewUISetItemExplanation* GetUI_NewSetItemExplanation() const;
@@ -371,6 +375,7 @@ namespace SEASON3B
 #define g_pBattleSoccerScore SEASON3B::CNewUISystem::GetInstance()->GetUI_NewBattleSoccerScore()
 #define g_pChatCommandWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_NewChatCommandWindow()
 #define g_pWeeklyQuestWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_WeeklyQuestWindow()
+#define g_pCosmeticSetsWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_CosmeticSetsWindow()
 #define g_pEventScheduleWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_EventScheduleWindow()
 #define g_pCommandWindow SEASON3B::CNewUISystem::GetInstance()->GetUI_NewCommandWindow()
 #define g_pWindowMenu SEASON3B::CNewUISystem::GetInstance()->GetUI_NewWindowMenu()

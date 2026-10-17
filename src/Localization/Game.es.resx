@@ -13214,4 +13214,28 @@
   <data name="EventScheduleZoneTime" xml:space="preserve">
     <value>Hora de %ls: %ls</value>
   </data>
+  <data name="CosmeticSetsTitle" xml:space="preserve">
+    <value>Sets cosméticos</value>
+  </data>
+  <data name="CosmeticSetsWear" xml:space="preserve">
+    <value>Usar</value>
+  </data>
+  <data name="CosmeticSetsTakeOff" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="CosmeticSetsNone" xml:space="preserve">
+    <value>No hay sets cosméticos.</value>
+  </data>
+  <data name="CosmeticSetsWorn" xml:space="preserve">
+    <value>En uso</value>
+  </data>
+  <data name="CosmeticSetsLocked" xml:space="preserve">
+    <value>Bloqueado</value>
+  </data>
+  <data name="CosmeticSetsOtherClass" xml:space="preserve">
+    <value>Otra clase</value>
+  </data>
+  <data name="CosmeticSetsHint" xml:space="preserve">
+    <value>Elegí un set y apretá Usar. Solo cambia cómo se ve tu armadura.</value>
+  </data>
 </root>

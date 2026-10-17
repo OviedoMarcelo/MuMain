@@ -131,6 +131,13 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME test_cosmetic_set_catalog
+    SOURCES
+        test_cosmetic_set_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Cosmetics/CosmeticSetCatalog.cpp
+)
+
+mu_add_test(
     NAME test_event_schedule_catalog
     SOURCES
         test_event_schedule_catalog.cpp

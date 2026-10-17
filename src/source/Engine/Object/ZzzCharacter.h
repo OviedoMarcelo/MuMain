@@ -72,6 +72,8 @@ void SetPlayerMagic(CHARACTER* c);
 void SetPlayerTeleport(CHARACTER* c);
 void SetPlayerHighBowAttack(CHARACTER* c);
 void SetCharacterClass(CHARACTER* c);
+// Sets the armor of the hero again, e.g. when the cosmetic set which it wears changed.
+void RefreshHeroArmor();
 void SetCharacterScale(CHARACTER* c);
 void SetChangeClass(CHARACTER* c);
 int LevelConvert(BYTE Level);
