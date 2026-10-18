@@ -42,6 +42,7 @@
 #include "GameLogic/Items/InventoryUtils.h"
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Cosmetics/CosmeticPieceCatalog.h"
 #include "GameLogic/Events/EventScheduleCatalog.h"
 #include "GameLogic/Monsters/BossHealth.h"
 #include "GameLogic/Monsters/BossHealthState.h"
@@ -580,6 +581,7 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
         GameLogic::Monsters::ServerMonsterLevels().Reset();
         GameLogic::Social::PlayerTitles().Reset();
         GameLogic::Quests::SeasonPass().Reset();
+        GameLogic::Cosmetics::CosmeticPieces().Reset();
         GameLogic::Monsters::BossHealthBar().Reset();
         GameLogic::Monsters::GroundMarkers().Reset();
 
@@ -1175,6 +1177,9 @@ BOOL ReceiveJoinMapServer(std::span<const BYTE> ReceiveBuffer)
     c->CtlCode = Data->CtlCode;
 
     o->Kind = KIND_PLAYER;
+
+    // The server sends the cosmetic pieces of this character after it entered the game.
+    GameLogic::Cosmetics::CosmeticPieces().Reset();
     SetCharacterClass(c);
 
     Hero = c;
@@ -14212,6 +14217,13 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x0C)
         {
             GameLogic::Quests::SeasonPass().AddSettingsFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x0E)
+        {
+            if (GameLogic::Cosmetics::CosmeticPieces().AddFromPacket(ReceiveBuffer, Size))
+            {
+                RefreshHeroArmor();
+            }
         }
         else if (subcode == 0x0F)
         {

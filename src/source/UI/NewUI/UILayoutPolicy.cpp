@@ -92,6 +92,7 @@ UI::Scaling::LayoutMode UI::Layout::ForInterface(std::uint32_t interfaceKey)
     case INTERFACE_WEEKLY_QUESTS:
     case INTERFACE_EVENT_SCHEDULE:
     case INTERFACE_QUEST_TRACKER:
+    case INTERFACE_COSMETICS:
     case INTERFACE_ITEM_ENDURANCE_INFO:
     case INTERFACE_PARTY_INFO_WINDOW:
         return LayoutMode::DockRight;

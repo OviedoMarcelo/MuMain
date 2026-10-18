@@ -22,6 +22,7 @@ extern bool SelectFlag;
 #include "GameLogic/Quests/CSQuest.h"
 #include "Guild/UIGuildInfo.h"
 #include "UI/Legacy/UIManager.h"
+#include "GameLogic/Cosmetics/CosmeticPieceCatalog.h"
 #include "GameLogic/Items/CSItemOption.h"
 #include "World/MapInfra/MapManager.h"
 #include "Network/Server/SocketSystem.h"
@@ -423,10 +424,22 @@ void CNewUIMyInventory::SetPos(int x, int y)
     SetEquipmentSlotInfo();
 
     m_pNewInventoryCtrl->SetPos(x + 15, y + 200);
-    m_BtnExit.SetPos(m_Pos.x + 13, m_Pos.y + 391);
-    m_BtnRepair.SetPos(m_Pos.x + 50, m_Pos.y + 391);
-    m_BtnMyShop.SetPos(m_Pos.x + 87, m_Pos.y + 391);
-    m_BtnExpand.SetPos(m_Pos.x + 87 + 37, m_Pos.y + 391);
+    PlaceBottomButtons();
+}
+
+int CNewUIMyInventory::GetBottomButtonX(int index) const
+{
+    return m_Pos.x + BOTTOM_BUTTON_LEFT + index * BOTTOM_BUTTON_STEP;
+}
+
+void CNewUIMyInventory::PlaceBottomButtons()
+{
+    const int y = m_Pos.y + BOTTOM_BUTTON_Y;
+    m_BtnExit.ChangeButtonInfo(GetBottomButtonX(0), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
+    m_BtnRepair.ChangeButtonInfo(GetBottomButtonX(1), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
+    m_BtnMyShop.ChangeButtonInfo(GetBottomButtonX(2), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
+    m_BtnExpand.ChangeButtonInfo(GetBottomButtonX(3), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
+    m_BtnCosmetics.ChangeButtonInfo(GetBottomButtonX(4), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
 }
 
 const POINT& CNewUIMyInventory::GetPos() const
@@ -1172,20 +1185,21 @@ void CNewUIMyInventory::SetEquipmentSlotInfo()
 void CNewUIMyInventory::SetButtonInfo()
 {
     m_BtnExit.ChangeButtonImgState(true, IMAGE_INVENTORY_EXIT_BTN, false);
-    m_BtnExit.ChangeButtonInfo(m_Pos.x + 13, m_Pos.y + 391, 36, 29);
     m_BtnExit.ChangeToolTipText(&I18N::Game::CloseIV, true);
 
     m_BtnRepair.ChangeButtonImgState(true, IMAGE_INVENTORY_REPAIR_BTN, false);
-    m_BtnRepair.ChangeButtonInfo(m_Pos.x + 50, m_Pos.y + 391, 36, 29);
     m_BtnRepair.ChangeToolTipText(&I18N::Game::RepairL, true);
 
     m_BtnMyShop.ChangeButtonImgState(true, IMAGE_INVENTORY_MYSHOP_OPEN_BTN, false);
-    m_BtnMyShop.ChangeButtonInfo(m_Pos.x + 87, m_Pos.y + 391, 36, 29);
     m_BtnMyShop.ChangeToolTipText(&I18N::Game::OpenPersonalStoreS, true);
 
     m_BtnExpand.ChangeButtonImgState(true, IMAGE_INVENTORY_EXPAND_BTN, false);
-    m_BtnExpand.ChangeButtonInfo(m_Pos.x + 87 + 37, m_Pos.y + 391, 36, 29);
     m_BtnExpand.ChangeToolTipText(&I18N::Game::OpenExpandedInventoryK, true);
+
+    m_BtnCosmetics.ChangeButtonImgState(true, IMAGE_INVENTORY_COSMETICS_BTN, false);
+    m_BtnCosmetics.ChangeToolTipText(&I18N::Game::CosmeticsTitle, true);
+
+    PlaceBottomButtons();
 }
 
 void CNewUIMyInventory::LoadImages() const
@@ -1213,10 +1227,12 @@ void CNewUIMyInventory::LoadImages() const
     LoadBitmap(L"Interface\\newui_expansion_btn.tga", IMAGE_INVENTORY_EXPAND_BTN, GL_LINEAR);
     LoadBitmap(L"Interface\\newui_Bt_openshop.tga", IMAGE_INVENTORY_MYSHOP_OPEN_BTN, GL_LINEAR);
     LoadBitmap(L"Interface\\newui_Bt_closeshop.tga", IMAGE_INVENTORY_MYSHOP_CLOSE_BTN, GL_LINEAR);
+    LoadBitmap(L"Interface\\newui_cosmetic_sets_btn.tga", IMAGE_INVENTORY_COSMETICS_BTN, GL_LINEAR);
 }
 
 void CNewUIMyInventory::UnloadImages()
 {
+    DeleteBitmap(IMAGE_INVENTORY_COSMETICS_BTN);
     DeleteBitmap(IMAGE_INVENTORY_MYSHOP_CLOSE_BTN);
     DeleteBitmap(IMAGE_INVENTORY_MYSHOP_OPEN_BTN);
     DeleteBitmap(IMAGE_INVENTORY_REPAIR_BTN);
@@ -1352,6 +1368,10 @@ void CNewUIMyInventory::RenderButtons()
     }
     m_BtnExit.Render();
     m_BtnExpand.Render();
+    if (GameLogic::Cosmetics::CosmeticPieces().IsAvailable())
+    {
+        m_BtnCosmetics.Render();
+    }
 
     DisableAlphaBlend();
 }
@@ -1582,6 +1602,13 @@ bool CNewUIMyInventory::BtnProcess()
     if (m_BtnExpand.UpdateMouseEvent())
     {
         g_pNewUISystem->Toggle(INTERFACE_INVENTORY_EXT);
+        return true;
+    }
+
+    // Servers which don't know the cosmetic pieces never send them, so the button is only there with them.
+    if (GameLogic::Cosmetics::CosmeticPieces().IsAvailable() && m_BtnCosmetics.UpdateMouseEvent())
+    {
+        g_pNewUISystem->Toggle(INTERFACE_COSMETICS);
         return true;
     }
 

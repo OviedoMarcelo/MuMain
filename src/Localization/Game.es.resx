@@ -13214,4 +13214,43 @@
   <data name="EventScheduleZoneTime" xml:space="preserve">
     <value>Hora de %ls: %ls</value>
   </data>
+  <data name="CosmeticsTitle" xml:space="preserve">
+    <value>Cosméticos</value>
+  </data>
+  <data name="CosmeticsWear" xml:space="preserve">
+    <value>Usar</value>
+  </data>
+  <data name="CosmeticsTakeOff" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="CosmeticsNone" xml:space="preserve">
+    <value>No tenés piezas para este slot.</value>
+  </data>
+  <data name="CosmeticsWorn" xml:space="preserve">
+    <value>En uso</value>
+  </data>
+  <data name="CosmeticsLocked" xml:space="preserve">
+    <value>Bloqueada</value>
+  </data>
+  <data name="CosmeticsOtherClass" xml:space="preserve">
+    <value>Otra clase</value>
+  </data>
+  <data name="CosmeticsHint" xml:space="preserve">
+    <value>Elegí una pieza y apretá Usar. Solo cambia cómo se ve tu armadura.</value>
+  </data>
+  <data name="CosmeticSlotHelm" xml:space="preserve">
+    <value>Casco</value>
+  </data>
+  <data name="CosmeticSlotArmor" xml:space="preserve">
+    <value>Armadura</value>
+  </data>
+  <data name="CosmeticSlotPants" xml:space="preserve">
+    <value>Pantalón</value>
+  </data>
+  <data name="CosmeticSlotGloves" xml:space="preserve">
+    <value>Guantes</value>
+  </data>
+  <data name="CosmeticSlotBoots" xml:space="preserve">
+    <value>Botas</value>
+  </data>
 </root>
