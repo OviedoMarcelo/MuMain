@@ -22,7 +22,7 @@ extern bool SelectFlag;
 #include "GameLogic/Quests/CSQuest.h"
 #include "Guild/UIGuildInfo.h"
 #include "UI/Legacy/UIManager.h"
-#include "GameLogic/Cosmetics/CosmeticSetCatalog.h"
+#include "GameLogic/Cosmetics/CosmeticPieceCatalog.h"
 #include "GameLogic/Items/CSItemOption.h"
 #include "World/MapInfra/MapManager.h"
 #include "Network/Server/SocketSystem.h"
@@ -439,7 +439,7 @@ void CNewUIMyInventory::PlaceBottomButtons()
     m_BtnRepair.ChangeButtonInfo(GetBottomButtonX(1), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
     m_BtnMyShop.ChangeButtonInfo(GetBottomButtonX(2), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
     m_BtnExpand.ChangeButtonInfo(GetBottomButtonX(3), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
-    m_BtnCosmeticSets.ChangeButtonInfo(GetBottomButtonX(4), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
+    m_BtnCosmetics.ChangeButtonInfo(GetBottomButtonX(4), y, BOTTOM_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT);
 }
 
 const POINT& CNewUIMyInventory::GetPos() const
@@ -1196,8 +1196,8 @@ void CNewUIMyInventory::SetButtonInfo()
     m_BtnExpand.ChangeButtonImgState(true, IMAGE_INVENTORY_EXPAND_BTN, false);
     m_BtnExpand.ChangeToolTipText(&I18N::Game::OpenExpandedInventoryK, true);
 
-    m_BtnCosmeticSets.ChangeButtonImgState(true, IMAGE_INVENTORY_COSMETIC_SETS_BTN, false);
-    m_BtnCosmeticSets.ChangeToolTipText(&I18N::Game::CosmeticSetsTitle, true);
+    m_BtnCosmetics.ChangeButtonImgState(true, IMAGE_INVENTORY_COSMETICS_BTN, false);
+    m_BtnCosmetics.ChangeToolTipText(&I18N::Game::CosmeticsTitle, true);
 
     PlaceBottomButtons();
 }
@@ -1227,12 +1227,12 @@ void CNewUIMyInventory::LoadImages() const
     LoadBitmap(L"Interface\\newui_expansion_btn.tga", IMAGE_INVENTORY_EXPAND_BTN, GL_LINEAR);
     LoadBitmap(L"Interface\\newui_Bt_openshop.tga", IMAGE_INVENTORY_MYSHOP_OPEN_BTN, GL_LINEAR);
     LoadBitmap(L"Interface\\newui_Bt_closeshop.tga", IMAGE_INVENTORY_MYSHOP_CLOSE_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_cosmetic_sets_btn.tga", IMAGE_INVENTORY_COSMETIC_SETS_BTN, GL_LINEAR);
+    LoadBitmap(L"Interface\\newui_cosmetic_sets_btn.tga", IMAGE_INVENTORY_COSMETICS_BTN, GL_LINEAR);
 }
 
 void CNewUIMyInventory::UnloadImages()
 {
-    DeleteBitmap(IMAGE_INVENTORY_COSMETIC_SETS_BTN);
+    DeleteBitmap(IMAGE_INVENTORY_COSMETICS_BTN);
     DeleteBitmap(IMAGE_INVENTORY_MYSHOP_CLOSE_BTN);
     DeleteBitmap(IMAGE_INVENTORY_MYSHOP_OPEN_BTN);
     DeleteBitmap(IMAGE_INVENTORY_REPAIR_BTN);
@@ -1368,9 +1368,9 @@ void CNewUIMyInventory::RenderButtons()
     }
     m_BtnExit.Render();
     m_BtnExpand.Render();
-    if (GameLogic::Cosmetics::CosmeticSets().IsAvailable())
+    if (GameLogic::Cosmetics::CosmeticPieces().IsAvailable())
     {
-        m_BtnCosmeticSets.Render();
+        m_BtnCosmetics.Render();
     }
 
     DisableAlphaBlend();
@@ -1605,10 +1605,10 @@ bool CNewUIMyInventory::BtnProcess()
         return true;
     }
 
-    // Servers which don't know the cosmetic sets never send them, so the button is only there with them.
-    if (GameLogic::Cosmetics::CosmeticSets().IsAvailable() && m_BtnCosmeticSets.UpdateMouseEvent())
+    // Servers which don't know the cosmetic pieces never send them, so the button is only there with them.
+    if (GameLogic::Cosmetics::CosmeticPieces().IsAvailable() && m_BtnCosmetics.UpdateMouseEvent())
     {
-        g_pNewUISystem->Toggle(INTERFACE_COSMETIC_SETS);
+        g_pNewUISystem->Toggle(INTERFACE_COSMETICS);
         return true;
     }
 

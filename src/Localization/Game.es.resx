@@ -13214,28 +13214,43 @@
   <data name="EventScheduleZoneTime" xml:space="preserve">
     <value>Hora de %ls: %ls</value>
   </data>
-  <data name="CosmeticSetsTitle" xml:space="preserve">
-    <value>Sets cosméticos</value>
+  <data name="CosmeticsTitle" xml:space="preserve">
+    <value>Cosméticos</value>
   </data>
-  <data name="CosmeticSetsWear" xml:space="preserve">
+  <data name="CosmeticsWear" xml:space="preserve">
     <value>Usar</value>
   </data>
-  <data name="CosmeticSetsTakeOff" xml:space="preserve">
+  <data name="CosmeticsTakeOff" xml:space="preserve">
     <value>Quitar</value>
   </data>
-  <data name="CosmeticSetsNone" xml:space="preserve">
-    <value>No hay sets cosméticos.</value>
+  <data name="CosmeticsNone" xml:space="preserve">
+    <value>No tenés piezas para este slot.</value>
   </data>
-  <data name="CosmeticSetsWorn" xml:space="preserve">
+  <data name="CosmeticsWorn" xml:space="preserve">
     <value>En uso</value>
   </data>
-  <data name="CosmeticSetsLocked" xml:space="preserve">
-    <value>Bloqueado</value>
+  <data name="CosmeticsLocked" xml:space="preserve">
+    <value>Bloqueada</value>
   </data>
-  <data name="CosmeticSetsOtherClass" xml:space="preserve">
+  <data name="CosmeticsOtherClass" xml:space="preserve">
     <value>Otra clase</value>
   </data>
-  <data name="CosmeticSetsHint" xml:space="preserve">
-    <value>Elegí un set y apretá Usar. Solo cambia cómo se ve tu armadura.</value>
+  <data name="CosmeticsHint" xml:space="preserve">
+    <value>Elegí una pieza y apretá Usar. Solo cambia cómo se ve tu armadura.</value>
+  </data>
+  <data name="CosmeticSlotHelm" xml:space="preserve">
+    <value>Casco</value>
+  </data>
+  <data name="CosmeticSlotArmor" xml:space="preserve">
+    <value>Armadura</value>
+  </data>
+  <data name="CosmeticSlotPants" xml:space="preserve">
+    <value>Pantalón</value>
+  </data>
+  <data name="CosmeticSlotGloves" xml:space="preserve">
+    <value>Guantes</value>
+  </data>
+  <data name="CosmeticSlotBoots" xml:space="preserve">
+    <value>Botas</value>
   </data>
 </root>

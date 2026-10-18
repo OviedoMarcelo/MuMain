@@ -40,7 +40,7 @@
 
 #include "Engine/Physics/PhysicsManager.h"
 #include "Engine/AI/GOBoid.h"
-#include "GameLogic/Cosmetics/WornCosmeticSetApplier.h"
+#include "GameLogic/Cosmetics/WornCosmeticsApplier.h"
 #include "GameLogic/Items/CSItemOption.h"
 
 // Phase 5: Camera system includes for 3D frustum culling
@@ -12188,7 +12188,7 @@ constexpr ArmorSlot ArmorSlots[] = {
 };
 
 // Sets the armor of the character from the equipment of the hero, or its bare
-// body where nothing is equipped. The hero wears its cosmetic set over it.
+// body where nothing is equipped. The hero wears its cosmetic pieces over it.
 void SetArmorFromEquipment(CHARACTER* c)
 {
     const ITEM* equipment = CharacterMachine->Equipment;
@@ -12213,7 +12213,7 @@ void SetArmorFromEquipment(CHARACTER* c)
 
     if (c == Hero)
     {
-        GameLogic::Cosmetics::ApplyWornSet(Hero);
+        GameLogic::Cosmetics::ApplyWornPieces(Hero);
     }
 }
 } // namespace

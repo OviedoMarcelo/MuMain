@@ -49,7 +49,7 @@ namespace SEASON3B
             IMAGE_INVENTORY_EXIT_BTN, //"newui_exit_00.tga"
             IMAGE_INVENTORY_REPAIR_BTN, //"newui_repair_00.tga"
             IMAGE_INVENTORY_EXPAND_BTN, //"newui_expansion_btn.tga"
-            IMAGE_INVENTORY_COSMETIC_SETS_BTN, //"newui_cosmetic_sets_btn.tga"
+            IMAGE_INVENTORY_COSMETICS_BTN, //"newui_cosmetic_sets_btn.tga"
         };
 
         enum MYSHOP_MODE
@@ -68,7 +68,7 @@ namespace SEASON3B
         static constexpr float INVENTORY_WIDTH  = 190.0f;
         static constexpr float INVENTORY_HEIGHT = 429.0f;
 
-        // The buttons in the bottom row: close, repair, personal store, expansion and cosmetic sets.
+        // The buttons in the bottom row: close, repair, personal store, expansion and cosmetics.
         // They are a bit narrower than their images, so that five fit between the sides of the frame.
         static constexpr int BOTTOM_BUTTON_LEFT = 13;
         static constexpr int BOTTOM_BUTTON_Y = 391;
@@ -96,7 +96,7 @@ namespace SEASON3B
         CNewUIButton m_BtnExit;
         CNewUIButton m_BtnMyShop;
         CNewUIButton m_BtnExpand;
-        CNewUIButton m_BtnCosmeticSets;
+        CNewUIButton m_BtnCosmetics;
 
         MYSHOP_MODE m_MyShopMode;
         SEASON3B::REPAIR_MODE m_RepairMode;

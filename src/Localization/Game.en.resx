@@ -13297,28 +13297,43 @@
   <data name="EventScheduleZoneTime" xml:space="preserve">
     <value>%ls time: %ls</value>
   </data>
-  <data name="CosmeticSetsTitle" xml:space="preserve">
-    <value>Cosmetic sets</value>
+  <data name="CosmeticsTitle" xml:space="preserve">
+    <value>Cosmetics</value>
   </data>
-  <data name="CosmeticSetsWear" xml:space="preserve">
+  <data name="CosmeticsWear" xml:space="preserve">
     <value>Wear</value>
   </data>
-  <data name="CosmeticSetsTakeOff" xml:space="preserve">
+  <data name="CosmeticsTakeOff" xml:space="preserve">
     <value>Take off</value>
   </data>
-  <data name="CosmeticSetsNone" xml:space="preserve">
-    <value>There are no cosmetic sets.</value>
+  <data name="CosmeticsNone" xml:space="preserve">
+    <value>You have no pieces for this slot.</value>
   </data>
-  <data name="CosmeticSetsWorn" xml:space="preserve">
+  <data name="CosmeticsWorn" xml:space="preserve">
     <value>Worn</value>
   </data>
-  <data name="CosmeticSetsLocked" xml:space="preserve">
+  <data name="CosmeticsLocked" xml:space="preserve">
     <value>Locked</value>
   </data>
-  <data name="CosmeticSetsOtherClass" xml:space="preserve">
+  <data name="CosmeticsOtherClass" xml:space="preserve">
     <value>Other class</value>
   </data>
-  <data name="CosmeticSetsHint" xml:space="preserve">
-    <value>Pick a set and press Wear. It only changes how your armor looks.</value>
+  <data name="CosmeticsHint" xml:space="preserve">
+    <value>Pick a piece and press Wear. It only changes how your armor looks.</value>
+  </data>
+  <data name="CosmeticSlotHelm" xml:space="preserve">
+    <value>Helm</value>
+  </data>
+  <data name="CosmeticSlotArmor" xml:space="preserve">
+    <value>Armor</value>
+  </data>
+  <data name="CosmeticSlotPants" xml:space="preserve">
+    <value>Pants</value>
+  </data>
+  <data name="CosmeticSlotGloves" xml:space="preserve">
+    <value>Gloves</value>
+  </data>
+  <data name="CosmeticSlotBoots" xml:space="preserve">
+    <value>Boots</value>
   </data>
 </root>
