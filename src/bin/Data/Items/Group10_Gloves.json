@@ -1220,6 +1220,29 @@
       }
     },
     {
+      "number": 53,
+      "name": {
+        "en": "Queen Gloves",
+        "es": "Guantes Reina",
+        "pt": "Luvas da rainha"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "gloves",
+      "level": 100,
+      "durability": 86,
+      "defense": 39,
+      "attackSpeed": 7,
+      "requirements": {
+        "level": 400,
+        "strength": 175,
+        "dexterity": 85
+      },
+      "classRequirements": {
+        "summoner": 3
+      }
+    },
+    {
       "number": 62,
       "name": {
         "en": "Scale Gloves",

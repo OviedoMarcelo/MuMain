@@ -1176,6 +1176,28 @@
       }
     },
     {
+      "number": 53,
+      "name": {
+        "en": "Queen Pants",
+        "es": "Pantalones Reina",
+        "pt": "Calças da rainha"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "pants",
+      "level": 114,
+      "durability": 86,
+      "defense": 50,
+      "requirements": {
+        "level": 400,
+        "strength": 175,
+        "dexterity": 85
+      },
+      "classRequirements": {
+        "summoner": 3
+      }
+    },
+    {
       "number": 59,
       "name": {
         "en": "Sacred Fire Pants",
