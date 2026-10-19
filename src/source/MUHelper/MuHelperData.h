@@ -108,6 +108,8 @@ namespace MUHelper
 		bool bUseSelfDefense = false;
 		bool bAutoAcceptFriend = false;
 		bool bAutoAcceptGuild = false;
+		// Read by the server, which then accepts party requests from anyone right away.
+		bool bAutoAcceptAnyone = false;
 		bool bFallbackBasicAttack = true;
 	} ConfigData;
 

@@ -13336,4 +13336,7 @@
   <data name="CosmeticSlotBoots" xml:space="preserve">
     <value>Boots</value>
   </data>
+  <data name="Auto accept - Anyone" xml:space="preserve">
+    <value>Auto accept - Anyone</value>
+  </data>
 </root>
