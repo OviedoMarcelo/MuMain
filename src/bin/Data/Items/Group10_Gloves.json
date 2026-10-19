@@ -1243,6 +1243,29 @@
       }
     },
     {
+      "number": 54,
+      "name": {
+        "en": "Pink Gold Gloves",
+        "es": "Guantes Oro Rosa",
+        "pt": "Luvas de ouro rosa"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "gloves",
+      "level": 94,
+      "durability": 86,
+      "defense": 48,
+      "attackSpeed": 6,
+      "classRequirements": {
+        "darkWizard": 1,
+        "darkKnight": 1,
+        "fairyElf": 1,
+        "magicGladiator": 1,
+        "darkLord": 1,
+        "summoner": 1
+      }
+    },
+    {
       "number": 62,
       "name": {
         "en": "Scale Gloves",

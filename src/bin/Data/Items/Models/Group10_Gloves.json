@@ -922,6 +922,23 @@
       }
     },
     {
+      "number": 54,
+      "file": "Data/Player/GloveMale55.bmd",
+      "textureFolders": ["Player"],
+      "inventory": {
+        "anchor": [0.5, 0.9],
+        "scale": 0.0038,
+        "bodyHeight": -70
+      },
+      "ground": {
+        "rotation": [270, 0, -45],
+        "bodyHeight": -70
+      },
+      "glow": {
+        "color": "pink"
+      }
+    },
+    {
       "number": 62,
       "file": "Data/Player/LuckyItem/62/new_Glove01.bmd",
       "textureFolders": ["Player/LuckyItem/62"],
