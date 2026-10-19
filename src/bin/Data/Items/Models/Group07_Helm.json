@@ -818,6 +818,22 @@
       }
     },
     {
+      "number": 55,
+      "file": "Data/Player/HelmMale56.bmd",
+      "textureFolders": ["Player"],
+      "inventory": {
+        "anchor": [0.5, 0.8],
+        "scale": 0.0039,
+        "bodyHeight": -160
+      },
+      "ground": {
+        "bodyHeight": -160
+      },
+      "glow": {
+        "color": "white"
+      }
+    },
+    {
       "number": 59,
       "file": "Data/Player/HelmMale60.bmd",
       "textureFolders": ["Player"],

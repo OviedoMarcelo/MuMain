@@ -1057,6 +1057,29 @@
       }
     },
     {
+      "number": 55,
+      "name": {
+        "en": "Japanese White Helm",
+        "es": "Yelmo Japonés Blanco",
+        "pt": "Elmo japonês branco"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "helm",
+      "level": 104,
+      "durability": 86,
+      "defense": 53,
+      "classRequirements": {
+        "darkWizard": 1,
+        "darkKnight": 1,
+        "fairyElf": 1,
+        "magicGladiator": 1,
+        "darkLord": 1,
+        "summoner": 1,
+        "rageFighter": 1
+      }
+    },
+    {
       "number": 59,
       "name": {
         "en": "Sacred Fire Helm",
