@@ -1189,6 +1189,28 @@
       }
     },
     {
+      "number": 53,
+      "name": {
+        "en": "Queen Boots",
+        "es": "Botas Reina",
+        "pt": "Botas da rainha"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "boots",
+      "level": 94,
+      "durability": 86,
+      "defense": 42,
+      "requirements": {
+        "level": 400,
+        "strength": 175,
+        "dexterity": 85
+      },
+      "classRequirements": {
+        "summoner": 3
+      }
+    },
+    {
       "number": 59,
       "name": {
         "en": "Sacred Fire Boots",
