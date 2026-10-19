@@ -49,7 +49,7 @@ namespace UI::MainFrame::Layout
     Rect SkillHotKeyStrip();
     Rect MenuButtonRect(MenuButton button);
 
-    // Lowest logical y the floating skill list may use without covering the bar.
+    // Lowest logical y the floating skill list may use without covering the bar, its orbs or gauges.
     float SkillListBottom();
 
     // True when the logical point lies on the visible part of the bar.

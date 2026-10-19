@@ -156,7 +156,8 @@ Rect MenuButtonRect(MenuButton button)
 
 float SkillListBottom()
 {
-    return FrameTop() + kGaugeRowTexelTop * TexelScale();
+    // The orb rings and the gauges reach up to the top of the artwork, so the list rests on it.
+    return FrameTop();
 }
 
 bool ContainsPoint(float x, float y)
