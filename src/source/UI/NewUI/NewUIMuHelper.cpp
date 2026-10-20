@@ -1228,8 +1228,9 @@ bool CNewUIMuHelper::Render()
     }
     else if (m_iCurrentOpenTab == 2)
     {
-        RenderBack(m_Pos.x + 12, m_Pos.y + 73, 165, 50);
-        RenderBack(m_Pos.x + 12, m_Pos.y + 120, 165, 222);
+        // Three rows of party options (friend, guild member, anyone), then the PVP option.
+        RenderBack(m_Pos.x + 12, m_Pos.y + 73, 165, 67);
+        RenderBack(m_Pos.x + 12, m_Pos.y + 137, 165, 205);
     }
     else
     {
