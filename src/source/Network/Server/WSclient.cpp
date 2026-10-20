@@ -52,6 +52,7 @@
 #include "GameLogic/Monsters/MonsterAppearanceApplier.h"
 #include "Render/Monsters/GroundMarkerRender.h"
 #include "GameLogic/Monsters/ServerMonsterLevelCatalog.h"
+#include "GameLogic/Items/MerchantPriceCatalog.h"
 #include "GameLogic/Social/PlayerTitleCatalog.h"
 #include "GameLogic/Quests/SeasonPassCatalog.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
@@ -579,6 +580,7 @@ void ReceiveJoinServer(const BYTE* ReceiveBuffer)
         // levels of the previous server don't apply anymore. This one sends its own after the login.
         GameLogic::Skills::ServerRequirements().Reset();
         GameLogic::Monsters::ServerMonsterLevels().Reset();
+        GameLogic::Items::MerchantPrices().Reset();
         GameLogic::Social::PlayerTitles().Reset();
         GameLogic::Quests::SeasonPass().Reset();
         GameLogic::Cosmetics::CosmeticPieces().Reset();
@@ -14172,6 +14174,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x0D)
         {
             GameLogic::Quests::WeeklyQuests().AddChapterFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x10)
+        {
+            GameLogic::Items::MerchantPrices().AddFromPacket(ReceiveBuffer, Size);
         }
         else if (subcode == 0x04)
         {

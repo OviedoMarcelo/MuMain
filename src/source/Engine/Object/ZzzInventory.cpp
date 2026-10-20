@@ -1992,16 +1992,16 @@ void RenderItemInfo(int sx, int sy, ITEM* ip, bool Sell, int Inventype, bool bIt
         {
             if (Sell)
             {
-                DWORD dwValue = ItemValue(ip, 0);
+                DWORD dwValue = static_cast<DWORD>(ShopItemValue(ip, 0));
                 ConvertGold(dwValue, Text);
                 wchar_t Text2[100];
 
-                ConvertTaxGold(ItemValue(ip, 0), Text2);
+                ConvertTaxGold(dwValue, Text2);
                 mu_swprintf(TextList[TextNum], I18N::Game::PurchasingPriceSS, Text2, Text);
             }
             else
             {
-                ConvertGold(ItemValue(ip, 1), Text);
+                ConvertGold(ShopItemValue(ip, 1), Text);
                 mu_swprintf(TextList[TextNum], I18N::Game::SellingPriceS, Text);
             }
 

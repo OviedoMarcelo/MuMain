@@ -94,6 +94,13 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME test_merchant_price_catalog
+    SOURCES
+        test_merchant_price_catalog.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Items/MerchantPriceCatalog.cpp
+)
+
+mu_add_test(
     NAME test_monster_appearance
     SOURCES
         test_monster_appearance.cpp

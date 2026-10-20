@@ -25,6 +25,10 @@ extern ActionSkillType GetSkillByBook(int Type);
 void SetItemAttributes(ITEM* ip);
 extern float CalcDurabilityPercent(BYTE dur, BYTE maxDur, int Level, int excellentFlags, int ancientDiscriminator = 0);
 extern int64_t ItemValue(ITEM* ip, int goldType = 1);
+// The price of the item in an NPC store: the buying price (goldType 0) or the selling price
+// (goldType 1). When a store of the server sets a price of its own for it, it's that one
+// (see GameLogic::Items::MerchantPriceCatalog), otherwise the one of ItemValue.
+extern int64_t ShopItemValue(ITEM* ip, int goldType);
 extern void PrintItem(wchar_t* FileName);
 
 extern MONSTER_SCRIPT MonsterScript[MAX_MONSTER];

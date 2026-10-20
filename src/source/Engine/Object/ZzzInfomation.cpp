@@ -21,6 +21,7 @@
 #include "GameLogic/Items/CSItemOption.h"
 #include "GameLogic/Pets/GIPetManager.h"
 #include "GameLogic/Items/CComGem.h"
+#include "GameLogic/Items/MerchantPriceCatalog.h"
 #include "GameLogic/Items/ItemCategories.h"
 #include "UI/NewUI/Inventory/NewUIInventoryCtrl.h"
 #include "Network/Server/SocketSystem.h"
@@ -1461,6 +1462,21 @@ void SetItemAttributes(ITEM* ip)
     CalcExcellentOptions(ip);
 
     CalcPartType(ip);
+}
+
+int64_t ShopItemValue(ITEM* ip, int goldType)
+{
+    if (ip != nullptr && ip->Type >= 0)
+    {
+        const auto storePrice = GameLogic::Items::MerchantPrices().FindBuyingPrice(
+            ip->Type / MAX_ITEM_INDEX, ip->Type % MAX_ITEM_INDEX, ip->Level, ip->Durability);
+        if (storePrice)
+        {
+            return goldType == 0 ? *storePrice : GameLogic::Items::MerchantPriceCatalog::SellingPriceOf(*storePrice);
+        }
+    }
+
+    return ItemValue(ip, goldType);
 }
 
 int64_t ItemValue(ITEM* ip, int goldType)
