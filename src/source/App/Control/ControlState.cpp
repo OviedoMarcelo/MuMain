@@ -191,7 +191,7 @@ json InventoryArray()
         // While an NPC shop is open, what it pays for the item, as its tooltip shows.
         if (g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_NPCSHOP))
         {
-            described["sell_price"] = ItemValue(const_cast<ITEM*>(item), 1);
+            described["sell_price"] = ShopItemValue(const_cast<ITEM*>(item), 1);
         }
         AddRepairPrice(described, *item);
         inventory.push_back(std::move(described));
@@ -226,7 +226,7 @@ json NpcShopState()
             continue;
         }
         json described = DescribeItem(*item, item->y * grid->GetNumberOfColumn() + item->x);
-        const int64_t price = ItemValue(item, 0);
+        const int64_t price = ShopItemValue(item, 0);
         described["price"] = price + price * g_pNPCShop->GetTaxRate() / 100;
         items.push_back(std::move(described));
     }
