@@ -143,6 +143,8 @@ namespace MUHelper
 		netData.bUseSelfDefense = gameData.bUseSelfDefense ? 1 : 0;
 		netData.bAutoAcceptFriend = gameData.bAutoAcceptFriend ? 1 : 0;
 		netData.bAutoAcceptGuild = gameData.bAutoAcceptGuild ? 1 : 0;
+		// byte 34, read by the server (party requests from anyone).
+		netData.bAutoAcceptAnyone = gameData.bAutoAcceptAnyone ? 1 : 0;
 		netData.bFallbackBasicAttack = gameData.bFallbackBasicAttack ? 1 : 0;
 		// Stored as level + 1, so configurations saved before this setting existed (0) keep the default.
 		netData.MPStatusAutoPotion = static_cast<BYTE>((gameData.iManaPotionThreshold / 10 + 1) & 0x0F);
@@ -236,6 +238,7 @@ namespace MUHelper
 		gameData.bUseSelfDefense = (bool)netData.bUseSelfDefense;
 		gameData.bAutoAcceptFriend = (bool)netData.bAutoAcceptFriend;
 		gameData.bAutoAcceptGuild = (bool)netData.bAutoAcceptGuild;
+		gameData.bAutoAcceptAnyone = (bool)netData.bAutoAcceptAnyone;
 		gameData.bFallbackBasicAttack = (bool)netData.bFallbackBasicAttack;
 		gameData.iManaPotionThreshold = netData.MPStatusAutoPotion == 0
 			? DEFAULT_MANA_POTION_THRESHOLD

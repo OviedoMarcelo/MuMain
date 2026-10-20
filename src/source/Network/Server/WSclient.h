@@ -3697,7 +3697,9 @@ typedef struct
     BYTE bFallbackBasicAttack : 1;           // Index: 33 (bit 3)
     BYTE MPStatusAutoPotion : 4;             // Index: 33 (bits 4-7): mana potion level + 1, 0 = never set
 
-    BYTE _UnusedPadding[35];                 // Index: 34 (35 bytes remaining)
+    BYTE bAutoAcceptAnyone : 1;              // Index: 34 (bit 0): the server accepts party requests from anyone
+    BYTE _UnusedPartyFlags : 7;              // Index: 34 (bits 1-7)
+    BYTE _UnusedPadding[34];                 // Index: 35 (34 bytes remaining)
     char ExtraItems[12][15];                 // Index: 69
 } PRECEIVE_MUHELPER_DATA, * LPRECEIVE_MUHELPER_DATA;
 #pragma pack(pop)
