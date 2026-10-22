@@ -1211,41 +1211,17 @@
       }
     },
     {
-      "number": 54,
-      "name": {
-        "en": "Pink Gold Boots",
-        "es": "Botas Oro Rosa",
-        "pt": "Botas de ouro rosa"
-      },
-      "width": 2,
-      "height": 2,
-      "slot": "boots",
-      "level": 98,
-      "durability": 86,
-      "defense": 50,
-      "classRequirements": {
-        "darkWizard": 1,
-        "darkKnight": 1,
-        "fairyElf": 1,
-        "magicGladiator": 1,
-        "darkLord": 1,
-        "summoner": 1,
-        "rageFighter": 1
-      }
-    },
-    {
       "number": 55,
       "name": {
-        "en": "Japanese White Boots",
-        "es": "Botas Japonesas Blancas",
-        "pt": "Botas japonesas brancas"
+        "en": "Toranaga Boots",
+        "es": "Botas Toranaga",
+        "pt": "Botas Toranaga"
       },
       "width": 2,
       "height": 2,
       "slot": "boots",
       "level": 98,
       "durability": 86,
-      "defense": 50,
       "classRequirements": {
         "darkWizard": 1,
         "darkKnight": 1,

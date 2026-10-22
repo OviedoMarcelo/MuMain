@@ -1198,41 +1198,17 @@
       }
     },
     {
-      "number": 54,
-      "name": {
-        "en": "Pink Gold Armor",
-        "es": "Armadura Oro Rosa",
-        "pt": "Armadura de ouro rosa"
-      },
-      "width": 2,
-      "height": 3,
-      "slot": "armor",
-      "level": 126,
-      "durability": 86,
-      "defense": 75,
-      "classRequirements": {
-        "darkWizard": 1,
-        "darkKnight": 1,
-        "fairyElf": 1,
-        "magicGladiator": 1,
-        "darkLord": 1,
-        "summoner": 1,
-        "rageFighter": 1
-      }
-    },
-    {
       "number": 55,
       "name": {
-        "en": "Japanese White Armor",
-        "es": "Armadura Japonesa Blanca",
-        "pt": "Armadura japonesa branca"
+        "en": "Toranaga Armor",
+        "es": "Armadura Toranaga",
+        "pt": "Armadura Toranaga"
       },
       "width": 2,
       "height": 3,
       "slot": "armor",
       "level": 126,
       "durability": 86,
-      "defense": 75,
       "classRequirements": {
         "darkWizard": 1,
         "darkKnight": 1,

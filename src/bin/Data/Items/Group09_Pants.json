@@ -1198,41 +1198,17 @@
       }
     },
     {
-      "number": 54,
-      "name": {
-        "en": "Pink Gold Pants",
-        "es": "Pantalones Oro Rosa",
-        "pt": "Calças de ouro rosa"
-      },
-      "width": 2,
-      "height": 2,
-      "slot": "pants",
-      "level": 113,
-      "durability": 86,
-      "defense": 65,
-      "classRequirements": {
-        "darkWizard": 1,
-        "darkKnight": 1,
-        "fairyElf": 1,
-        "magicGladiator": 1,
-        "darkLord": 1,
-        "summoner": 1,
-        "rageFighter": 1
-      }
-    },
-    {
       "number": 55,
       "name": {
-        "en": "Japanese White Pants",
-        "es": "Pantalones Japoneses Blancos",
-        "pt": "Calças japonesas brancas"
+        "en": "Toranaga Pants",
+        "es": "Pantalones Toranaga",
+        "pt": "Calças Toranaga"
       },
       "width": 2,
       "height": 2,
       "slot": "pants",
       "level": 113,
       "durability": 86,
-      "defense": 65,
       "classRequirements": {
         "darkWizard": 1,
         "darkKnight": 1,
