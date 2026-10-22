@@ -403,9 +403,15 @@ TEST_CASE("quest tracker shows the chapter, the story first and the quests with 
     CHECK(content.Chapter == L"Chapter I");
     REQUIRE(content.Quests.size() == 3);
     CHECK(content.Quests[0].Name == L"Quest main-1");
-    CHECK(content.Quests[0].Step == L"Kill 50 Skeletons 12/50");
+    CHECK(content.Quests[0].Category == Category::Main);
+    CHECK(content.Quests[0].Objective == L"Kill 50 Skeletons");
+    CHECK(content.Quests[0].ObjectiveCurrent == 12);
+    CHECK(content.Quests[0].ObjectiveRequired == 50);
     CHECK(content.Quests[1].Name == L"Quest daily-started");
-    CHECK(content.Quests[1].Step == L"Kill 10 3/10");
+    CHECK(content.Quests[1].Category == Category::Daily);
+    CHECK(content.Quests[1].Objective == L"Kill 10");
+    CHECK(content.Quests[1].ObjectiveCurrent == 3);
+    CHECK(content.Quests[1].ObjectiveRequired == 10);
     // The rewarded story quest has nothing left to do.
     CHECK(content.Quests[2].Name == L"Quest daily-new");
 
@@ -424,5 +430,22 @@ TEST_CASE("quest tracker shows a completed quest which waits for its reward")
     CHECK(content.Chapter.empty());
     REQUIRE(content.Quests.size() == 1);
     CHECK(content.Quests[0].IsRewardPending);
-    CHECK(content.Quests[0].Step.empty());
+    CHECK(content.Quests[0].Objective.empty());
+    CHECK(content.Quests[0].ObjectiveRequired == 0);
+}
+
+TEST_CASE("quest tracker counts the whole quest when the server sends no steps")
+{
+    WeeklyQuests().Reset();
+    CHECK(Add(MakePacket(0, 1, "a", 4)));
+
+    const auto content = UI::Quests::BuildQuestTracker(WeeklyQuests().GetQuests(), 3);
+
+    REQUIRE(content.Quests.size() == 1);
+    CHECK(content.Quests[0].Id == L"a");
+    CHECK(content.Quests[0].Category == Category::Weekly);
+    CHECK(content.Quests[0].ObjectiveCurrent == 4);
+    CHECK(content.Quests[0].ObjectiveRequired == 10);
+    CHECK(content.Quests[0].QuestCurrent == 4);
+    CHECK(content.Quests[0].QuestRequired == 10);
 }

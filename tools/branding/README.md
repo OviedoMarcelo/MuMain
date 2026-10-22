@@ -7,6 +7,9 @@ Scripts that put the MU Cyber look into the client data (`src/bin/Data`). They n
   the login (`Interface/New_lo_back_0*`, `lo_back_s5_0*`, `lo_back_im0*`, `lo_back_s5_im0*`), and the one
   shown when entering the world (`Interface/LSBg0*`). It also saves PNG previews.
   The logo and banner are the website's: `mu-web/public/brand/logo.png` and `banner.webp`.
+- `make_emblem.ps1` (PowerShell, no Python needed) writes the emblem in the title of the quest tracker
+  (`Interface/MuCyberEmblem.OZT`, 64x64) from the biggest image of the game icon
+  (`src/source/App/Platform/Windows/icon1.ico`), so that both show the same emblem.
 - `serverlist.py <Local/ServerList.bmd>` shows the server groups; with `--rename OLD NEW` it renames one.
 
 Formats: an OZJ is a JPEG behind a 24-byte header the client skips; an OZT is a 32-bit uncompressed TGA

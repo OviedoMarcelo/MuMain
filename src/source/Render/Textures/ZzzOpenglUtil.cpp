@@ -1164,6 +1164,19 @@ void RenderColorLineARGB(float x1, float y1, float x2, float y2, float thickness
     mu::GetRenderer().RenderQuad2D(vertices, 0u);
 }
 
+void RenderColorQuadPointsARGB(const float (&x)[4], const float (&y)[4], const unsigned int (&argbColors)[4])
+{
+    DisableTexture();
+
+    mu::Vertex2D vertices[4];
+    for (int corner = 0; corner < 4; ++corner)
+    {
+        vertices[corner] = {ConvertPositionX(x[corner]), WindowHeight - ConvertPositionY(y[corner]), 0.0f, 0.0f,
+                            ArgbToAbgr(argbColors[corner])};
+    }
+    mu::GetRenderer().RenderQuad2D(vertices, 0u);
+}
+
 void RenderColorBitmap(int Texture, float x, float y, float Width, float Height, float u, float v, float uWidth, float vHeight, unsigned int color)
 {
     x = ConvertPositionX(x);

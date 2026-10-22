@@ -294,6 +294,9 @@ enum
     BITMAP_GENS_RANKBACK,
 #endif // PBG_ADD_GENSRANKING
 
+    // The MU Cyber emblem in the title of the quest tracker.
+    BITMAP_INTERFACE_MUCYBER_EMBLEM,
+
     BITMAP_INTERFACE_TEXTURE_END = 32000,
     BITMAP_EFFECT_TEXTURE_BEGIN = 32001,
 

@@ -24,6 +24,23 @@ When the progress starts over depends on the quest:
 Press **Y**. **Escape** goes back from the details of a quest to the list, and
 closes the window on the list.
 
+## The tracker
+
+While you play, the quests which aren't done yet are shown at the top right of
+the screen, in a frame titled **Misiones** (at most four; the story first, then
+the quests with progress). An open quest shows:
+
+- its name, with its type as a label (`HISTORIA`, `SEMANAL`, `DIARIA`...),
+- what to do now, e.g. `Matá 50 Skeletons`,
+- **Progreso** with the count and a bar, when the step has something to count,
+- its rewards, next to a chest.
+
+A folded quest shows only its name and its progress (`2/5`, or an orange `!`
+when the reward waits for free space). A click on a quest opens or folds it, in
+its place; at first only the first quest is open. The arrow in the title folds
+the whole tracker. The quest window opens with **Y**. With a party, the tracker
+moves to the left of the party list.
+
 ## The quest list
 
 The quests are grouped by their category, in the order story, daily, weekly,

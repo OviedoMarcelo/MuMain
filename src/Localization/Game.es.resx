@@ -13191,10 +13191,13 @@
     <value>Ganás %ls completando quests y jugando.</value>
   </data>
   <data name="QuestTrackerTitle" xml:space="preserve">
-    <value>Misiones en curso</value>
+    <value>Misiones</value>
+  </data>
+  <data name="QuestTrackerProgress" xml:space="preserve">
+    <value>Progreso</value>
   </data>
   <data name="QuestTrackerRewardPending" xml:space="preserve">
-    <value> Liberá espacio para el premio</value>
+    <value>Liberá espacio para el premio</value>
   </data>
   <data name="EventScheduleTitle" xml:space="preserve">
     <value>Eventos</value>
