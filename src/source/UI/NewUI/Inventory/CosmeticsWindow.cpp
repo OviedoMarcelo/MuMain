@@ -27,8 +27,9 @@ constexpr const wchar_t* WearCommand = L"/cosmetico ";
 constexpr const wchar_t* TakeOffArgument = L"off ";
 constexpr WORD NoPiece = 0;
 
-// The item group of the helms; the groups of the other slots follow it.
-constexpr BYTE HelmGroup = 7;
+// The item groups of the slots, in the order the window shows them: the helm
+// to the boots, then the wings and the pet.
+constexpr BYTE SlotItemGroups[] = {7, 8, 9, 10, 11, 12, 13};
 
 constexpr const wchar_t* LeftArrow = L"<";
 constexpr const wchar_t* RightArrow = L">";
@@ -89,8 +90,12 @@ const wchar_t* GetSlotName(int slot)
         return I18N::Game::CosmeticSlotPants;
     case 3:
         return I18N::Game::CosmeticSlotGloves;
-    default:
+    case 4:
         return I18N::Game::CosmeticSlotBoots;
+    case 5:
+        return I18N::Game::CosmeticSlotWings;
+    default:
+        return I18N::Game::CosmeticSlotPet;
     }
 }
 
@@ -235,7 +240,7 @@ void SEASON3B::CCosmeticsWindow::WrapHint()
 
 BYTE SEASON3B::CCosmeticsWindow::GetShownItemGroup() const
 {
-    return static_cast<BYTE>(HelmGroup + m_slot);
+    return SlotItemGroups[m_slot];
 }
 
 void SEASON3B::CCosmeticsWindow::ShowSlot(int slot)

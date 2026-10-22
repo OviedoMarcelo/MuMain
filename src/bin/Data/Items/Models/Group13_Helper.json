@@ -1642,6 +1642,15 @@
         "rotation": [90, 0, -45],
         "scale": 0.2
       }
+    },
+    {
+      "number": 200,
+      "file": "Data/Item/SkinPet200.bmd",
+      "textureFolders": ["Item"],
+      "inventory": {
+        "anchor": [0.5, 0.7]
+      },
+      "skinOf": 1
     }
   ]
 }

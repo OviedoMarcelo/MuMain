@@ -40,6 +40,7 @@
 
 #include "Engine/Physics/PhysicsManager.h"
 #include "Engine/AI/GOBoid.h"
+#include "GameLogic/Cosmetics/PetSkins.h"
 #include "GameLogic/Cosmetics/WornCosmeticsApplier.h"
 #include "GameLogic/Items/CSItemOption.h"
 
@@ -12216,6 +12217,14 @@ void SetArmorFromEquipment(CHARACTER* c)
         GameLogic::Cosmetics::ApplyWornPieces(Hero);
     }
 }
+// Sets the wings of the character from the equipment of the hero; the hero
+// wears its cosmetic wings over them (see SetArmorFromEquipment).
+void SetWingFromEquipment(CHARACTER* c)
+{
+    const ITEM& wing = CharacterMachine->Equipment[EQUIPMENT_WING];
+    c->Wing.Type = wing.Type == -1 ? -1 : wing.Type + MODEL_ITEM;
+    c->Wing.Level = wing.Level;
+}
 } // namespace
 
 void SetCharacterClass(CHARACTER* c)
@@ -12245,14 +12254,7 @@ void SetCharacterClass(CHARACTER* c)
         c->Weapon[1].Type = p[EQUIPMENT_WEAPON_LEFT].Type + MODEL_ITEM;
     }
 
-    if (p[EQUIPMENT_WING].Type == -1)
-    {
-        c->Wing.Type = -1;
-    }
-    else
-    {
-        c->Wing.Type = p[EQUIPMENT_WING].Type + MODEL_ITEM;
-    }
+    SetWingFromEquipment(c);
 
     if (p[EQUIPMENT_HELPER].Type == -1)
     {
@@ -12269,7 +12271,6 @@ void SetCharacterClass(CHARACTER* c)
     c->Weapon[1].ExcellentFlags = p[EQUIPMENT_WEAPON_LEFT].ExcellentFlags;
     c->Weapon[0].AncientDiscriminator = p[EQUIPMENT_WEAPON_RIGHT].AncientDiscriminator;
     c->Weapon[1].AncientDiscriminator = p[EQUIPMENT_WEAPON_LEFT].AncientDiscriminator;
-    c->Wing.Level = p[EQUIPMENT_WING].Level;
     c->Helper.Level = p[EQUIPMENT_HELPER].Level;
 
     bool Success = true;
@@ -12312,6 +12313,7 @@ void RefreshHeroArmor()
         return;
     }
 
+    SetWingFromEquipment(Hero);
     SetArmorFromEquipment(Hero);
     ChangeChaosCastleUnit(Hero);
 }
@@ -12943,6 +12945,9 @@ void ReadEquipmentExtended(int Key, BYTE flags, BYTE* Equipment, CHARACTER* pCha
             auto modelOffset = group * MAX_ITEM_INDEX + itemNumber;
             c->Helper.Type = MODEL_ITEM + modelOffset;
         }
+
+        // A skin comes as its own item; the pet is the one it's a skin of.
+        GameLogic::Cosmetics::ResolvePetSkin(c);
 
         // offset += 2;
     }
@@ -15426,6 +15431,8 @@ bool RenderCharacterBackItem(CHARACTER* c, OBJECT* o, bool bTranslate)
             if (iType == MODEL_IMP)
             {
                 PART_t* w = &c->Helper;
+                // A skin of the Imp is drawn with its own model, at the place of the Imp.
+                const int iModelType = w->SkinType > 0 ? w->SkinType : iType;
                 w->LinkBone = 34;
                 w->PlaySpeed = 0.5f;
                 iOption1 = w->ExcellentFlags;
@@ -15436,12 +15443,12 @@ bool RenderCharacterBackItem(CHARACTER* c, OBJECT* o, bool bTranslate)
                         || c->BodyPart[BODYPART_ARMOR].Type == MODEL_PIERCING_ARMOR
                         || c->BodyPart[BODYPART_ARMOR].Type == MODEL_PHOENIX_SOUL_ARMOR))
                 {
-                    RenderLinkObject(20.f, -5.f, 20.f, c, w, iType, iLevel, iOption1, false, bTranslate);
+                    RenderLinkObject(20.f, -5.f, 20.f, c, w, iModelType, iLevel, iOption1, false, bTranslate);
                     Vector(20.f, -5.f, 35.f, vRelativePos);
                 }
                 else
                 {
-                    RenderLinkObject(20.f, 0.f, 0.f, c, w, iType, iLevel, iOption1, false, bTranslate);
+                    RenderLinkObject(20.f, 0.f, 0.f, c, w, iModelType, iLevel, iOption1, false, bTranslate);
                     Vector(20.f, 0.f, 15.f, vRelativePos);
                 }
 

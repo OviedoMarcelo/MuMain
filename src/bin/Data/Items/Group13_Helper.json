@@ -3340,6 +3340,28 @@
         "summoner": 1,
         "rageFighter": 1
       }
+    },
+    {
+      "number": 200,
+      "name": {
+        "en": "Awakening Satan",
+        "es": "Satán del Despertar",
+        "pt": "Satã do Despertar"
+      },
+      "width": 1,
+      "height": 1,
+      "slot": "pet",
+      "durability": 255,
+      "repairable": false,
+      "classRequirements": {
+        "darkWizard": 1,
+        "darkKnight": 1,
+        "fairyElf": 1,
+        "magicGladiator": 1,
+        "darkLord": 1,
+        "summoner": 1,
+        "rageFighter": 1
+      }
     }
   ]
 }
