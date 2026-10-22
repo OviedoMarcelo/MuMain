@@ -265,6 +265,18 @@ bool CNewUISystem::CreateQuestTracker()
     return false;
 }
 
+bool CNewUISystem::CreateNpcQuestDialogWindow()
+{
+    m_pNpcQuestDialogWindow = std::make_unique<CNpcQuestDialogWindow>();
+    if (m_pNpcQuestDialogWindow->Create(m_pNewUIMng))
+    {
+        return true;
+    }
+
+    m_pNpcQuestDialogWindow.reset();
+    return false;
+}
+
 bool CNewUISystem::LoadMainSceneInterface()
 {
     g_MessageBox->Show(true);
@@ -464,6 +476,11 @@ bool CNewUISystem::LoadMainSceneInterface()
         return false;
     }
 
+    if (!CreateNpcQuestDialogWindow())
+    {
+        return false;
+    }
+
     m_pNewHelpWindow = new CNewUIHelpWindow;
     if (m_pNewHelpWindow->Create(m_pNewUIMng, 0, 0) == false)
     {
@@ -656,6 +673,7 @@ void CNewUISystem::UnloadMainSceneInterface()
     SAFE_DELETE(m_pWeeklyQuestWindow);
     SAFE_DELETE(m_pCosmeticsWindow);
     SAFE_DELETE(m_pQuestTracker);
+    m_pNpcQuestDialogWindow.reset();
     SAFE_DELETE(m_pNewItemExplanationWindow);
     SAFE_DELETE(m_pNewSetItemExplanation);
     SAFE_DELETE(m_pNewQuickCommandWindow);
@@ -2174,6 +2192,7 @@ bool CNewUISystem::IsImpossibleHideInterface(DWORD dwKey)
         || dwKey == INTERFACE_ITEM_ENDURANCE_INFO
         || dwKey == INTERFACE_BUFF_WINDOW
         || dwKey == INTERFACE_QUEST_TRACKER
+        || dwKey == INTERFACE_NPC_QUEST_DIALOG
         || (dwKey >= INTERFACE_3DRENDERING_CAMERA_BEGIN && dwKey <= INTERFACE_3DRENDERING_CAMERA_END)
         || dwKey == INTERFACE_DUELWATCH_MAINFRAME
         || dwKey == INTERFACE_DUELWATCH_USERLIST

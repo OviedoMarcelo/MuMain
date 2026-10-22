@@ -13282,6 +13282,12 @@
   <data name="QuestTrackerRewardPending" xml:space="preserve">
     <value>Free some space for the reward</value>
   </data>
+  <data name="NpcQuestDialogAccept" xml:space="preserve">
+    <value>I accept the quest.</value>
+  </data>
+  <data name="NpcQuestDialogDecline" xml:space="preserve">
+    <value>Not now, thanks.</value>
+  </data>
   <data name="EventScheduleTitle" xml:space="preserve">
     <value>Events</value>
   </data>

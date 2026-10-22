@@ -41,6 +41,22 @@ its place; at first only the first quest is open. The arrow in the title folds
 the whole tracker. The quest window opens with **Y**. With a party, the tracker
 moves to the left of the party list.
 
+## Talking to an NPC
+
+When the step to do now is to talk to an NPC, a click on the NPC opens a dialog
+at the bottom of the screen: the portrait of the NPC with its name, the name of
+the quest and what the NPC says. The talk only counts when you choose **Acepto
+la misión.** **Ahora no, gracias.**, the cross or escape close it without
+counting, and you can talk to the NPC again later. Walking away from the NPC
+closes it, too. When the NPC has nothing to say, the talk counts right away.
+
+The text is the "Texto del NPC" of the step in the admin panel; each line of it
+is a line in the dialog, which shows up to eight lines. The portrait is
+`Data/Interface/NpcPortraits/<number of the NPC>.OZJ`, made from an image by
+`tools/branding/make_portrait.ps1`; an NPC without one shows the MU Cyber
+emblem. Older clients don't show the dialog: the NPC says the text above its
+head instead, and the talk counts right away.
+
 ## The quest list
 
 The quests are grouped by their category, in the order story, daily, weekly,

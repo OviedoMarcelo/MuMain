@@ -296,6 +296,8 @@ enum
 
     // The MU Cyber emblem in the title of the quest tracker.
     BITMAP_INTERFACE_MUCYBER_EMBLEM,
+    // The portrait of the NPC in the dialog of a quest.
+    BITMAP_INTERFACE_NPC_PORTRAIT,
 
     BITMAP_INTERFACE_TEXTURE_END = 32000,
     BITMAP_EFFECT_TEXTURE_BEGIN = 32001,

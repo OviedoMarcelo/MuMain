@@ -10,6 +10,9 @@ Scripts that put the MU Cyber look into the client data (`src/bin/Data`). They n
 - `make_emblem.ps1` (PowerShell, no Python needed) writes the emblem in the title of the quest tracker
   (`Interface/MuCyberEmblem.OZT`, 64x64) from the biggest image of the game icon
   (`src/source/App/Platform/Windows/icon1.ico`), so that both show the same emblem.
+- `make_portrait.ps1 -Image <portrait.png> -NpcNumber <number>` (PowerShell) writes the portrait of an NPC
+  for the dialogs of the quests (`Interface/NpcPortraits/<number>.OZJ`, 256x256). It cuts the image to a
+  square, keeping its top, where the face usually is.
 - `serverlist.py <Local/ServerList.bmd>` shows the server groups; with `--rename OLD NEW` it renames one.
 
 Formats: an OZJ is a JPEG behind a 24-byte header the client skips; an OZT is a 32-bit uncompressed TGA
