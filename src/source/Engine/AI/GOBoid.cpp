@@ -22,6 +22,7 @@
 #include "UI/NewUI/NewUISystem.h"
 #include "Scenes/MainScene.h"
 #include "GameLogic/Items/ItemCategories.h"
+#include "GameLogic/Cosmetics/PetSkins.h"
 
 int EnableEvent = 0;
 
@@ -126,6 +127,7 @@ bool CreateMountSub(int Type, vec3_t Position, OBJECT* Owner, OBJECT* o, int Sub
             break;
         }
 
+        GameLogic::Cosmetics::RefreshMountSkin(o);
         return FALSE;
     }
 
@@ -150,6 +152,37 @@ void CreateMount(int Type, vec3_t Position, OBJECT* Owner, int SubType, int Link
     }
 }
 
+// The model of the mount: the one of its skin, if it has one, else the one of its type.
+static int GetMountModelType(const OBJECT* o)
+{
+    return o->SkinType > 0 ? o->SkinType : o->Type;
+}
+
+// An action of the mount which the model plays: the same, or the first one if
+// a skin has fewer actions than the model it replaces.
+static unsigned short GetMountModelAction(const OBJECT* o, unsigned short action)
+{
+    const BMD& model = Models[GetMountModelType(o)];
+    return action < model.NumActions ? action : 0;
+}
+
+// Draws the mount with the model of its skin. RenderObject draws the model of
+// the type, so the type is the skin while it's drawn; the effects of the mount
+// which depend on its type are drawn with the real type afterwards.
+static void RenderMountModel(OBJECT* o, int state)
+{
+    const int type = o->Type;
+    const unsigned short action = o->CurrentAction;
+    const unsigned short priorAction = o->PriorAction;
+    o->CurrentAction = GetMountModelAction(o, action);
+    o->PriorAction = GetMountModelAction(o, priorAction);
+    o->Type = GetMountModelType(o);
+    RenderObject(o, false, 0, state);
+    o->Type = type;
+    o->CurrentAction = action;
+    o->PriorAction = priorAction;
+}
+
 bool MoveMount(OBJECT* o, bool bForceRender)
 {
     if (o->Live)
@@ -171,7 +204,7 @@ bool MoveMount(OBJECT* o, bool bForceRender)
         float   FlyRange = 0.0f;
         vec3_t  Light, Position;
         vec3_t  TargetPosition;
-        BMD* b = &Models[o->Type];
+        BMD* b = &Models[GetMountModelType(o)];
 
         VectorCopy(o->Owner->Position, TargetPosition);
         switch (o->Type)
@@ -622,7 +655,8 @@ bool MoveMount(OBJECT* o, bool bForceRender)
             FlyRange = 150.f;
             break;
         }
-        b->CurrentAction = o->CurrentAction;
+        b->CurrentAction = GetMountModelAction(o, o->CurrentAction);
+        o->PriorAction = GetMountModelAction(o, o->PriorAction);
 
         b->PlayAnimation(&o->AnimationFrame, &o->PriorAnimationFrame, &o->PriorAction, o->Velocity, o->Position, o->Angle);
 
@@ -696,7 +730,7 @@ bool RenderMount(OBJECT* o, bool bForceRender)
                 State = 10;
             }
 
-            RenderObject(o, false, 0, State);
+            RenderMountModel(o, State);
 
             vec3_t Light;
             float  Luminosity = (float)(rand() % 30 + 70) * 0.01f;

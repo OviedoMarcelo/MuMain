@@ -27,6 +27,7 @@ constexpr const char* TextureFolders = "textureFolders";
 constexpr const char* NoneBlendMeshes = "noneBlendMeshes";
 constexpr const char* RenderStyle = "renderStyle";
 constexpr const char* ItemEffect = "itemEffect";
+constexpr const char* SkinOf = "skinOf";
 } // namespace Keys
 
 // The fields of a model entry and of a shared model; others are warned about.
@@ -34,7 +35,7 @@ const std::set<std::string, std::less<>> ItemModelKeys{
     Keys::Number,           Keys::Model,           Keys::File,
     Keys::TextureFolders,   Keys::NoneBlendMeshes, DisplayJson::InventoryKey,
     DisplayJson::GroundKey, DisplayJson::ClothKey, GlowJson::GlowKey,
-    Keys::RenderStyle,      Keys::ItemEffect};
+    Keys::RenderStyle,      Keys::ItemEffect,      Keys::SkinOf};
 const std::set<std::string, std::less<>> SharedModelKeys{Keys::Name, Keys::File, Keys::TextureFolders,
                                                          Keys::NoneBlendMeshes};
 
@@ -117,6 +118,10 @@ OrderedJson WriteModel(const ItemModelDefinition& model)
     if (!model.itemEffect.empty())
     {
         json[Keys::ItemEffect] = model.itemEffect;
+    }
+    if (model.skinOf.has_value())
+    {
+        json[Keys::SkinOf] = *model.skinOf;
     }
     return json;
 }
@@ -330,6 +335,17 @@ bool ItemModelReader::Read(const OrderedJson& json, ItemModelDefinition& model)
     GlowJson::Read(json, model, report);
     ReadLookName(json, Keys::RenderStyle, model.renderStyle);
     ReadLookName(json, Keys::ItemEffect, model.itemEffect);
+    if (const auto skinOf = json.find(Keys::SkinOf); skinOf != json.end())
+    {
+        if (skinOf->is_number_integer() && skinOf->get<int>() >= 0 && skinOf->get<int>() < MAX_ITEM_INDEX)
+        {
+            model.skinOf = skinOf->get<int>();
+        }
+        else
+        {
+            AddError(Keys::SkinOf, "must be the number of a helper, from 0 to " + std::to_string(MAX_ITEM_INDEX - 1));
+        }
+    }
     WarnAboutUnknownKeys(json, ItemModelKeys);
     return !m_hasErrors;
 }

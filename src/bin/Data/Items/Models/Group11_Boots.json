@@ -650,6 +650,18 @@
       }
     },
     {
+      "number": 55,
+      "file": "Data/Player/BootMale56.bmd",
+      "textureFolders": ["Player"],
+      "inventory": {
+        "anchor": [0.5, 0.9],
+        "scale": 0.0032
+      },
+      "glow": {
+        "color": "white"
+      }
+    },
+    {
       "number": 59,
       "file": "Data/Player/BootMale60.bmd",
       "textureFolders": ["Player"],

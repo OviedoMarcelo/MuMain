@@ -17,9 +17,9 @@
 namespace SEASON3B
 {
 // Shows the cosmetic pieces which the server told us about, at the left of the
-// inventory, one armor slot at a time. A piece can be picked and worn over the
-// item of its slot: it only changes how the armor looks, for the own character
-// and for everyone else.
+// inventory, one slot at a time (the armor, the wings and the pet). A piece can
+// be picked and worn over the item of its slot: it only changes how it looks,
+// for the own character and for everyone else.
 //
 // It uses the frame and the size of the quests window, so that the windows
 // look alike when they are docked at the same place.
@@ -78,7 +78,7 @@ class CCosmeticsWindow : public CNewUIObj, public INewUI3DRenderObj
         HINT_TOP = BUTTON_ROW_Y - (HINT_LINES + 1) * TEXT_LINE_HEIGHT,
         VISIBLE_ROWS = (HINT_TOP - PANEL_PADDING - LIST_TOP) / ROW_HEIGHT,
         PANEL_HEIGHT = LIST_TOP - PANEL_TOP + VISIBLE_ROWS * ROW_HEIGHT + PANEL_PADDING,
-        SLOT_COUNT = 5,
+        SLOT_COUNT = 7,
     };
 
 public:
@@ -144,7 +144,7 @@ private:
     CNewUI3DRenderMng* m_pNewUI3DRenderMng;
     POINT m_Pos;
 
-    // The shown slot: 0 for the helm to 4 for the boots.
+    // The shown slot: 0 for the helm to 4 for the boots, 5 for the wings and 6 for the pet.
     int m_slot;
     int m_scrollOffset;
     // The piece is remembered by its number, because the list is replaced with every message.

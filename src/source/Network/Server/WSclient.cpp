@@ -43,6 +43,7 @@
 #include "UI/Legacy/UIMapName.h" // rozy
 #include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "GameLogic/Cosmetics/CosmeticPieceCatalog.h"
+#include "GameLogic/Cosmetics/PetSkins.h"
 #include "GameLogic/Events/EventScheduleCatalog.h"
 #include "GameLogic/Monsters/BossHealth.h"
 #include "GameLogic/Monsters/BossHealthState.h"
@@ -2560,6 +2561,11 @@ void ReceiveChangePlayer(std::span<const BYTE> ReceiveBuffer)
         {
             c->Helper.Type = MODEL_ITEM + Type;
             c->Helper.Level = 0;
+
+            // A skin comes as its own item; the pet is the one it's a skin of.
+            GameLogic::Cosmetics::ResolvePetSkin(c);
+            Type = c->Helper.Type - MODEL_ITEM;
+            DeleteMount(o);
             switch (Type)
             {
             case ITEM_HELPER:

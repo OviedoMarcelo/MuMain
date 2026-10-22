@@ -136,6 +136,12 @@ struct ItemModelDefinition
     // effect (Render/Items/ItemEffects). Empty: none.
     std::string itemEffect;
 
+    // The pet or mount whose look this model replaces when a character wears
+    // it as a cosmetic piece: the number of a helper (group 13), e.g. 0 for
+    // the Guardian Angel or 2 for the Horn of Uniria. The pet keeps how it
+    // moves and what it does; only its model is this one.
+    std::optional<int> skinOf;
+
     bool Exists() const
     {
         return !file.empty() || !model.empty();

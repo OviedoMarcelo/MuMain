@@ -42,6 +42,9 @@ typedef struct _PATH_t
 typedef struct _PART_t
 {
     short Type;
+    // The model of the cosmetic piece which is drawn instead, e.g. the skin of
+    // the pet of the helper part; the type still decides what it does. -1: none.
+    short SkinType;
     BYTE  Level;
     BYTE  ExcellentFlags; // Excellent
     BYTE  AncientDiscriminator; // Ancient
@@ -57,6 +60,7 @@ typedef struct _PART_t
     _PART_t()
     {
         Type = 0;
+        SkinType = -1;
         Level = 0;
         ExcellentFlags = 0;
         AncientDiscriminator = 0;

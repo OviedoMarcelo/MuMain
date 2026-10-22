@@ -1243,6 +1243,27 @@
       }
     },
     {
+      "number": 55,
+      "name": {
+        "en": "Toranaga Gloves",
+        "es": "Guantes Toranaga",
+        "pt": "Luvas Toranaga"
+      },
+      "width": 2,
+      "height": 2,
+      "slot": "gloves",
+      "level": 94,
+      "durability": 86,
+      "classRequirements": {
+        "darkWizard": 1,
+        "darkKnight": 1,
+        "fairyElf": 1,
+        "magicGladiator": 1,
+        "darkLord": 1,
+        "summoner": 1
+      }
+    },
+    {
       "number": 62,
       "name": {
         "en": "Scale Gloves",

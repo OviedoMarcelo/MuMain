@@ -221,6 +221,30 @@ TEST_CASE("The item effect of a model is a name [data][items]")
     CHECK(result.models[0].itemEffect.empty());
 }
 
+TEST_CASE("A skin names the pet it replaces [data][items]")
+{
+    ItemModelDefinition archangel;
+    archangel.group = 13;
+    archangel.number = 200;
+    archangel.file = "Data/Item/SkinPet200.bmd";
+    archangel.textureFolders = {"Item"};
+    archangel.skinOf = 0;
+
+    const ReadResult result = Read(WriteItemModelGroupJson(13, std::vector<ItemModelDefinition>{archangel}));
+    CHECK(result.issues.empty());
+    REQUIRE(result.models.size() == 1);
+    CHECK(result.models[0].skinOf == 0);
+
+    CHECK(HasError(R"({"number": 200, "file": "Data/Item/SkinPet200.bmd", "skinOf": "angel"})", "skinOf"));
+    CHECK(HasError(R"({"number": 200, "file": "Data/Item/SkinPet200.bmd", "skinOf": -1})", "skinOf"));
+    CHECK(HasError(R"({"number": 200, "file": "Data/Item/SkinPet200.bmd", "skinOf": 512})", "skinOf"));
+
+    // Without it the model isn't a skin.
+    const ReadResult plain = Read(GroupFile(13, R"({"number": 8, "file": "Data/Item/Ring01.bmd"})"));
+    REQUIRE(plain.models.size() == 1);
+    CHECK_FALSE(plain.models[0].skinOf.has_value());
+}
+
 TEST_CASE("A model with errors is not read [data][items]")
 {
     const ReadResult result =

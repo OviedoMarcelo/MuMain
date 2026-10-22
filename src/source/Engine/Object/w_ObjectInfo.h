@@ -158,6 +158,9 @@ public:
 
 public:
     int			  Type;
+    // The model which is drawn instead of the one of the type, e.g. the skin
+    // of a pet; the type still decides how the object moves. -1: none.
+    int           SkinType;
     int           SubType;
     int			  m_iAnimation;
     int           HiddenMesh;
