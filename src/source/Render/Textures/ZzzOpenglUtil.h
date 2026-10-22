@@ -128,6 +128,9 @@ void RenderColor(float x, float y, float Width, float Height, float Alpha = 0.f,
 void EndRenderColor();
 void RenderColorQuadARGB(float x, float y, float Width, float Height, unsigned int argbColor);
 void RenderColorLineARGB(float x1, float y1, float x2, float y2, float thickness, unsigned int argbColor);
+// A filled quadrilateral with a color per corner, which blends between them. The corners
+// go around the shape, in screen coordinates of the reference resolution.
+void RenderColorQuadPointsARGB(const float (&x)[4], const float (&y)[4], const unsigned int (&argbColors)[4]);
 void RenderBitmap(int Texture, float x, float y, float Width, float Height, float u = 0.f, float v = 0.f, float uWidth = 1.f, float vHeight = 1.f, bool Scale = true, bool StartScale = true, float Alpha = 0.f);
 void RenderColorBitmap(int Texture, float x, float y, float Width, float Height, float u = 0.f, float v = 0.f, float uWidth = 1.f, float vHeight = 1.f, unsigned int color = 0xffffffff);
 void RenderBitmapRotate(int Texture, float x, float y, float Width, float Height, float Angle, float u = 0.f,

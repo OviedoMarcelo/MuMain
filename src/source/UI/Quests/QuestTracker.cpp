@@ -34,11 +34,6 @@ bool IsStarted(const WeeklyQuest& quest)
     return quest.IsCompleted || HasProgress(quest);
 }
 
-std::wstring FormatCount(uint32_t current, uint32_t required)
-{
-    return std::to_wstring((std::min)(current, required)) + L"/" + std::to_wstring(required);
-}
-
 // The objective to do now: the current step of a sequential quest, otherwise the first which isn't done.
 const QuestObjective* FindCurrentObjective(const WeeklyQuest& quest)
 {
@@ -52,33 +47,45 @@ const QuestObjective* FindCurrentObjective(const WeeklyQuest& quest)
     return open == quest.Objectives.end() ? nullptr : &*open;
 }
 
-std::wstring GetStep(const WeeklyQuest& quest)
+void SetObjective(const WeeklyQuest& quest, TrackedQuest& tracked)
 {
     if (quest.IsCompleted)
     {
-        return {};
+        return;
     }
 
     const auto* objective = FindCurrentObjective(quest);
-    if (objective == nullptr)
+    if (objective == nullptr || objective->Text.empty())
     {
-        // Without details from the server we only know the count of the quest.
-        return quest.RequiredCount > 1 ? FormatCount(quest.CurrentCount, quest.RequiredCount) : std::wstring();
+        // Without steps from the server we only know the description and the count of the quest.
+        tracked.Objective = quest.Description;
+        tracked.ObjectiveCurrent = (std::min)(quest.CurrentCount, quest.RequiredCount);
+        tracked.ObjectiveRequired = quest.RequiredCount;
+        return;
     }
 
-    // A step which is just done once, e.g. talking to an NPC, doesn't need a count.
-    if (objective->RequiredCount <= 1)
-    {
-        return objective->Text;
-    }
+    tracked.Objective = objective->Text;
+    tracked.ObjectiveCurrent = (std::min)(objective->CurrentCount, objective->RequiredCount);
+    tracked.ObjectiveRequired = objective->RequiredCount;
+}
 
-    const auto count = FormatCount(objective->CurrentCount, objective->RequiredCount);
-    return objective->Text.empty() ? count : objective->Text + L" " + count;
+TrackedQuest Track(const WeeklyQuest& quest)
+{
+    TrackedQuest tracked;
+    tracked.Id = quest.Id;
+    tracked.Name = quest.Name;
+    tracked.Category = quest.Category;
+    tracked.QuestCurrent = (std::min)(quest.CurrentCount, quest.RequiredCount);
+    tracked.QuestRequired = quest.RequiredCount;
+    tracked.Rewards = quest.Rewards;
+    tracked.IsRewardPending = quest.IsRewardPending();
+    SetObjective(quest, tracked);
+    return tracked;
 }
 
 void Add(const WeeklyQuest& quest, QuestTrackerContent& content)
 {
-    content.Quests.push_back({quest.Name, GetStep(quest), quest.IsRewardPending()});
+    content.Quests.push_back(Track(quest));
     if (content.Chapter.empty() && IsStory(quest))
     {
         content.Chapter = quest.Chapter;

@@ -3,6 +3,7 @@
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -13,9 +14,19 @@ namespace UI::Quests
 {
 struct TrackedQuest
 {
+    std::wstring Id;
     std::wstring Name;
-    // What to do now, e.g. "Kill 50 Skeletons 12/50"; empty when the quest waits for its reward.
-    std::wstring Step;
+    GameLogic::Quests::QuestCategory Category = GameLogic::Quests::QuestCategory::Weekly;
+    // What to do now, e.g. "Kill 50 Skeletons", or the description when the server sends no steps;
+    // empty when the quest waits for its reward.
+    std::wstring Objective;
+    // The progress of what to do now; ObjectiveRequired is 0 when there is nothing to count.
+    uint32_t ObjectiveCurrent = 0;
+    uint32_t ObjectiveRequired = 0;
+    // The progress of the whole quest: its count, or the done steps of a quest with several.
+    uint32_t QuestCurrent = 0;
+    uint32_t QuestRequired = 0;
+    std::wstring Rewards;
     // The quest is completed, but its rewards wait for free inventory space.
     bool IsRewardPending = false;
 };
