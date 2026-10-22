@@ -11,6 +11,7 @@
 #include "Core/Text/TextLineWrap.h"
 #include "GameLogic/Commands/ChatCommandCatalog.h"
 #include "UI/NewUI/NewUISystem.h"
+#include "UI/Quests/QuestTypeName.h"
 
 #include <algorithm>
 #include <chrono>
@@ -23,6 +24,7 @@ using GameLogic::Quests::SeasonPassLevel;
 using GameLogic::Quests::WeeklyQuest;
 using GameLogic::Quests::WeeklyQuestCatalog;
 using GameLogic::Quests::WeeklyQuests;
+using UI::Quests::GetTypeName;
 using UI::Quests::QuestListRow;
 
 namespace
@@ -225,23 +227,6 @@ std::wstring FormatHoursMinutes(const wchar_t* format, std::chrono::seconds rema
     wchar_t text[FormattedTextLength] = {};
     mu_swprintf_s(text, format, totalMinutes / MinutesPerHour, totalMinutes % MinutesPerHour);
     return text;
-}
-
-const wchar_t* GetTypeName(QuestCategory category)
-{
-    switch (category)
-    {
-    case QuestCategory::Main:
-        return I18N::Game::QuestTypeMain;
-    case QuestCategory::Daily:
-        return I18N::Game::QuestTypeDaily;
-    case QuestCategory::Class:
-        return I18N::Game::QuestTypeClass;
-    case QuestCategory::Zone:
-        return I18N::Game::QuestTypeZone;
-    default:
-        return I18N::Game::QuestTypeWeekly;
-    }
 }
 
 // Without details (an older server), every quest is a weekly one which resets with the week.
