@@ -676,4 +676,5 @@
 579	1	"David"		
 585	1	"Scarecrow"
 700	1	"Coloso de Hielo"
+701	1	"El Vigía"
 end		

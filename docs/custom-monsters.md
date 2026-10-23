@@ -7,10 +7,11 @@ to 668), so they never take the place of one.
 | Number | Name | Model | Texture |
 |---|---|---|---|
 | 700 | Coloso de Hielo | `Data/Monster/Monster218.bmd` | `Data/Monster/USK_xMonsterBoss027_01.ozt` |
+| 701 | El Vigía | `Data/Monster/Monster219.bmd` | `Data/Monster/USK_xMonsterBoss003_01.ozt` |
 
 The server defines what a monster does: its stats, drops and where it spawns
-(the Coloso de Hielo has none: it is meant to be the boss of an encounter of the boss
-encounters plugin, which spawns it and sets its health, size, glow and drops). A game
+(these have none: they are meant to be the bosses of encounters of the boss encounters
+plugin, which spawns them and sets their health, size, glow and drops). A game
 master can call one next to them with `/createmonster <number>`.
 
 ## Adding one
@@ -24,8 +25,8 @@ master can call one next to them with `/createmonster <number>`.
    (with its `MODEL_...` alias), and its monster number to `EMonsterType`. Add
    the name of the model type to the list of `GetMonsterModelName` in
    `ZzzOpenData.cpp`.
-3. Create it in `GameLogic/Monsters/CustomMonsters.cpp`: open its model, set
-   its size and look.
+3. Add it to the table of `GameLogic/Monsters/CustomMonsters.cpp`, with its
+   model type and size.
 4. Add its name to `Data/Local/<language>/NpcName_<language>.txt`, in every
    language, before the line `end`.
 5. Define it in the server with the same number.

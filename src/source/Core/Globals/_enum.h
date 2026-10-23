@@ -4658,6 +4658,7 @@ enum EMonsterModelType : int
     MONSTER_MODEL_NACONDRA = 216,
     // The models of MU Cyber, see GameLogic::Monsters::Custom.
     MONSTER_MODEL_ICE_COLOSSUS = 217,
+    MONSTER_MODEL_WATCHER = 218,
     MONSTER_MODEL_COUNT,            // keep last: number of monster models
 };
 
@@ -5213,8 +5214,9 @@ enum EMonsterType : int
 
     // The monsters of MU Cyber, see GameLogic::Monsters::Custom.
     MONSTER_ICE_COLOSSUS = 700,
+    MONSTER_WATCHER = 701,
 
-    MONSTER_END = MONSTER_ICE_COLOSSUS
+    MONSTER_END = MONSTER_WATCHER
 };
 
 enum
@@ -5437,4 +5439,5 @@ enum
     MODEL_CONDRA = MODEL_MONSTER01 + 215,
     MODEL_NACONDRA = MODEL_MONSTER01 + 216,
     MODEL_ICE_COLOSSUS = MODEL_MONSTER01 + MONSTER_MODEL_ICE_COLOSSUS,
+    MODEL_WATCHER = MODEL_MONSTER01 + MONSTER_MODEL_WATCHER,
 };
