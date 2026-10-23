@@ -49,6 +49,7 @@
 #include "Camera/ICamera.h"
 #include "Engine/Object/CullingConstants.h"
 #include "GameLogic/Items/ItemCategories.h"
+#include "GameLogic/Monsters/CustomMonsters.h"
 
 // DevEditor function declarations
 #ifdef _EDITOR
@@ -13284,6 +13285,13 @@ CHARACTER* CreateMonster(EMonsterType Type, int PositionX, int PositionY, int Ke
     }
 
     c = TheMapProcess().CreateMonster(Type, PositionX, PositionY, Key);
+    if (c != NULL)
+    {
+        Setting_Monster(c, Type, PositionX, PositionY);
+        return c;
+    }
+
+    c = GameLogic::Monsters::Custom::Create(Type, PositionX, PositionY, Key);
     if (c != NULL)
     {
         Setting_Monster(c, Type, PositionX, PositionY);
