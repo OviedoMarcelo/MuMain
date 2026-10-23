@@ -677,4 +677,10 @@
 585	1	"Scarecrow"
 700	1	"Coloso de Hielo"
 701	1	"El Vigía"
+702	1	"Cristal de Hielo"
+703	1	"Cristal de Fuego"
+704	1	"Pilar Rúnico de Hielo"
+705	1	"Pilar Rúnico de Fuego"
+706	1	"Obelisco de Hielo"
+707	1	"Obelisco de Fuego"
 end		

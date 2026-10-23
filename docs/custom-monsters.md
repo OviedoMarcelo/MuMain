@@ -8,6 +8,18 @@ to 668), so they never take the place of one.
 |---|---|---|---|
 | 700 | Coloso de Hielo | `Data/Monster/Monster218.bmd` | `Data/Monster/USK_xMonsterBoss027_01.ozt` |
 | 701 | El Vigía | `Data/Monster/Monster219.bmd` | `Data/Monster/USK_xMonsterBoss003_01.ozt` |
+| 702, 703 | Cristal de Hielo, Cristal de Fuego | `Monster220.bmd`, `Monster221.bmd` | `CyberEncounterStone*.ozt`, `CyberEncounterGlow*.ozt` |
+| 704, 705 | Pilar Rúnico de Hielo, de Fuego | `Monster222.bmd`, `Monster223.bmd` | the same |
+| 706, 707 | Obelisco de Hielo, de Fuego | `Monster224.bmd`, `Monster225.bmd` | the same |
+
+The crystals, pillars and obelisks are objects for the phases of the boss
+encounters (like the pillars and shields which the players have to break). They
+don't move nor attack, and their crystals float and turn; when they're
+destroyed, they sink into the ground. Their runes and crystals glow, and
+little flames rise from them (orange from the fire ones, blue with sparkles
+from the ice ones, see `Render/Monsters/EncounterObjectParticles.cpp`). They are
+made by `tools/models/make_encounter_objects.js` (`node` runs it), which
+writes them again, e.g. after changing their shape or colors.
 
 The server defines what a monster does: its stats, drops and where it spawns
 (these have none: they are meant to be the bosses of encounters of the boss encounters
@@ -26,7 +38,7 @@ master can call one next to them with `/createmonster <number>`.
    the name of the model type to the list of `GetMonsterModelName` in
    `ZzzOpenData.cpp`.
 3. Add it to the table of `GameLogic/Monsters/CustomMonsters.cpp`, with its
-   model type and size.
+   model type, size and the mesh which glows, if any.
 4. Add its name to `Data/Local/<language>/NpcName_<language>.txt`, in every
    language, before the line `end`.
 5. Define it in the server with the same number.
