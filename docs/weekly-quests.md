@@ -51,10 +51,13 @@ counting, and you can talk to the NPC again later. Walking away from the NPC
 closes it, too. When the NPC has nothing to say, the talk counts right away.
 
 The text is the "Texto del NPC" of the step in the admin panel; each line of it
-is a line in the dialog, which shows up to eight lines. The portrait is
+is a line in the dialog. A long text is shown in pages of up to eight lines:
+until the last one, the first button is **Continuar leyendo...**, and **Acepto
+la misión.** shows up on the last page. The portrait is
 `Data/Interface/NpcPortraits/<number of the NPC>.OZJ`, made from an image by
 `tools/branding/make_portrait.ps1`; an NPC without one shows the MU Cyber
-emblem. Older clients don't show the dialog: the NPC says the text above its
+emblem. Some NPCs have particles over their portrait: golden motes over Elf Lala,
+sparks of fire over the guards, blue magic over Marce (`NpcPortraitEffects.cpp`). Older clients don't show the dialog: the NPC says the text above its
 head instead, and the talk counts right away.
 
 ## The quest list

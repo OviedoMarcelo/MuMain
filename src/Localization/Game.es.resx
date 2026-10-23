@@ -13202,6 +13202,9 @@
   <data name="NpcQuestDialogAccept" xml:space="preserve">
     <value>Acepto la misión.</value>
   </data>
+  <data name="NpcQuestDialogContinue" xml:space="preserve">
+    <value>Continuar leyendo...</value>
+  </data>
   <data name="NpcQuestDialogDecline" xml:space="preserve">
     <value>Ahora no, gracias.</value>
   </data>

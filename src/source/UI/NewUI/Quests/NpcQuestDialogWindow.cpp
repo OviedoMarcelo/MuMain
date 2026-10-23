@@ -12,6 +12,7 @@
 #include "Render/Textures/ZzzOpenglUtil.h"
 #include "Render/Textures/ZzzTexture.h"
 #include "UI/Legacy/UIControls.h"
+#include "UI/NewUI/Quests/ColorMath.h"
 #include "UI/NewUI/Quests/NpcPortraitEffects.h"
 #include "UI/NewUI/Quests/QuestTrackerShapes.h"
 #include "UI/NewUI/UILayoutPolicy.h"
@@ -24,7 +25,8 @@ using namespace SEASON3B;
 using GameLogic::Quests::NpcQuestDialog;
 using GameLogic::Quests::NpcQuestDialogs;
 namespace Shapes = UI::Quests::TrackerShapes;
-using UI::Quests::NpcPortraitEffects::Effect;
+using UI::Quests::ColorMath::Blend;
+using UI::Quests::ColorMath::Fade;
 
 namespace
 {
@@ -33,7 +35,6 @@ constexpr const wchar_t* PortraitFileFormat = L"Interface/NpcPortraits/%u.jpg";
 constexpr size_t PortraitFileNameLength = 64;
 constexpr const wchar_t* EmblemFile = L"Interface/MuCyberEmblem.tga";
 constexpr float EmblemSize = 48.0f;
-constexpr const wchar_t* Ellipsis = L"...";
 
 // Like the quest tracker: a dark panel with a gold border.
 constexpr unsigned int FrameFill = 0xF0121110u;
@@ -74,10 +75,6 @@ constexpr float AcceptPulseSeconds = 2.4f;
 constexpr float DiamondPulseSeconds = 3.2f;
 constexpr unsigned int DiamondGlowFill = 0xFFD9A441u;
 constexpr float Pi = 3.14159265f;
-constexpr int AlphaShift = 24;
-constexpr unsigned int ChannelMask = 0xFFu;
-constexpr int ChannelBits = 8;
-constexpr int ChannelCount = 4;
 constexpr float FullAlpha = 255.0f;
 // RenderBitmap draws opaque with an alpha of 0, so a faded bitmap needs a bit more than that.
 constexpr float LowestBitmapAlpha = 0.01f;
@@ -93,28 +90,6 @@ constexpr TextColor NameColor = {240, 210, 150};
 constexpr TextColor QuestNameColor = {240, 192, 96};
 constexpr TextColor TextWhite = {232, 226, 214};
 constexpr TextColor ButtonTextColor = {232, 226, 214};
-
-// The color with its alpha multiplied by the opacity.
-unsigned int Fade(unsigned int color, float opacity)
-{
-    const auto alpha = static_cast<unsigned int>(((color >> AlphaShift) & ChannelMask) * opacity);
-    return (color & ~(ChannelMask << AlphaShift)) | (alpha << AlphaShift);
-}
-
-// Mixes two colors: 0 is the first one, 1 the second one.
-unsigned int Blend(unsigned int from, unsigned int to, float ratio)
-{
-    unsigned int result = 0;
-    for (int channel = 0; channel < ChannelCount; ++channel)
-    {
-        const int shift = channel * ChannelBits;
-        const float start = static_cast<float>((from >> shift) & ChannelMask);
-        const float end = static_cast<float>((to >> shift) & ChannelMask);
-        result |= static_cast<unsigned int>(start + (end - start) * ratio) << shift;
-    }
-
-    return result;
-}
 
 // Goes from 0 to 1 and back once per period, smoothly.
 float Pulse(float seconds, float period)
@@ -170,17 +145,6 @@ void DrawDeclineIcon(float centerX, float centerY, unsigned int color)
     RenderColorLineARGB(left, top, left + ChevronSize, top + ChevronSize, IconLineThickness, color);
 }
 
-// Cuts the lines which don't fit, and marks that the last one was cut.
-void LimitLines(std::vector<std::wstring>& lines, size_t maximum)
-{
-    if (lines.size() <= maximum)
-    {
-        return;
-    }
-
-    lines.resize(maximum);
-    lines.back() += Ellipsis;
-}
 } // namespace
 
 CNpcQuestDialogWindow::CNpcQuestDialogWindow()
@@ -272,7 +236,7 @@ bool CNpcQuestDialogWindow::UpdateMouseEvent()
 
     if (IsMouseOverButton(eBUTTON::Accept))
     {
-        Answer(true);
+        AcceptOrContinue();
     }
     else if (IsMouseOverButton(eBUTTON::Decline) || IsMouseOverClose())
     {
@@ -280,6 +244,29 @@ bool CNpcQuestDialogWindow::UpdateMouseEvent()
     }
 
     return false;
+}
+
+void CNpcQuestDialogWindow::AcceptOrContinue()
+{
+    if (IsLastPage())
+    {
+        Answer(true);
+        return;
+    }
+
+    ++m_page;
+    PlayBuffer(SOUND_CLICK01);
+}
+
+int CNpcQuestDialogWindow::GetPageCount() const
+{
+    const int lines = static_cast<int>(m_lines.size());
+    return (std::max)(1, (lines + MAXIMUM_LINES - 1) / MAXIMUM_LINES);
+}
+
+bool CNpcQuestDialogWindow::IsLastPage() const
+{
+    return m_page + 1 >= GetPageCount();
 }
 
 bool CNpcQuestDialogWindow::UpdateKeyEvent()
@@ -319,17 +306,31 @@ void CNpcQuestDialogWindow::Layout(const NpcQuestDialog& dialog)
 
     g_pRenderText->SetFont(g_hFont);
     m_lines = WrapTextToWidth(dialog.Text, TEXT_WIDTH, MeasureInReferenceUnits);
-    LimitLines(m_lines, MAXIMUM_LINES);
+    m_page = 0;
 
-    const int textBottom = TEXT_TOP + static_cast<int>(m_lines.size()) * LINE_HEIGHT;
+    // Every page has the room of the fullest one, so that the panel keeps its size while turning them.
+    const int linesPerPage = (std::min)(static_cast<int>(m_lines.size()), static_cast<int>(MAXIMUM_LINES));
+    const int textBottom = TEXT_TOP + linesPerPage * LINE_HEIGHT;
     m_separatorTop = textBottom + SEPARATOR_GAP;
     m_buttonsTop = m_separatorTop + SEPARATOR_GAP;
     const int buttonsBottom = m_buttonsTop + 2 * BUTTON_HEIGHT + BUTTON_GAP;
     m_height = (std::max)(static_cast<int>(MINIMUM_HEIGHT), buttonsBottom + PADDING);
 
     LoadPortrait(dialog.NpcNumber);
-    m_portraitEffect = UI::Quests::NpcPortraitEffects::ForNpc(dialog.NpcNumber);
+    LoadPortraitParticles(dialog.NpcNumber);
     m_openedAt = std::chrono::steady_clock::now();
+}
+
+void CNpcQuestDialogWindow::LoadPortraitParticles(uint16_t npcNumber)
+{
+    const auto* style = UI::Quests::NpcPortraitEffects::ForNpc(npcNumber);
+    if (style == nullptr)
+    {
+        m_portraitParticles.reset();
+        return;
+    }
+
+    m_portraitParticles.emplace(*style);
 }
 
 void CNpcQuestDialogWindow::UpdateAnimation()
@@ -411,9 +412,9 @@ void CNpcQuestDialogWindow::RenderPortrait(int left, int top)
 
 void CNpcQuestDialogWindow::RenderPortraitEffect(float x, float y)
 {
-    if (m_portraitEffect == Effect::GoldenMotes)
+    if (m_portraitParticles)
     {
-        m_goldenMotes.Render(x, y, PORTRAIT_SIZE, m_secondsOpen, m_opacity);
+        m_portraitParticles->Render(x, y, PORTRAIT_SIZE, m_secondsOpen, m_opacity);
     }
 }
 
@@ -425,9 +426,11 @@ void CNpcQuestDialogWindow::RenderTexts(int left, int top)
 
     const int textLeft = left + TEXT_LEFT;
     RenderTextAt(textLeft, top + QUEST_NAME_TOP, m_questName, TEXT_WIDTH, QuestNameColor, true, m_opacity);
-    for (size_t line = 0; line < m_lines.size(); ++line)
+    const size_t first = static_cast<size_t>(m_page) * MAXIMUM_LINES;
+    const size_t end = (std::min)(first + MAXIMUM_LINES, m_lines.size());
+    for (size_t line = first; line < end; ++line)
     {
-        const int y = top + TEXT_TOP + static_cast<int>(line) * LINE_HEIGHT;
+        const int y = top + TEXT_TOP + static_cast<int>(line - first) * LINE_HEIGHT;
         RenderTextAt(textLeft, y, m_lines[line], TEXT_WIDTH, TextWhite, false, m_opacity);
     }
 }
@@ -467,9 +470,19 @@ void CNpcQuestDialogWindow::RenderButton(int left, eBUTTON button)
         DrawDeclineIcon(iconX, iconY, Fade(DeclineIconColor, m_opacity));
     }
 
-    const std::wstring text = isAccept ? I18N::Game::NpcQuestDialogAccept : I18N::Game::NpcQuestDialogDecline;
+    const std::wstring text = GetButtonText(button);
     RenderTextAt(x + BUTTON_ICON_WIDTH, y + ButtonTextOffsetY, text, BUTTON_WIDTH - BUTTON_ICON_WIDTH,
                  ButtonTextColor, false, m_opacity);
+}
+
+std::wstring CNpcQuestDialogWindow::GetButtonText(eBUTTON button) const
+{
+    if (button == eBUTTON::Decline)
+    {
+        return I18N::Game::NpcQuestDialogDecline;
+    }
+
+    return IsLastPage() ? I18N::Game::NpcQuestDialogAccept : I18N::Game::NpcQuestDialogContinue;
 }
 
 unsigned int CNpcQuestDialogWindow::GetButtonBorder(eBUTTON button, bool isHovered) const

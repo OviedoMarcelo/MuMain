@@ -13285,6 +13285,9 @@
   <data name="NpcQuestDialogAccept" xml:space="preserve">
     <value>I accept the quest.</value>
   </data>
+  <data name="NpcQuestDialogContinue" xml:space="preserve">
+    <value>Continue reading...</value>
+  </data>
   <data name="NpcQuestDialogDecline" xml:space="preserve">
     <value>Not now, thanks.</value>
   </data>
