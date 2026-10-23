@@ -94,6 +94,14 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME test_npc_quest_dialog_state
+    SOURCES
+        test_npc_quest_dialog_state.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/GameLogic/Quests/NpcQuestDialogState.cpp
+        ${CMAKE_SOURCE_DIR}/src/source/Network/PacketFields.cpp
+)
+
+mu_add_test(
     NAME test_merchant_price_catalog
     SOURCES
         test_merchant_price_catalog.cpp

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "UI/NewUI/NewUIManager.h"
 #include "UI/NewUI/NewUI3DRenderMng.h"
 #include "UI/NewUI/HUD/NewUIHotKey.h"
@@ -49,6 +51,7 @@
 #include "UI/NewUI/Dialogs/WeeklyQuestWindow.h"
 #include "UI/NewUI/Dialogs/NewUIEventScheduleWindow.h"
 #include "UI/NewUI/Quests/NewUIQuestTracker.h"
+#include "UI/NewUI/Quests/NpcQuestDialogWindow.h"
 #include "UI/NewUI/Inventory/NewUIItemExplanationWindow.h"
 #include "UI/NewUI/Inventory/NewUISetItemExplanation.h"
 #include "UI/NewUI/HUD/NewUIQuickCommandWindow.h"
@@ -199,6 +202,7 @@ namespace SEASON3B
         CCosmeticsWindow* m_pCosmeticsWindow;
         CNewUIEventScheduleWindow* m_pEventScheduleWindow;
         CNewUIQuestTracker* m_pQuestTracker;
+        std::unique_ptr<CNpcQuestDialogWindow> m_pNpcQuestDialogWindow;
         CNewUIItemExplanationWindow* m_pNewItemExplanationWindow;
         CNewUISetItemExplanation* m_pNewSetItemExplanation;
         CNewUIQuickCommandWindow* m_pNewQuickCommandWindow;
@@ -243,6 +247,7 @@ namespace SEASON3B
         bool CreateCosmeticsWindow();
         bool CreateEventScheduleWindow();
         bool CreateQuestTracker();
+        bool CreateNpcQuestDialogWindow();
 
     public:
         CNewUIChatInputBox* GetUI_NewChatInputBox() const;

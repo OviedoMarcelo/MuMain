@@ -56,6 +56,7 @@
 #include "GameLogic/Items/MerchantPriceCatalog.h"
 #include "GameLogic/Social/PlayerTitleCatalog.h"
 #include "GameLogic/Quests/SeasonPassCatalog.h"
+#include "GameLogic/Quests/NpcQuestDialogState.h"
 #include "GameLogic/Quests/WeeklyQuestCatalog.h"
 #include "GameLogic/Skills/ServerRequirementCatalog.h"
 #include "UI/Legacy/UIMng.h"
@@ -1288,6 +1289,9 @@ BOOL ReceiveJoinMapServer(std::span<const BYTE> ReceiveBuffer)
     // The server sends the weekly quests of the new character with its answer to the request below.
     GameLogic::Quests::WeeklyQuests().Reset();
     GameLogic::Events::EventSchedule().Reset();
+    GameLogic::Quests::NpcQuestDialogs().Reset();
+    // Before the request below, so that the server knows it before the player can talk to an NPC.
+    GameLogic::Quests::NpcQuestDialogState::AnnounceSupport();
     GameLogic::Commands::Catalog().RequestOnce();
 
     g_ConsoleDebug->Write(MCD_RECEIVE, L"0x03 [ReceiveJoinMapServer]");
@@ -14184,6 +14188,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
         else if (subcode == 0x10)
         {
             GameLogic::Items::MerchantPrices().AddFromPacket(ReceiveBuffer, Size);
+        }
+        else if (subcode == 0x11)
+        {
+            GameLogic::Quests::NpcQuestDialogs().AddFromPacket(ReceiveBuffer, Size);
         }
         else if (subcode == 0x04)
         {
