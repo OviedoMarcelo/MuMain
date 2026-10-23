@@ -675,4 +675,12 @@
 // ·°Å°¾ÆÀÌÅÛ NPC Ãß°¡ 2010-09-01 ÀÌ±â¼ö																													
 579	1	"David"
 585	1	"Scarecrow"		
+700	1	"Colosso de Gelo"
+701	1	"O Vigia"
+702	1	"Cristal de Gelo"
+703	1	"Cristal de Fogo"
+704	1	"Pilar Rúnico de Gelo"
+705	1	"Pilar Rúnico de Fogo"
+706	1	"Obelisco de Gelo"
+707	1	"Obelisco de Fogo"
 end		

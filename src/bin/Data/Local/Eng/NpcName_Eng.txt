@@ -675,4 +675,12 @@
 // ·°Å°¾ÆÀÌÅÛ NPC Ãß°¡ 2010-09-01 ÀÌ±â¼ö																													
 579	1	"David"	
 585	1	"Scarecrow"	
+700	1	"Ice Colossus"
+701	1	"The Watcher"
+702	1	"Ice Crystal"
+703	1	"Fire Crystal"
+704	1	"Ice Rune Pillar"
+705	1	"Fire Rune Pillar"
+706	1	"Ice Obelisk"
+707	1	"Fire Obelisk"
 end			

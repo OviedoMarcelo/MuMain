@@ -49,6 +49,8 @@
 #include "Camera/ICamera.h"
 #include "Engine/Object/CullingConstants.h"
 #include "GameLogic/Items/ItemCategories.h"
+#include "GameLogic/Monsters/CustomMonsters.h"
+#include "Render/Monsters/EncounterObjectParticles.h"
 
 // DevEditor function declarations
 #ifdef _EDITOR
@@ -6207,6 +6209,7 @@ void MoveCharacterVisual(CHARACTER* c, OBJECT* o)
             break;
         default:
         {
+            if (Render::Monsters::EncounterObjectParticles::Create(o, b)) break;
             if (MoveHellasMonsterVisual(o, b)) break;
             if (battleCastle::MoveBattleCastleMonsterVisual(o, b)) break;
             if (M31HuntingGround::MoveHuntingGroundMonsterVisual(o, b)) break;
@@ -13284,6 +13287,13 @@ CHARACTER* CreateMonster(EMonsterType Type, int PositionX, int PositionY, int Ke
     }
 
     c = TheMapProcess().CreateMonster(Type, PositionX, PositionY, Key);
+    if (c != NULL)
+    {
+        Setting_Monster(c, Type, PositionX, PositionY);
+        return c;
+    }
+
+    c = GameLogic::Monsters::Custom::Create(Type, PositionX, PositionY, Key);
     if (c != NULL)
     {
         Setting_Monster(c, Type, PositionX, PositionY);
