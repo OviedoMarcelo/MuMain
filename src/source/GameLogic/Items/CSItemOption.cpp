@@ -349,34 +349,40 @@ void CSItemOption::calcSetOptionList(const SET_SEARCH_RESULT* optionList)
     for (int i = 0; i < m_SetSearchResultCount; ++i)
     {
         auto& set = m_SetSearchResult[i];
-
-        const ITEM_SET_OPTION& setOptions = m_ItemSetOption[set.SetNumber];
-        bool isThisSetComplete = false;
         if (set.CompleteSetItemCount <= set.ItemCount)
         {
             Hero->ExtendState = 1;
-            isThisSetComplete = true;
         }
 
-        const auto requireClass = isClassRequirementFulfilled(setOptions, firstClass, secondClass);
-        const auto standardOptionCount = std::min<int>(set.CompleteSetItemCount - 1, MAX_ITEM_SET_STANDARD_OPTION_COUNT);
-        for (int o = 0; o < standardOptionCount; ++o)
-        {
-            for (int n = 0; n < MAX_ITEM_SET_STANDARD_OPTION_PER_ITEM_COUNT; ++n)
-            {
-                TryAddSetOption(setOptions.byStandardOption[o][n], setOptions.byStandardOptionValue[o][n], o, set, setOptions, isThisSetComplete, false, false, requireClass, firstClass, secondClass);
-            }
-        }
+        buildSetOptionList(set, firstClass, secondClass);
+    }
+}
 
-        for (int o = 0; o < MAX_ITEM_SET_EXT_OPTION_COUNT; ++o)
-        {
-            TryAddSetOption(setOptions.byExtOption[o], setOptions.byExtOptionValue[o], 0, set, setOptions, isThisSetComplete, false, true, requireClass, firstClass, secondClass);
-        }
+// Fills the option list of one set, marking as active the options which the
+// number of equipped pieces (set.ItemCount) unlocks.
+void CSItemOption::buildSetOptionList(SET_SEARCH_RESULT_OPT& set, const int firstClass, const int secondClass) const
+{
+    const ITEM_SET_OPTION& setOptions = m_ItemSetOption[set.SetNumber];
+    const bool isThisSetComplete = set.CompleteSetItemCount <= set.ItemCount;
 
-        for (int o = 0; o < MAX_ITEM_SET_FULL_OPTION_COUNT; ++o)
+    const auto requireClass = isClassRequirementFulfilled(setOptions, firstClass, secondClass);
+    const auto standardOptionCount = std::min<int>(set.CompleteSetItemCount - 1, MAX_ITEM_SET_STANDARD_OPTION_COUNT);
+    for (int o = 0; o < standardOptionCount; ++o)
+    {
+        for (int n = 0; n < MAX_ITEM_SET_STANDARD_OPTION_PER_ITEM_COUNT; ++n)
         {
-            TryAddSetOption(setOptions.byFullOption[o], setOptions.byFullOptionValue[o], 255, set, setOptions, isThisSetComplete, true, false, requireClass, firstClass, secondClass);
+            TryAddSetOption(setOptions.byStandardOption[o][n], setOptions.byStandardOptionValue[o][n], o, set, setOptions, isThisSetComplete, false, false, requireClass, firstClass, secondClass);
         }
+    }
+
+    for (int o = 0; o < MAX_ITEM_SET_EXT_OPTION_COUNT; ++o)
+    {
+        TryAddSetOption(setOptions.byExtOption[o], setOptions.byExtOptionValue[o], 0, set, setOptions, isThisSetComplete, false, true, requireClass, firstClass, secondClass);
+    }
+
+    for (int o = 0; o < MAX_ITEM_SET_FULL_OPTION_COUNT; ++o)
+    {
+        TryAddSetOption(setOptions.byFullOption[o], setOptions.byFullOptionValue[o], 255, set, setOptions, isThisSetComplete, true, false, requireClass, firstClass, secondClass);
     }
 }
 
@@ -1085,15 +1091,30 @@ int CSItemOption::RenderSetOptionListInItem(const ITEM* ip, int TextNum, bool bI
     mu_swprintf(TextList[TNum], L"\n"); TNum++;
 
 
+    const SET_SEARCH_RESULT_OPT* equippedSet = nullptr;
     for (int i = 0; i < m_SetSearchResultCount; i++)
     {
-        const auto& set = m_SetSearchResult[i];
-        if (wcscmp(set.SetName, setOption.strSetName) == 0)
+        if (wcscmp(m_SetSearchResult[i].SetName, setOption.strSetName) == 0)
         {
-            // Set Found.
-            TNum = RenderSetOptionList(set, TNum, bIsEquippedItem, true);
+            equippedSet = &m_SetSearchResult[i];
             break;
         }
+    }
+
+    if (equippedSet != nullptr)
+    {
+        TNum = RenderSetOptionList(*equippedSet, TNum, bIsEquippedItem, true);
+    }
+    else
+    {
+        // Less than two pieces of this set are equipped, so it isn't in the search
+        // result. Build its list without equipped pieces: every option shows as inactive.
+        SET_SEARCH_RESULT_OPT set{};
+        set.SetNumber = m_bySelectedItemOption;
+        set.CompleteSetItemCount = setOption.bySetItemCount;
+        wcscpy(set.SetName, setOption.strSetName);
+        buildSetOptionList(set, gCharacterManager.GetBaseClass(Hero->Class), gCharacterManager.IsSecondClass(Hero->Class));
+        TNum = RenderSetOptionList(set, TNum, bIsEquippedItem, true);
     }
 
     mu_swprintf(TextList[TNum], L"\n"); TNum++;
