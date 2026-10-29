@@ -683,4 +683,5 @@
 705	1	"Pilar Rúnico de Fogo"
 706	1	"Obelisco de Gelo"
 707	1	"Obelisco de Fogo"
+708	1	"Guardião do Baú"
 end		

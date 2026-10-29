@@ -683,4 +683,5 @@
 705	1	"Fire Rune Pillar"
 706	1	"Ice Obelisk"
 707	1	"Fire Obelisk"
+708	1	"Vault Guardian"
 end			
