@@ -5229,8 +5229,10 @@ enum EMonsterType : int
     MONSTER_FIRE_RUNE_PILLAR = 705,
     MONSTER_ICE_OBELISK = 706,
     MONSTER_FIRE_OBELISK = 707,
+    // An NPC which extends the vault, next to Baz The Vault Keeper of Lorencia.
+    MONSTER_VAULT_GUARDIAN = 708,
 
-    MONSTER_END = MONSTER_FIRE_OBELISK
+    MONSTER_END = MONSTER_VAULT_GUARDIAN
 };
 
 enum

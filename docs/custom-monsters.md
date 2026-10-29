@@ -11,6 +11,15 @@ to 668), so they never take the place of one.
 | 702, 703 | Cristal de Hielo, Cristal de Fuego | `Monster220.bmd`, `Monster221.bmd` | `CyberEncounterStone*.ozt`, `CyberEncounterGlow*.ozt` |
 | 704, 705 | Pilar Rúnico de Hielo, de Fuego | `Monster222.bmd`, `Monster223.bmd` | the same |
 | 706, 707 | Obelisco de Hielo, de Fuego | `Monster224.bmd`, `Monster225.bmd` | the same |
+| 708 | Guardián del Baúl | the clerk of the castle (`MODEL_NPC_CLERK`) | the same |
+
+The Guardián del Baúl is an NPC, not a monster: it stands next to Baz The Vault
+Keeper in Lorencia and extends the vault of the account in exchange for packs
+of jewels, after the player accepts it in the dialog of the NPCs (the server's
+Vault Extension NPC plugin). It uses the model of an original NPC, so it's
+created in `CreateMonster` of `ZzzCharacter.cpp` like them, not by the table of
+`CustomMonsters.cpp`, and it's in the list of `IsForcedNpcMonsterType`, so that
+clicking it talks to it.
 
 The crystals, pillars and obelisks are objects for the phases of the boss
 encounters (like the pillars and shields which the players have to break). They
