@@ -1292,6 +1292,7 @@ static const wchar_t* GetMonsterModelName(EMonsterModelType Type)
         L"MONSTER_MODEL_FIRE_RUNE_PILLAR",
         L"MONSTER_MODEL_ICE_OBELISK",
         L"MONSTER_MODEL_FIRE_OBELISK",
+        L"MONSTER_MODEL_ICARUS_GUARDIAN",
     };
     static_assert(sizeof(s_names) / sizeof(s_names[0]) == MONSTER_MODEL_COUNT,
         "GetMonsterModelName table is out of sync with EMonsterModelType");

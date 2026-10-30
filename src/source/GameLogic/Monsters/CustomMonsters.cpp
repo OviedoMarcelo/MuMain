@@ -28,7 +28,7 @@ struct CustomMonster
     int GlowMesh;
 };
 
-constexpr std::array<CustomMonster, 8> Monsters = {{
+constexpr std::array<CustomMonster, 9> Monsters = {{
     // A giant of stone and ice.
     {MONSTER_ICE_COLOSSUS, MONSTER_MODEL_ICE_COLOSSUS, 1.0f, NoGlowMesh},
     // A demon with a great sword.
@@ -40,6 +40,8 @@ constexpr std::array<CustomMonster, 8> Monsters = {{
     {MONSTER_FIRE_RUNE_PILLAR, MONSTER_MODEL_FIRE_RUNE_PILLAR, EncounterObjectScale, EncounterObjectGlowMesh},
     {MONSTER_ICE_OBELISK, MONSTER_MODEL_ICE_OBELISK, EncounterObjectScale, EncounterObjectGlowMesh},
     {MONSTER_FIRE_OBELISK, MONSTER_MODEL_FIRE_OBELISK, EncounterObjectScale, EncounterObjectGlowMesh},
+    // A winged ice queen, the strongest monster of Icarus.
+    {MONSTER_ICARUS_GUARDIAN, MONSTER_MODEL_ICARUS_GUARDIAN, 1.0f, NoGlowMesh},
 }};
 
 const CustomMonster* Find(EMonsterType type)

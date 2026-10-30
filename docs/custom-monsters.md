@@ -12,6 +12,7 @@ to 668), so they never take the place of one.
 | 704, 705 | Pilar Rúnico de Hielo, de Fuego | `Monster222.bmd`, `Monster223.bmd` | the same |
 | 706, 707 | Obelisco de Hielo, de Fuego | `Monster224.bmd`, `Monster225.bmd` | the same |
 | 708 | Guardián del Baúl | the clerk of the castle (`MODEL_NPC_CLERK`) | the same |
+| 709 | Guardiana de Icarus | `Data/Monster/Monster226.bmd` | `Data/Monster/IceQueenM01.ozj`, `IceQueenM02.ozt` |
 
 The Guardián del Baúl is an NPC, not a monster: it stands next to Baz The Vault
 Keeper in Lorencia and extends the vault of the account in exchange for packs
@@ -29,6 +30,9 @@ little flames rise from them (orange from the fire ones, blue with sparkles
 from the ice ones, see `Render/Monsters/EncounterObjectParticles.cpp`). They are
 made by `tools/models/make_encounter_objects.js` (`node` runs it), which
 writes them again, e.g. after changing their shape or colors.
+
+The Guardiana de Icarus is a regular monster: unlike the bosses of the encounters,
+the server gives it spawns and drops of its own.
 
 The server defines what a monster does: its stats, drops and where it spawns
 (these have none: they are meant to be the bosses of encounters of the boss encounters
