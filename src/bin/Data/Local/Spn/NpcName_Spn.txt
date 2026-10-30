@@ -684,4 +684,5 @@
 706	1	"Obelisco de Hielo"
 707	1	"Obelisco de Fuego"
 708	1	"Guardián del Baúl"
+709	1	"Guardiana de Icarus"
 end		

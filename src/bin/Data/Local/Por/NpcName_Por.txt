@@ -684,4 +684,5 @@
 706	1	"Obelisco de Gelo"
 707	1	"Obelisco de Fogo"
 708	1	"Guardião do Baú"
+709	1	"Guardiã de Ícaro"
 end		

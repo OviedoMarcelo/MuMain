@@ -684,4 +684,5 @@
 706	1	"Ice Obelisk"
 707	1	"Fire Obelisk"
 708	1	"Vault Guardian"
+709	1	"Guardian of Icarus"
 end			
