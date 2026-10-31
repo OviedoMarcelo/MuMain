@@ -273,6 +273,42 @@ TEST_CASE("inventory drag keeps border drops in their original slots [ui][invent
     CHECK((rightTopLeft.y - gridTop) / SEASON3B::INVENTORY_SQUARE_HEIGHT == 0);
 }
 
+TEST_CASE("inventory drag targets the square under the pointer for single-square items [ui][inventory]")
+{
+    // A jewel picked without an anchor is centered on the pointer, so it must land on the square
+    // under the pointer wherever inside that square the click happens.
+    constexpr int gridLeft = 100;
+    constexpr int gridTop = 200;
+    const POINT offset = UI::Items::Drag::PickupOffset(0, 0, SEASON3B::INVENTORY_SQUARE_WIDTH,
+                                                       SEASON3B::INVENTORY_SQUARE_HEIGHT, 0, 0, false);
+
+    for (const POINT pointer : {POINT{gridLeft + 20, gridTop + 20}, POINT{gridLeft + 39, gridTop + 39},
+                                POINT{gridLeft + 20, gridTop + 39}, POINT{gridLeft + 39, gridTop + 20}})
+    {
+        const POINT target = UI::Items::Drag::TargetSquarePoint(pointer.x, pointer.y, offset);
+        CHECK((target.x - gridLeft) / SEASON3B::INVENTORY_SQUARE_WIDTH == 1);
+        CHECK((target.y - gridTop) / SEASON3B::INVENTORY_SQUARE_HEIGHT == 1);
+    }
+
+    // The first square of the grid stays reachable from its top-left corner.
+    const POINT corner = UI::Items::Drag::TargetSquarePoint(gridLeft, gridTop, offset);
+    CHECK(corner.x >= gridLeft);
+    CHECK(corner.y >= gridTop);
+}
+
+TEST_CASE("inventory drag targets the slot of an anchored item [ui][inventory]")
+{
+    constexpr int gridLeft = 100;
+    constexpr int gridTop = 200;
+    constexpr int itemLeft = gridLeft + 3 * SEASON3B::INVENTORY_SQUARE_WIDTH;
+    constexpr int itemTop = gridTop + 2 * SEASON3B::INVENTORY_SQUARE_HEIGHT;
+    const POINT offset = UI::Items::Drag::PickupOffset(itemLeft, itemTop, 40, 60, itemLeft + 39, itemTop + 59, true);
+
+    const POINT target = UI::Items::Drag::TargetSquarePoint(itemLeft + 39, itemTop + 59, offset);
+    CHECK((target.x - gridLeft) / SEASON3B::INVENTORY_SQUARE_WIDTH == 3);
+    CHECK((target.y - gridTop) / SEASON3B::INVENTORY_SQUARE_HEIGHT == 2);
+}
+
 TEST_CASE("inventory drag anchor survives dock scaling [ui][inventory]")
 {
     const auto dock = UI::Scaling::DockRightTransform(1920, 1080);
