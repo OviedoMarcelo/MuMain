@@ -201,8 +201,7 @@ bool SEASON3B::CNewUICharacterInfoWindow::BtnProcess()
 
     if (m_BtnMasterLevel.UpdateMouseEvent() == true)
     {
-        if (gCharacterManager.IsMasterLevel(Hero->Class)
-            && Hero->Class != CLASS_TEMPLENIGHT)
+        if (gCharacterManager.IsMasterLevel(Hero->Class))
             g_pNewUISystem->Toggle(SEASON3B::INTERFACE_MASTER_LEVEL);
         return true;
     }
@@ -1600,7 +1599,7 @@ void SEASON3B::CNewUICharacterInfoWindow::OpenningProcess()
 {
     ResetEquipmentLevel();
 
-    if (gCharacterManager.IsMasterLevel(Hero->Class) == true && Hero->Class != CLASS_TEMPLENIGHT)
+    if (gCharacterManager.IsMasterLevel(Hero->Class) == true)
     {
         m_BtnMasterLevel.UnLock();
         m_BtnMasterLevel.ChangeImgColor(BUTTON_STATE_UP, RGBA(255, 255, 255, 255));
