@@ -18,6 +18,8 @@ namespace UI::Items::Drag
     POINT PickupOffset(int itemLeft, int itemTop, int itemWidth, int itemHeight,
                        int pointerX, int pointerY, bool preserveAnchor);
     POINT ItemTopLeft(int pointerX, int pointerY, const POINT& pickupOffset);
+    // The point that picks the target slot: the center of the first square of the dragged item.
+    POINT TargetSquarePoint(int pointerX, int pointerY, const POINT& pickupOffset);
     bool ShouldConsumePanelPress(bool hasPickedItem, bool leftButtonPressed);
 }
 

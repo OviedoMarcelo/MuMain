@@ -52,6 +52,13 @@ POINT UI::Items::Drag::ItemTopLeft(int pointerX, int pointerY, const POINT& pick
     return {pointerX - pickupOffset.x, pointerY - pickupOffset.y};
 }
 
+POINT UI::Items::Drag::TargetSquarePoint(int pointerX, int pointerY, const POINT& pickupOffset)
+{
+    const POINT itemTopLeft = ItemTopLeft(pointerX, pointerY, pickupOffset);
+    return {itemTopLeft.x + SEASON3B::INVENTORY_SQUARE_WIDTH / 2,
+            itemTopLeft.y + SEASON3B::INVENTORY_SQUARE_HEIGHT / 2};
+}
+
 bool UI::Items::Drag::ShouldConsumePanelPress(bool hasPickedItem, bool leftButtonPressed)
 {
     return hasPickedItem && leftButtonPressed;
@@ -196,9 +203,9 @@ bool SEASON3B::CNewUIPickedItem::GetTargetPos(CNewUIInventoryCtrl* pDest, int& i
 {
     if (pDest != nullptr)
     {
-        const POINT itemTopLeft = UI::Items::Drag::ItemTopLeft(MouseX, MouseY, m_PickupOffset);
+        const POINT targetPoint = UI::Items::Drag::TargetSquarePoint(MouseX, MouseY, m_PickupOffset);
 
-        return pDest->GetSquarePosAtPt(itemTopLeft.x, itemTopLeft.y, iTargetColumnX, iTargetRowY);
+        return pDest->GetSquarePosAtPt(targetPoint.x, targetPoint.y, iTargetColumnX, iTargetRowY);
     }
     return false;
 }
@@ -1110,10 +1117,10 @@ void SEASON3B::CNewUIInventoryCtrl::Render()
             {
                 ITEM* pPickItem = ms_pPickedItem->GetItem();
                 const ITEM_ATTRIBUTE* pItemAttr = &ItemAttribute[pPickItem->Type];
-                const POINT itemTopLeft = UI::Items::Drag::ItemTopLeft(
+                const POINT targetPoint = UI::Items::Drag::TargetSquarePoint(
                     MouseX, MouseY, ms_pPickedItem->GetPickupOffset());
-                const int iPickedItemX = itemTopLeft.x;
-                const int iPickedItemY = itemTopLeft.y;
+                const int iPickedItemX = targetPoint.x;
+                const int iPickedItemY = targetPoint.y;
 
                 int iColumnX = 0, iRowY = 0;
                 int nItemColumn = pItemAttr->Width, nItemRow = pItemAttr->Height;
