@@ -62,8 +62,13 @@ namespace MUHelper
 		int GetNearestTarget();
 		int GetFarthestAttackingTarget();
 		void CleanupTargets();
+		void RefreshCurrentTarget(float fReach);
+		bool IsTargetHuntable(int iTargetId);
+		bool IsTargetInReach(int iTargetId, float fReach);
+		bool CanSupportFromHere(CHARACTER* pChar, ActionSkillType iSkill);
 		int ComputeDistanceByRange(int iRange);
 		int ComputeDistanceFromTarget(CHARACTER* pTarget);
+		int ComputeDistanceFromHuntingCenter(CHARACTER* pTarget);
 		int ComputeDistanceBetween(POINT posA, POINT posB);
 		int SimulateMove(POINT posMove);
 		int ObtainItem();
@@ -96,6 +101,7 @@ namespace MUHelper
 		int m_iSecondsAway;
 		bool m_bTimerActivatedBuffOngoing;
 		bool m_bPetActivated;
+		bool m_bTargetInReach;
 		int m_iTotalCost;
 		int m_iManaPotionCooldown = 0;
 	};
