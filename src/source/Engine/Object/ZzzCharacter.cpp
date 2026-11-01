@@ -13086,6 +13086,7 @@ namespace
         case 579:
         case static_cast<int>(MONSTER_WANDERING_MERCHANT_ZYRO):
         case static_cast<int>(MONSTER_VAULT_GUARDIAN):
+        case static_cast<int>(MONSTER_KUNDUN_COLLECTOR):
             return true;
         default:
             return false;
@@ -13313,8 +13314,9 @@ CHARACTER* CreateMonster(EMonsterType Type, int PositionX, int PositionY, int Ke
         c->Weapon[1].Type = -1;
         wcscpy(c->ID, L"Clerk");
         break;
+    case MONSTER_KUNDUN_COLLECTOR:
     case MONSTER_VAULT_GUARDIAN:
-        // The Guardián del Baúl of MU Cyber looks like a clerk of the castle, so that it doesn't look like Baz next to it.
+        // The NPCs of MU Cyber look like a clerk of the castle, so that the Guardián del Baúl doesn't look like Baz next to it.
         OpenNpc(MODEL_NPC_CLERK);
         c = CreateCharacter(Key, MODEL_NPC_CLERK, PositionX, PositionY);
         c->NotRotateOnMagicHit = true;

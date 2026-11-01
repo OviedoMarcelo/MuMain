@@ -6654,6 +6654,12 @@ BOOL ReceiveTalk(const BYTE* ReceiveBuffer, BOOL bEncrypted)
         SEASON3B::CreateMessageBox(MSGBOX_LAYOUT_CLASS(SEASON3B::CLuckyTradeMenuMsgBoxLayout));
     }
     break;
+    case 0x27:
+    {
+        g_MixRecipeMgr.SetMixType(SEASON3A::MIXTYPE_KUNDUN_EXCHANGE);
+        g_pNewUISystem->Show(SEASON3B::INTERFACE_MIXINVENTORY);
+    }
+    break;
     default:
     {
         // Data->Value
@@ -6795,6 +6801,7 @@ MixResultText GetMixResultText(int mixType, bool succeeded)
     case SEASON3A::MIXTYPE_GOBLIN_ADD380:
     case SEASON3A::MIXTYPE_EXTRACT_SEED:
     case SEASON3A::MIXTYPE_SEED_SPHERE:
+    case SEASON3A::MIXTYPE_KUNDUN_EXCHANGE:
         return {succeeded ? I18N::Game::ChaosCombinationHasSucceeded : I18N::Game::ChaosCombinationHasFailed, nullptr};
     case SEASON3A::MIXTYPE_OSBOURNE:
         return {succeeded ? I18N::Game::SWasSuccessful : I18N::Game::SHasFailed, I18N::Game::OperationRefining};

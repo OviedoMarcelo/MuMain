@@ -1898,7 +1898,11 @@ bool  SEASON3B::CMixCheckMsgBoxLayout::SetLayout()
         return false;
 
     wchar_t strText[256];
-    if (g_MixRecipeMgr.GetCurRecipe()->m_iMixName[1] == 0)
+    if (g_MixRecipeMgr.IsKundunExchange())
+    {
+        mu_swprintf(strText, L"%ls", I18N::Game::KundunExchangeTitle);
+    }
+    else if (g_MixRecipeMgr.GetCurRecipe()->m_iMixName[1] == 0)
     {
         mu_swprintf(strText, L"%ls", I18N::Game::Lookup(g_MixRecipeMgr.GetCurRecipe()->m_iMixName[0]));
     }
