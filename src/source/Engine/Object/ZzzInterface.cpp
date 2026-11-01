@@ -59,6 +59,7 @@
 #include "GameLogic/Social/MonkSystem.h"
 #include "Character/CharacterManager.h"
 #include "MUHelper/MuHelper.h"
+#include "GameLogic/Automation/Attack.h"
 
 
 #include "Camera/CameraProjection.h"
@@ -2539,6 +2540,15 @@ void SetActionClass(CHARACTER* c, OBJECT* o, int Action, int ActionType)
 
 bool EnableFastInput = false;
 
+// The auto-attack keeps repeating the last action on the selected monster and
+// walks after it when it gets away. While the MU Helper drives the hero, walking
+// is the helper's call (hunting range, original position), so the repeat only
+// runs for a target that needs no walk.
+static bool IsAutoAttackHeldByHelper(float reach)
+{
+    return MUHelper::g_MuHelper.IsActive()
+        && !GameLogic::Automation::IsCharacterInReach(SelectedCharacter, reach);
+}
 
 bool SkillKeyPush(int Skill)
 {
@@ -2624,7 +2634,8 @@ void Attack(CHARACTER* c)
             && gMapManager.WorldActive != WD_6STADIUM
             && gMapManager.InChaosCastle() == false
             && Attacking == 2
-            && SelectedCharacter != -1)
+            && SelectedCharacter != -1
+            && !IsAutoAttackHeldByHelper(Distance))
         {
             Success = true;
         }
@@ -3042,7 +3053,8 @@ void MoveHero()
                     g_pOption->IsAutoAttack()
                     && gMapManager.WorldActive != WD_6STADIUM
                     && gMapManager.InChaosCastle() == false)
-                    && (Attacking == 1 && SelectedCharacter != -1))
+                    && (Attacking == 1 && SelectedCharacter != -1)
+                    && !IsAutoAttackHeldByHelper(GameLogic::Automation::EquippedAttackRange()))
                 {
                     Success = true;
                 }

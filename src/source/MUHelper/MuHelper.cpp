@@ -8,6 +8,7 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <climits>
 #include <cmath>
 
 #include "Engine/AI/ZzzAI.h"
@@ -28,6 +29,7 @@
 constexpr int MAX_ACTIONABLE_DISTANCE = 10;
 constexpr int DEFAULT_DURABILITY_THRESHOLD = 50;
 constexpr int MANA_POTION_COOLDOWN_LOOPS = 3;  // helper loops (~200 ms each) between two mana potions
+constexpr int ORIGINAL_POSITION_TOLERANCE = 2; // tiles from the original position which don't count as away
 
 SpinLock _targetsLock;
 SpinLock _itemsLock;
@@ -117,7 +119,8 @@ namespace MUHelper
         m_iCurrentItem = MAX_ITEMS;
         m_posOriginal = { Hero->PositionX, Hero->PositionY };
 
-        m_iHuntingDistance = ComputeDistanceByRange(m_config.iHuntingRange);
+        // The range of the UI, in tiles: the diagonal would turn a range of 6 into 9.
+        m_iHuntingDistance = std::max(1, m_config.iHuntingRange);
         m_iObtainingDistance = ComputeDistanceByRange(m_config.iObtainingRange);
 
         m_iSecondsElapsed = 0;
@@ -125,6 +128,7 @@ namespace MUHelper
 
         m_bTimerActivatedBuffOngoing = false;
         m_bPetActivated = false;
+        m_bTargetInReach = false;
 
         m_iLoopCounter = 0;
         m_iManaPotionCooldown = 0;
@@ -159,7 +163,9 @@ namespace MUHelper
         {
             m_iSecondsElapsed++;
 
-            if (ComputeDistanceBetween({ Hero->PositionX, Hero->PositionY }, m_posOriginal) > 1)
+            // Time away only counts with nothing to hit: the fight isn't left for a timer.
+            if (ComputeDistanceBetween({ Hero->PositionX, Hero->PositionY }, m_posOriginal) > ORIGINAL_POSITION_TOLERANCE
+                && !m_bTargetInReach)
             {
                 m_iSecondsAway++;
             }
@@ -224,9 +230,9 @@ namespace MUHelper
             return;
         }
 
-        int iDistance = ComputeDistanceFromTarget(pTarget);
+        const bool bInHuntingArea = ComputeDistanceFromHuntingCenter(pTarget) <= m_iHuntingDistance;
 
-        if ((iDistance <= m_iHuntingDistance)
+        if (bInHuntingArea
             || (bIsAttacking && m_config.bLongRangeCounterAttack))
         {
             _targetsLock.lock();
@@ -241,7 +247,7 @@ namespace MUHelper
             _targetsLock.unlock();
         }
 
-        if (m_config.bUseSelfDefense && IsMonster(pTarget))
+        if (m_config.bUseSelfDefense && bIsAttacking && bInHuntingArea && IsMonster(pTarget))
         {
             m_iCurrentTarget = iTargetId;
         }
@@ -290,6 +296,22 @@ namespace MUHelper
         );
     }
 
+    // With "Original Position" the hunting area stays around that position; otherwise it goes with the hero.
+    int CMuHelper::ComputeDistanceFromHuntingCenter(CHARACTER* pTarget)
+    {
+        const POINT posCenter = m_config.bReturnToOriginalPosition
+            ? m_posOriginal
+            : POINT{ Hero->PositionX, Hero->PositionY };
+
+        const POINT posCurrent = { pTarget->PositionX, pTarget->PositionY };
+        const POINT posNext    = { pTarget->TargetX,   pTarget->TargetY };
+
+        return std::min(
+            ComputeDistanceBetween(posCenter, posCurrent),
+            ComputeDistanceBetween(posCenter, posNext)
+        );
+    }
+
     int CMuHelper::ComputeDistanceBetween(POINT posA, POINT posB)
     {
         int iDx = posA.x - posB.x;
@@ -301,7 +323,7 @@ namespace MUHelper
     int CMuHelper::GetNearestTarget()
     {
         int iClosestMonsterId = -1;
-        int iMinDistance = m_iHuntingDistance;
+        int iMinDistance = INT_MAX;
         std::set<int> setTargets;
         {
             _targetsLock.lock();
@@ -314,7 +336,7 @@ namespace MUHelper
             int iIndex = FindCharacterIndex(iMonsterId);
             CHARACTER* pTarget = &CharactersClient[iIndex];
 
-            if (!IsMonster(pTarget))
+            if (!IsMonster(pTarget) || ComputeDistanceFromHuntingCenter(pTarget) > m_iHuntingDistance)
             {
                 continue;
             }
@@ -389,6 +411,89 @@ namespace MUHelper
         }
     }
 
+    bool CMuHelper::IsTargetHuntable(int iTargetId)
+    {
+        const int iIndex = FindCharacterIndex(iTargetId);
+        if (iIndex == MAX_CHARACTERS_CLIENT)
+        {
+            return false;
+        }
+
+        CHARACTER* pTarget = &CharactersClient[iIndex];
+        if (pTarget->Dead > 0 || !pTarget->Object.Live)
+        {
+            return false;
+        }
+
+        if (m_config.bLongRangeCounterAttack)
+        {
+            _targetsLock.lock();
+            const bool bIsAttacking = m_setTargetsAttacking.count(iTargetId) > 0;
+            _targetsLock.unlock();
+
+            if (bIsAttacking)
+            {
+                return true;
+            }
+        }
+
+        return ComputeDistanceFromHuntingCenter(pTarget) <= m_iHuntingDistance;
+    }
+
+    bool CMuHelper::IsTargetInReach(int iTargetId, float fReach)
+    {
+        const int iIndex = FindCharacterIndex(iTargetId);
+        return iIndex != MAX_CHARACTERS_CLIENT && GameLogic::Automation::IsCharacterInReach(iIndex, fReach);
+    }
+
+    // Picks what to hit with a skill or weapon of that reach. A target that left the hunting area is let go,
+    // and one out of reach gives way to a monster in reach: walking is only for when nothing can be hit from here.
+    void CMuHelper::RefreshCurrentTarget(float fReach)
+    {
+        CleanupTargets();
+
+        if (m_iCurrentTarget != -1 && !IsTargetHuntable(m_iCurrentTarget))
+        {
+            m_iCurrentTarget = -1;
+        }
+
+        if (m_iCurrentTarget == -1 && m_config.bLongRangeCounterAttack)
+        {
+            m_iCurrentTarget = GetFarthestAttackingTarget();
+        }
+
+        // Going after a far attacker is what the long distance counter attack asks for.
+        if (m_iCurrentTarget != -1
+            && (m_config.bLongRangeCounterAttack || IsTargetInReach(m_iCurrentTarget, fReach)))
+        {
+            return;
+        }
+
+        const int iNearestTarget = GetNearestTarget();
+        if (iNearestTarget != -1 && (m_iCurrentTarget == -1 || IsTargetInReach(iNearestTarget, fReach)))
+        {
+            m_iCurrentTarget = iNearestTarget;
+        }
+    }
+
+    // A skill aimed at someone out of its range would walk the hero there, so party support waits for them to be in it.
+    // Skills without a range are cast around the hero and walk nowhere.
+    bool CMuHelper::CanSupportFromHere(CHARACTER* pChar, ActionSkillType iSkill)
+    {
+        if (pChar == Hero)
+        {
+            return true;
+        }
+
+        const float fSkillDistance = gSkillManager.GetSkillDistance(iSkill, Hero);
+        if (fSkillDistance <= 0.f)
+        {
+            return ComputeDistanceFromTarget(pChar) <= MAX_ACTIONABLE_DISTANCE;
+        }
+
+        return IsTargetInReach(pChar->Key, fSkillDistance);
+    }
+
     int CMuHelper::ActivatePet()
     {
         if (!m_config.bUseDarkRaven)
@@ -457,7 +562,7 @@ namespace MUHelper
             int iBuffResult = 1;
 
             if (pChar != NULL
-                && ComputeDistanceFromTarget(pChar) <= MAX_ACTIONABLE_DISTANCE)
+                && CanSupportFromHere(pChar, iBuffSkill))
             {
                 if (!m_config.bBuffDurationParty
                     && m_config.iBuffCastInterval != 0
@@ -697,7 +802,7 @@ namespace MUHelper
                     iHealResult = HealSelf(iHealingSkill);
                 }
                 else if (pMember->stepHP * 10 <= m_config.iHealPartyThreshold
-                    && ComputeDistanceFromTarget(pChar) <= MAX_ACTIONABLE_DISTANCE)
+                    && CanSupportFromHere(pChar, iHealingSkill))
                 {
                     iHealResult = SimulateSkill(iHealingSkill, true, pChar->Key);
                 }
@@ -799,27 +904,27 @@ namespace MUHelper
 
     int CMuHelper::Attack()
     {
+        if (m_config.bUseCombo)
+        {
+            m_iCurrentSkill = static_cast<ActionSkillType>(m_config.aiSkill[m_iComboState]);
+        }
+        else
+        {
+            m_iCurrentSkill = SelectAttackSkill();
+        }
+
+        const float fReach = m_iCurrentSkill > AT_SKILL_UNDEFINED
+            ? gSkillManager.GetSkillDistance(m_iCurrentSkill, Hero)
+            : GameLogic::Automation::EquippedAttackRange();
+
+        RefreshCurrentTarget(fReach);
+
+        m_bTargetInReach = m_iCurrentTarget != -1 && IsTargetInReach(m_iCurrentTarget, fReach);
+
         if (m_iCurrentTarget == -1)
         {
-            if (!m_setTargets.empty())
-            {
-                CleanupTargets();
-
-                if (m_config.bLongRangeCounterAttack)
-                {
-                    m_iCurrentTarget = GetFarthestAttackingTarget();
-                }
-                
-                if (m_iCurrentTarget == -1)
-                {
-                    m_iCurrentTarget = GetNearestTarget();
-                }
-            }
-            else
-            {
-                m_iComboState = 0;
-                return 0;
-            }
+            m_iComboState = 0;
+            return 0;
         }
 
         if (m_config.bUseCombo)
@@ -827,7 +932,6 @@ namespace MUHelper
             return SimulateComboAttack();
         }
 
-        m_iCurrentSkill = SelectAttackSkill();
         if (m_iCurrentSkill > AT_SKILL_UNDEFINED)
         {
             const float fSkillDistance = gSkillManager.GetSkillDistance(m_iCurrentSkill, Hero);
@@ -839,7 +943,11 @@ namespace MUHelper
 
         if (m_config.bFallbackBasicAttack)
         {
-            if (!Hero->Movement)
+            // A skill that can't be paid for right now is no reason to walk up to the target: only hit what's at hand.
+            const bool bWalksForFallback = m_iCurrentSkill > AT_SKILL_UNDEFINED
+                && !IsTargetInReach(m_iCurrentTarget, GameLogic::Automation::EquippedAttackRange());
+
+            if (!Hero->Movement && !bWalksForFallback)
             {
                 return SimulateBasicAttack(m_iCurrentTarget);
             }
@@ -966,8 +1074,23 @@ namespace MUHelper
 
     int CMuHelper::Regroup()
     {
-        if (m_config.bReturnToOriginalPosition && m_iSecondsAway > m_config.iMaxSecondsAway)
+        if (!m_config.bReturnToOriginalPosition)
         {
+            return 1;
+        }
+
+        // Past the hunting area there's nothing left to do out there, whatever the timer says.
+        // A far attacker can take the hero there on purpose (long distance counter attack).
+        const bool bLeftHuntingArea = !m_config.bLongRangeCounterAttack
+            && ComputeDistanceBetween({ Hero->PositionX, Hero->PositionY }, m_posOriginal) > m_iHuntingDistance;
+
+        if (bLeftHuntingArea || m_iSecondsAway > m_config.iMaxSecondsAway)
+        {
+            // Otherwise the auto-attack of the engine would go on with the monster left behind.
+            Attacking = -1;
+            SelectedCharacter = -1;
+            m_bTargetInReach = false;
+
             if (!SimulateMove(m_posOriginal))
             {
                 return 0;

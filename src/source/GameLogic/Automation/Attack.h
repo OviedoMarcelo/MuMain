@@ -93,6 +93,13 @@ inline constexpr float BasicAttackRangeBow = 6.0f;
 // cadence of AttackSpeed instead of their own timer.
 [[nodiscard]] bool IsSwingInProgress();
 
+// The reach of whatever is in the character's hands right now.
+[[nodiscard]] float EquippedAttackRange();
+
+// Whether the hero stands within `reach` tiles of that client character, by the
+// measure CheckTile uses, but leaving the target globals alone.
+[[nodiscard]] bool IsCharacterInReach(int characterIndex, float reach);
+
 // Attacks the object with that server-assigned id, walking into range
 // first when needed. `huntingDistance` bounds how far the path finder may
 // search beyond the weapon's reach.

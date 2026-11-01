@@ -73,13 +73,29 @@ static void ApproachAlong(const PATH_t& path)
     SendMove(Hero, &Hero->Object);
 }
 
-// The reach of whatever is in the character's hands right now.
-static float EquippedAttackRange()
+float EquippedAttackRange()
 {
     const int rightHand = CharacterMachine->Equipment[EQUIPMENT_WEAPON_RIGHT].Type;
     const bool spear = rightHand >= ITEM_SPEAR && rightHand < ITEM_SPEAR + MAX_ITEM_INDEX;
     const bool bow = gCharacterManager.GetEquipedBowType() != BOWTYPE_NONE;
     return BasicAttackRange(spear, bow);
+}
+
+bool IsCharacterInReach(int characterIndex, float reach)
+{
+    if (characterIndex < 0 || characterIndex >= MAX_CHARACTERS_CLIENT)
+    {
+        return false;
+    }
+
+    const OBJECT& target = CharactersClient[characterIndex].Object;
+    const int tileX = (int)(target.Position[0] / TERRAIN_SCALE);
+    const int tileY = (int)(target.Position[1] / TERRAIN_SCALE);
+    const float dx = Hero->Object.Position[0] - (tileX * TERRAIN_SCALE + TERRAIN_SCALE * 0.5f);
+    const float dy = Hero->Object.Position[1] - (tileY * TERRAIN_SCALE + TERRAIN_SCALE * 0.5f);
+    const float range = TERRAIN_SCALE * reach;
+
+    return dx * dx + dy * dy <= range * range;
 }
 
 AttackResult AttackObject(int targetKey, bool allowPlayers, int huntingDistance)
