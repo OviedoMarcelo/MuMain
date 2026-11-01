@@ -13034,4 +13034,34 @@
   <data name="QuestRequirementBuff" xml:space="preserve">
     <value>Bonus: %ls</value>
   </data>
+  <data name="KundunExchangeTitle" xml:space="preserve">
+    <value>Troca: Caixa de Kundun +5</value>
+  </data>
+  <data name="KundunExchangeButton" xml:space="preserve">
+    <value>Trocar</value>
+  </data>
+  <data name="KundunExchangeReady" xml:space="preserve">
+    <value>Pronto para trocar</value>
+  </data>
+  <data name="KundunExchangeNotReady" xml:space="preserve">
+    <value>Faltam pontos ou o pacote, ou sobra um item</value>
+  </data>
+  <data name="KundunExchangePointsDD" xml:space="preserve">
+    <value>Pontos: %d / %d</value>
+  </data>
+  <data name="KundunExchangePackD" xml:space="preserve">
+    <value>Pacote de Jewel of Creation (10): %d / 1</value>
+  </data>
+  <data name="KundunExchangeHelpHigh" xml:space="preserve">
+    <value>Excelente, nível de drop 80+: 3 pontos</value>
+  </data>
+  <data name="KundunExchangeHelpMedium" xml:space="preserve">
+    <value>Excelente, nível de drop 40-79: 2 pontos</value>
+  </data>
+  <data name="KundunExchangeHelpLow" xml:space="preserve">
+    <value>Excelente, nível de drop abaixo de 40: 1 ponto</value>
+  </data>
+  <data name="KundunExchangeHelpExcluded" xml:space="preserve">
+    <value>Ancient e socket não são aceitos</value>
+  </data>
 </root>

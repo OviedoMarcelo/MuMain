@@ -159,6 +159,7 @@ bool CNewUIMixInventory::ClosingProcess()
     case SEASON3A::MIXTYPE_CHERRYBLOSSOM:
     case SEASON3A::MIXTYPE_EXTRACT_SEED:
     case SEASON3A::MIXTYPE_SEED_SPHERE:
+    case SEASON3A::MIXTYPE_KUNDUN_EXCHANGE:
         SocketClient->ToGameServer()->SendCraftingDialogCloseRequest();
         break;
     case SEASON3A::MIXTYPE_TRAINER:
@@ -404,6 +405,10 @@ void CNewUIMixInventory::RenderFrame()
         fLine_y += 5.0f;
         mu_swprintf(szText, L"%ls", I18N::Game::Destruction);
         break;
+    case SEASON3A::MIXTYPE_KUNDUN_EXCHANGE:
+        fLine_y += 5.0f;
+        mu_swprintf(szText, L"%ls", I18N::Game::KundunExchangeTitle);
+        break;
     default:
         fLine_y += 5.0f;
         mu_swprintf(szText, L"%ls", I18N::Game::Chaos);
@@ -428,6 +433,14 @@ void CNewUIMixInventory::RenderFrame()
 
     if (GetMixState() == MIX_FINISHED)
     {
+        return;
+    }
+
+    if (g_MixRecipeMgr.IsKundunExchange())
+    {
+        RenderKundunExchangeInfo(fPos_x, fPos_y);
+        m_BtnMix.ChangeToolTipText(&I18N::Game::KundunExchangeButton, true);
+        m_BtnMix.Render();
         return;
     }
 
@@ -797,6 +810,38 @@ void CNewUIMixInventory::RenderMixDescriptions(float fPos_x, float fPos_y)
     }
 }
 
+void CNewUIMixInventory::RenderKundunExchangeInfo(float fPos_x, float fPos_y)
+{
+    const bool isReady = g_MixRecipeMgr.IsReadyToMix();
+    wchar_t szText[256] = { 0, };
+
+    g_pRenderText->SetBgColor(40, 40, 40, 128);
+    if (isReady)
+        g_pRenderText->SetTextColor(255, 255, 48, 255);
+    else
+        g_pRenderText->SetTextColor(255, 48, 48, 255);
+    g_pRenderText->RenderText(fPos_x, fPos_y + 60,
+        isReady ? I18N::Game::KundunExchangeReady : I18N::Game::KundunExchangeNotReady);
+
+    g_pRenderText->SetTextColor(210, 230, 255, 255);
+    mu_swprintf(szText, I18N::Game::KundunExchangePointsDD, g_MixRecipeMgr.GetKundunExchangePoints(),
+        SEASON3A::KUNDUN_EXCHANGE_REQUIRED_POINTS);
+    g_pRenderText->RenderText(fPos_x, fPos_y + 75, szText);
+    mu_swprintf(szText, I18N::Game::KundunExchangePackD, g_MixRecipeMgr.GetKundunExchangePacks());
+    g_pRenderText->RenderText(fPos_x, fPos_y + 90, szText);
+
+    const wchar_t* help[] = {
+        I18N::Game::KundunExchangeHelpHigh,
+        I18N::Game::KundunExchangeHelpMedium,
+        I18N::Game::KundunExchangeHelpLow,
+        I18N::Game::KundunExchangeHelpExcluded,
+    };
+    g_pRenderText->SetBgColor(0, 0, 0, 0);
+    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    for (int i = 0; i < 4; ++i)
+        g_pRenderText->RenderText(fPos_x, fPos_y + 250 + i * 13, help[i], 160.0f, 0, RT3_SORT_CENTER);
+}
+
 int CNewUIMixInventory::Rtn_MixRequireZen(int _nMixZen, int _nTax)
 {
     if (_nTax)		_nMixZen += ((LONGLONG)_nMixZen * g_nChaosTaxRate) / 100;
@@ -823,6 +868,18 @@ bool CNewUIMixInventory::Mix()
         wchar_t szText[100];
         mu_swprintf(szText, I18N::Game::YouAreLackOfSItems, I18N::Game::Combining);
         g_pSystemLogBox->AddText(szText, SEASON3B::TYPE_ERROR_MESSAGE);
+        return false;
+    }
+
+    // The exchange for a Box of Kundun has no recipe, and its result stays in the mix window.
+    if (g_MixRecipeMgr.IsKundunExchange())
+    {
+        if (CNewUIInventoryCtrl::GetPickedItem() == NULL)
+        {
+            SEASON3B::CreateMessageBox(MSGBOX_LAYOUT_CLASS(SEASON3B::CMixCheckMsgBoxLayout));
+            return true;
+        }
+
         return false;
     }
 

@@ -685,4 +685,5 @@
 707	1	"Obelisco de Fogo"
 708	1	"Guardião do Baú"
 709	1	"Guardiã de Ícaro"
+710	1	"Colecionador de Excelentes"
 end		

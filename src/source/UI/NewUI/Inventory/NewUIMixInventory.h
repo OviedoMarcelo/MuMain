@@ -96,6 +96,7 @@ namespace SEASON3B
             CNewUIInventoryCtrl* dstCtrl, STORAGE_TYPE dstType, bool requireMixSource);
 
         void RenderMixDescriptions(float fPos_x, float fPos_y);
+        void RenderKundunExchangeInfo(float fPos_x, float fPos_y);
 
         void CheckMixInventory();
         bool Mix();

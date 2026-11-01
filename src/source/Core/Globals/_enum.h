@@ -5236,7 +5236,10 @@ enum EMonsterType : int
     // The strongest monster of Icarus.
     MONSTER_ICARUS_GUARDIAN = 709,
 
-    MONSTER_END = MONSTER_ICARUS_GUARDIAN
+    // An NPC which exchanges excellent items and jewels for a Box of Kundun, in the town of Elbeland.
+    MONSTER_KUNDUN_COLLECTOR = 710,
+
+    MONSTER_END = MONSTER_KUNDUN_COLLECTOR
 };
 
 enum

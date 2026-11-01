@@ -113,7 +113,10 @@ namespace SEASON3A
         MIXTYPE_SEED_SPHERE,
         MIXTYPE_ATTACH_SOCKET,
         MIXTYPE_DETACH_SOCKET,
-        MAX_MIX_TYPES
+        MAX_MIX_TYPES,
+        // The exchange of MU Cyber for a Box of Kundun: it has no recipes, because Mix.bmd has
+        // exactly MAX_MIX_TYPES lists. The server checks the items, see KundunBoxExchangeCrafting.
+        MIXTYPE_KUNDUN_EXCHANGE = MAX_MIX_TYPES
     };
 #define MAX_MIX_SOURCES 8
 #define MAX_MIX_NAMES 3
@@ -168,6 +171,10 @@ namespace SEASON3A
         MIX_RECIPE_ITEM m_MixSources[MAX_MIX_SOURCES];
         int m_iNumMixSoruces;
     } MIX_RECIPE;
+
+    // The values of the exchange for a Box of Kundun, the same ones as in KundunBoxExchangeCrafting of the server.
+    constexpr int KUNDUN_EXCHANGE_MIX_ID = 1;
+    constexpr int KUNDUN_EXCHANGE_REQUIRED_POINTS = 6;
 
     enum _MIX_SOURCE_STATUS { MIX_SOURCE_ERROR, MIX_SOURCE_NO, MIX_SOURCE_PARTIALLY, MIX_SOURCE_YES };
 
@@ -278,6 +285,11 @@ namespace SEASON3A
 
         BOOL IsMixSource(ITEM* pItem)
         {
+            if (IsKundunExchange())
+            {
+                return IsKundunExchangeSource(pItem);
+            }
+
             m_MixRecipe[GetMixInventoryType()].CalcCharmBonusRate(m_MixItemInventory.GetNumMixItems(), m_MixItemInventory.GetMixItems());
             m_MixRecipe[GetMixInventoryType()].CalcChaosCharmCount(m_MixItemInventory.GetNumMixItems(), m_MixItemInventory.GetMixItems());
             return m_MixRecipe[GetMixInventoryType()].IsMixSource(pItem);
@@ -292,6 +304,11 @@ namespace SEASON3A
         }
         BOOL IsReadyToMix()
         {
+            if (IsKundunExchange())
+            {
+                return IsKundunExchangeReady();
+            }
+
             return m_MixRecipe[GetMixInventoryType()].IsReadyToMix();
         }
         MIX_RECIPE* GetCurRecipe()
@@ -308,6 +325,11 @@ namespace SEASON3A
         }
         int GetCurMixID()
         {
+            if (IsKundunExchange())
+            {
+                return KUNDUN_EXCHANGE_MIX_ID;
+            }
+
             return m_MixRecipe[GetMixInventoryType()].GetCurMixID();
         }
         BOOL GetCurRecipeName(wchar_t* pszNameOut, int iNameLine)
@@ -342,6 +364,11 @@ namespace SEASON3A
         }
         BOOL IsMixInit() { return m_bIsMixInit; }
 
+        bool IsKundunExchange() { return m_iMixType == MIXTYPE_KUNDUN_EXCHANGE; }
+        int GetKundunExchangePoints();
+        int GetKundunExchangePacks();
+        bool IsKundunExchangeReady();
+
         void SetPlusChaosRate(BYTE btPlusChaosRate) { m_btPlusChaosRate = btPlusChaosRate; }
         BYTE GetPlusChaosRate() { return m_btPlusChaosRate; }
         int GetFirstItemSocketCount() { return m_MixRecipe[GetMixInventoryType()].GetFirstItemSocketCount(); }
@@ -364,9 +391,10 @@ namespace SEASON3A
 
     protected:
         void OpenRecipeFile(const wchar_t* szFileName);	// mix.bmd
+        BOOL IsKundunExchangeSource(ITEM* pItem);
 
     protected:
-        CMixRecipes m_MixRecipe[MAX_MIX_TYPES];
+        CMixRecipes m_MixRecipe[MAX_MIX_TYPES + 1];
         CMixItemInventory m_MixItemInventory;
         int m_iMixType;
         int m_iMixSubType;

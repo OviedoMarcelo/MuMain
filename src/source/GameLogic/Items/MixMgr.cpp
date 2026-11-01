@@ -1165,7 +1165,7 @@ void CMixRecipeMgr::OpenRecipeFile(const wchar_t* szFileName)
 
 int CMixRecipeMgr::GetMixInventoryType()
 {
-    assert(m_iMixType >= MIXTYPE_GOBLIN_NORMAL && m_iMixType < MAX_MIX_TYPES && "Undefined combination");
+    assert(m_iMixType >= MIXTYPE_GOBLIN_NORMAL && m_iMixType <= MIXTYPE_KUNDUN_EXCHANGE && "Undefined combination");
     return m_iMixType;
 }
 
@@ -1176,6 +1176,7 @@ STORAGE_TYPE CMixRecipeMgr::GetMixInventoryEquipmentIndex()
     case SEASON3A::MIXTYPE_GOBLIN_NORMAL:
     case SEASON3A::MIXTYPE_GOBLIN_CHAOSITEM:
     case SEASON3A::MIXTYPE_GOBLIN_ADD380:
+    case SEASON3A::MIXTYPE_KUNDUN_EXCHANGE:
         return STORAGE_TYPE::CHAOS_MIX;
     case SEASON3A::MIXTYPE_CASTLE_SENIOR:
         return STORAGE_TYPE::CHAOS_MIX;
@@ -1222,6 +1223,95 @@ void CMixRecipeMgr::CheckMixInventory()
 
     CheckRecipe(m_MixItemInventory.GetNumMixItems(), m_MixItemInventory.GetMixItems());
     CheckRecipeSimilarity(m_MixItemInventory.GetNumMixItems(), m_MixItemInventory.GetMixItems());
+}
+
+namespace
+{
+// An excellent piece of equipment which isn't ancient and has no sockets is worth points in the
+// exchange for a Box of Kundun. Better items are worth more, by the drop level of the item.
+int GetKundunExchangeItemPoints(const CMixItem& item)
+{
+    const DWORD excludedItems = RCP_SP_SETITEM | RCP_SP_SOCKETITEM;
+    if (!item.m_bIsEquipment || !(item.m_dwSpecialItem & RCP_SP_EXCELLENT) || (item.m_dwSpecialItem & excludedItems))
+    {
+        return 0;
+    }
+
+    const int dropLevel = ItemAttribute[item.m_sType].Level;
+    return dropLevel >= 80 ? 3 : dropLevel >= 40 ? 2 : 1;
+}
+
+bool IsPackOfTenCreation(ITEM* pItem)
+{
+    return pItem->Type == ITEM_PACKED_JEWEL_OF_CREATION && pItem->Level == 0;
+}
+} // namespace
+
+BOOL CMixRecipeMgr::IsKundunExchangeSource(ITEM* pItem)
+{
+    if (IsPackOfTenCreation(pItem))
+    {
+        return GetKundunExchangePacks() == 0;
+    }
+
+    CMixItem mixItem;
+    mixItem.SetItem(pItem, 0);
+    return GetKundunExchangeItemPoints(mixItem) > 0;
+}
+
+int CMixRecipeMgr::GetKundunExchangePoints()
+{
+    int points = 0;
+    CMixItem* pItems = m_MixItemInventory.GetMixItems();
+    for (int i = 0; i < m_MixItemInventory.GetNumMixItems(); ++i)
+    {
+        points += GetKundunExchangeItemPoints(pItems[i]) * pItems[i].m_iCount;
+    }
+
+    return points;
+}
+
+int CMixRecipeMgr::GetKundunExchangePacks()
+{
+    int packs = 0;
+    CMixItem* pItems = m_MixItemInventory.GetMixItems();
+    for (int i = 0; i < m_MixItemInventory.GetNumMixItems(); ++i)
+    {
+        if (pItems[i].m_sType == ITEM_PACKED_JEWEL_OF_CREATION)
+        {
+            packs += pItems[i].m_iCount;
+        }
+    }
+
+    return packs;
+}
+
+bool CMixRecipeMgr::IsKundunExchangeReady()
+{
+    if (GetKundunExchangePacks() != 1)
+    {
+        return false;
+    }
+
+    int points = 0;
+    int lowestPoints = 0;
+    CMixItem* pItems = m_MixItemInventory.GetMixItems();
+    for (int i = 0; i < m_MixItemInventory.GetNumMixItems(); ++i)
+    {
+        const int itemPoints = GetKundunExchangeItemPoints(pItems[i]);
+        if (itemPoints > 0)
+        {
+            points += itemPoints * pItems[i].m_iCount;
+            lowestPoints = lowestPoints == 0 ? itemPoints : (std::min)(lowestPoints, itemPoints);
+        }
+        else if (pItems[i].m_sType != ITEM_PACKED_JEWEL_OF_CREATION)
+        {
+            return false;
+        }
+    }
+
+    // The exchange takes everything, so an item which isn't needed has to be taken out first.
+    return points >= KUNDUN_EXCHANGE_REQUIRED_POINTS && points - lowestPoints < KUNDUN_EXCHANGE_REQUIRED_POINTS;
 }
 
 int CMixRecipeMgr::GetSeedSphereID(int iOrder)
