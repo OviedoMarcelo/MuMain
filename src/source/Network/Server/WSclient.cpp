@@ -1494,6 +1494,23 @@ void ReceiveMagicList(const BYTE* ReceiveBuffer)
         auto Data2 = (LPPRECEIVE_MAGIC_LIST)(ReceiveBuffer + Offset);
         CharacterAttribute->Skill[Data2->Index] = (ActionSkillType)Data2->Type;
         CharacterAttribute->SkillLevel[Data2->Index] = Data2->Level;
+
+        // An evolution comes in another place of the list and the skill it replaces is removed after it:
+        // the hotkeys and the selected skill follow it, or they'd point to the emptied place.
+        if (auto search = SKILL_REPLACEMENTS.find(static_cast<ActionSkillType>(Data2->Type)); search != SKILL_REPLACEMENTS.end())
+        {
+            for (int i = 0; i < MAX_SKILLS; ++i)
+            {
+                if (i != Data2->Index && CharacterAttribute->Skill[i] == search->second)
+                {
+                    g_pSkillList->MoveHotKeys(i, Data2->Index);
+                    if (Hero->CurrentSkill == i)
+                    {
+                        Hero->CurrentSkill = Data2->Index;
+                    }
+                }
+            }
+        }
     }
     else if (Data->ListType == 0x02)
     {
@@ -3949,6 +3966,26 @@ void ReceiveSkillStatus(const BYTE* ReceiveBuffer)
             return;
 
         UnRegisterBuff(bufftype, o);
+
+        // The cast registers the base buff here, but for an evolved skill the server only ends the evolved effect.
+        switch (bufftype)
+        {
+        case EFFECT_MAGIC_CIRCLE_IMPROVED:
+        case EFFECT_MAGIC_CIRCLE_ENHANCED:
+            UnRegisterBuff(eBuff_SwellOfMagicPower, o);
+            break;
+        case EFFECT_GREATER_LIFE_ENHANCED:
+        case EFFECT_GREATER_LIFE_MASTERED:
+            UnRegisterBuff(eBuff_Life, o);
+            break;
+        case EFFECT_GREATER_CRITICAL_DAMAGE_MASTERED:
+        case EFFECT_GREATER_CRITICAL_DAMAGE_EXTENDED:
+            UnRegisterBuff(eBuff_AddCriticalDamage, o);
+            break;
+        default:
+            break;
+        }
+
         if (bufftype == eBuff_CastleRegimentDefense || bufftype == eBuff_CastleRegimentAttack1 ||
             bufftype == eBuff_CastleRegimentAttack2 || bufftype == eBuff_CastleRegimentAttack3)
         {
@@ -4264,6 +4301,11 @@ BOOL ReceiveMagic(const BYTE* ReceiveBuffer, int Size, BOOL bEncrypted)
 
         sc->SkillSuccess = (Success != 0);
         sc->Skill = MagicNumber;
+    }
+
+    if (tc == Hero)
+    {
+        SEASON3B::CNewUIBuffWindow::RememberBuffSkill(static_cast<ActionSkillType>(MagicNumber));
     }
     switch (MagicNumber)
     {
@@ -10245,13 +10287,11 @@ void ReceiveOption(const BYTE* ReceiveBuffer)
 
         if (iHotKey != 0xffff)
         {
-            for (int j = 0; j < MAX_SKILLS; ++j)
+            // A hotkey saved before the skill evolved goes to what it became.
+            const int iSkillIndex = gSkillManager.FindSkillOrEvolutionIndex(static_cast<ActionSkillType>(iHotKey));
+            if (iSkillIndex != -1)
             {
-                if (iHotKey == CharacterAttribute->Skill[j])
-                {
-                    g_pMainFrame->SetSkillHotKey(i, j);
-                    break;
-                }
+                g_pMainFrame->SetSkillHotKey(i, iSkillIndex);
             }
         }
     }

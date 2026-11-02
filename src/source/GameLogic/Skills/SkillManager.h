@@ -47,6 +47,7 @@ public:
     void CalcSkillDelay(int time);
     BYTE GetSkillMasteryType(ActionSkillType iType);
     ActionSkillType MasterSkillToBaseSkillIndex(ActionSkillType masterSkill);
+    int FindSkillOrEvolutionIndex(ActionSkillType skill);
     bool skillVScharactorCheck(const DemendConditionInfo& basicInfo, const DemendConditionInfo& heroInfo);
     bool AreSkillAttributeRequirementsMet(ActionSkillType skilltype);
 

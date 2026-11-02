@@ -11,6 +11,7 @@
 #include "Engine/Object/ZzzInventory.h"
 #include "UI/Legacy/UIControls.h"
 #include "UI/NewUI/Dialogs/NewUICommonMessageBox.h"
+#include "GameLogic/Skills/SkillManager.h"
 
 using namespace SEASON3B;
 
@@ -20,7 +21,62 @@ namespace
     const float BUFF_IMG_HEIGHT = 28.0f;
     const int BUFF_MAX_LINE_COUNT = 8;
     const int BUFF_IMG_SPACE = 5;
+
+    // The evolved skill which last buffed the hero, by the buff it gives.
+    std::map<eBuffState, ActionSkillType> s_HeroBuffSkills;
+
+    eBuffState BuffOfSkill(ActionSkillType iSkill)
+    {
+        switch (gSkillManager.MasterSkillToBaseSkillIndex(iSkill))
+        {
+        case AT_SKILL_ATTACK: return eBuff_Attack;
+        case AT_SKILL_DEFENSE: return eBuff_Defense;
+        case AT_SKILL_SOUL_BARRIER: return eBuff_WizDefense;
+        case AT_SKILL_SWELL_LIFE: return eBuff_Life;
+        case AT_SKILL_EXPANSION_OF_WIZARDRY: return eBuff_SwellOfMagicPower;
+        case AT_SKILL_ADD_CRITICAL: return eBuff_AddCriticalDamage;
+        case AT_SKILL_INFINITY_ARROW: return eBuff_InfinityArrow;
+        case AT_SKILL_ALICE_BERSERKER: return eBuff_Berserker;
+        case AT_SKILL_HP_UP_OURFORCES: return eBuff_Hp_up_Ourforces;
+        case AT_SKILL_DEF_UP_OURFORCES: return eBuff_Def_up_Ourforces;
+        default: return eBuffNone;
+        }
+    }
+
+    // The buff icons have their own picture for some evolutions, though the server sends the base buff for them.
+    eBuffState EvolvedBuffIcon(ActionSkillType iSkill)
+    {
+        switch (iSkill)
+        {
+        case AT_SKILL_EXPANSION_OF_WIZARDRY_STR: return EFFECT_MAGIC_CIRCLE_IMPROVED;
+        case AT_SKILL_EXPANSION_OF_WIZARDRY_MASTERY: return EFFECT_MAGIC_CIRCLE_ENHANCED;
+        case AT_SKILL_SWELL_LIFE_STR: return EFFECT_GREATER_LIFE_ENHANCED;
+        case AT_SKILL_SWELL_LIFE_PROFICIENCY: return EFFECT_GREATER_LIFE_MASTERED;
+        case AT_SKILL_INFINITY_ARROW_STR: return EFFECT_INFINITY_ARROW_IMPROVED;
+        case AT_SKILL_ADD_CRITICAL_STR2: return EFFECT_GREATER_CRITICAL_DAMAGE_EXTENDED;
+        case AT_SKILL_ADD_CRITICAL_STR3: return EFFECT_GREATER_CRITICAL_DAMAGE_MASTERED;
+        default: return eBuffNone;
+        }
+    }
 };
+
+void SEASON3B::CNewUIBuffWindow::RememberBuffSkill(ActionSkillType iSkill)
+{
+    const eBuffState buff = BuffOfSkill(iSkill);
+    if (buff == eBuffNone)
+    {
+        return;
+    }
+
+    if (SKILL_REPLACEMENTS.contains(iSkill))
+    {
+        s_HeroBuffSkills[buff] = iSkill;
+    }
+    else
+    {
+        s_HeroBuffSkills.erase(buff);
+    }
+}
 
 SEASON3B::CNewUIBuffWindow::CNewUIBuffWindow()
 {
@@ -308,7 +364,10 @@ void SEASON3B::CNewUIBuffWindow::RenderBuffStatus(BUFF_RENDER renderstate)
 
         if (renderstate == BUFF_RENDER_ICON)
         {
-            RenderBuffIcon(buff, x, y, BUFF_IMG_WIDTH, BUFF_IMG_HEIGHT);
+            if (BuffTier(buff) != 0 || !RenderEvolvedBuffIcon(buff, x, y, BUFF_IMG_WIDTH, BUFF_IMG_HEIGHT))
+            {
+                RenderBuffIcon(buff, x, y, BUFF_IMG_WIDTH, BUFF_IMG_HEIGHT);
+            }
 #ifdef _DEBUG
             int iBuffReferenceCount = g_CharacterBuffCount(pHeroObject, buff);
             RenderNumber(x + 5, y + 5, iBuffReferenceCount, 1.f);
@@ -332,6 +391,32 @@ void SEASON3B::CNewUIBuffWindow::RenderBuffStatus(BUFF_RENDER renderstate)
     }
 }
 
+// Without an icon of its own in the buff pictures, an evolved buff shows the icon of its master skill.
+bool SEASON3B::CNewUIBuffWindow::RenderEvolvedBuffIcon(eBuffState eBuffType, float x, float y, float width, float height)
+{
+    const auto search = s_HeroBuffSkills.find(eBuffType);
+    if (search == s_HeroBuffSkills.end())
+    {
+        return false;
+    }
+
+    eBuffState icon = EvolvedBuffIcon(search->second);
+    if (icon != eBuffNone)
+    {
+        RenderBuffIcon(icon, x, y, width, height);
+        return true;
+    }
+
+    if (search->second < AT_SKILL_MASTER_BEGIN)
+    {
+        return false;
+    }
+
+    const int iSkillIcon = SkillAttribute[search->second].Magic_Icon;
+    RenderImage(BITMAP_INTERFACE_MASTER_BEGIN + 2, x, y, width, height, (20.f / 512.f) * (iSkillIcon % 25), (28.f / 512.f) * (iSkillIcon / 25), 20.f / 512.f, 28.f / 512.f);
+    return true;
+}
+
 void SEASON3B::CNewUIBuffWindow::RenderBuffIcon(eBuffState& eBuffType, float x, float y, float width, float height)
 {
     int iWidthIndex, iHeightIndex;
@@ -346,6 +431,16 @@ void SEASON3B::CNewUIBuffWindow::RenderBuffIcon(eBuffState& eBuffType, float x, 
         v = iHeightIndex * height / 256.f;
 
         RenderBitmap(IMAGE_BUFF_STATUS, x, y, width, height, u, v, width / 256.f, height / 256.f);
+    }
+    else if (eBuffType >= 161)
+    {
+        iWidthIndex = (eBuffType - 161) % 10;
+        iHeightIndex = (eBuffType - 161) / 10;
+
+        u = iWidthIndex * width / 256.f;
+        v = iHeightIndex * height / 256.f;
+
+        RenderBitmap(IMAGE_BUFF_STATUS3, x, y, width, height, u, v, width / 256.f, height / 256.f);
     }
     else
     {
@@ -421,10 +516,12 @@ void SEASON3B::CNewUIBuffWindow::LoadImages()
 {
     LoadBitmap(L"Interface\\newui_statusicon.jpg", IMAGE_BUFF_STATUS, GL_LINEAR);
     LoadBitmap(L"Interface\\newui_statusicon2.jpg", IMAGE_BUFF_STATUS2, GL_LINEAR);
+    LoadBitmap(L"Interface\\newui_statusicon3.jpg", IMAGE_BUFF_STATUS3, GL_LINEAR);
 }
 
 void SEASON3B::CNewUIBuffWindow::UnloadImages()
 {
+    DeleteBitmap(IMAGE_BUFF_STATUS3);
     DeleteBitmap(IMAGE_BUFF_STATUS2);
     DeleteBitmap(IMAGE_BUFF_STATUS);
 }
