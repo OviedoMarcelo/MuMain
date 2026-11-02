@@ -125,6 +125,7 @@ namespace SEASON3B
         void Reset();
 
         void SetHotKey(int iHotKey, int iSkillType);
+        void MoveHotKeys(int iFromSkillIndex, int iToSkillIndex);
         int GetHotKey(int iHotKey);
         int GetSkillIndex(int iSkillType);
         void RenderCurrentSkillAndHotSkillList();

@@ -43,12 +43,16 @@ namespace SEASON3B
         void OpenningProcess();
         void ClosingProcess();
 
+        // Remembers the skill that buffed the hero, so an evolved one shows its own icon.
+        static void RememberBuffSkill(ActionSkillType iSkill);
+
     private:
         void LoadImages();
         void UnloadImages();
 
         void BuffSort(std::list<eBuffState>& buffstate);
         void RenderBuffStatus(BUFF_RENDER renderstate);
+        bool RenderEvolvedBuffIcon(eBuffState eBuffType, float x, float y, float width, float height);
         void RenderBuffIcon(eBuffState& eBuffType, float x, float y, float width, float height);
         void RenderBuffTooltip(eBuffClass& eBuffClassType, eBuffState& eBuffType, float x, float y);
         bool SetDisableRenderBuff(const eBuffState& _BuffState);

@@ -1727,6 +1727,17 @@ void SEASON3B::CNewUISkillList::SetHotKey(int iHotKey, int iSkillType)
     m_iHotKeySkillType[iHotKey] = iSkillType;
 }
 
+void SEASON3B::CNewUISkillList::MoveHotKeys(int iFromSkillIndex, int iToSkillIndex)
+{
+    for (int i = 0; i < SKILLHOTKEY_COUNT; ++i)
+    {
+        if (m_iHotKeySkillType[i] == iFromSkillIndex)
+        {
+            m_iHotKeySkillType[i] = iToSkillIndex;
+        }
+    }
+}
+
 int SEASON3B::CNewUISkillList::GetHotKey(int iHotKey)
 {
     return m_iHotKeySkillType[iHotKey];

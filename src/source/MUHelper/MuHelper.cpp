@@ -523,6 +523,18 @@ namespace MUHelper
         return 1;
     }
 
+    // A skill saved in the configuration before it evolved is cast as what it became.
+    static ActionSkillType ResolveEvolvedSkill(ActionSkillType iSkill)
+    {
+        if (iSkill <= AT_SKILL_UNDEFINED || g_pSkillList->GetSkillIndex(iSkill) != -1)
+        {
+            return iSkill;
+        }
+
+        const int iIndex = gSkillManager.FindSkillOrEvolutionIndex(iSkill);
+        return iIndex != -1 ? CharacterAttribute->Skill[iIndex] : iSkill;
+    }
+
     // Whether the hero can cast the buff at all: it's learned, and its level and stat requirements are met.
     // Mana isn't part of it - running short of it is temporary, and the cast drinks a potion.
     static bool CanEverCastBuff(ActionSkillType iBuffSkill)
@@ -540,7 +552,7 @@ namespace MUHelper
 
         // A buff the hero can't cast (yet), e.g. one which needs a higher level, would be tried again and again,
         // and as a buff which isn't done holds up the rest of the work, the helper would stop attacking. It's skipped.
-        const auto iBuffSkill = static_cast<ActionSkillType>(m_config.aiBuff[m_iCurrentBuffIndex]);
+        const auto iBuffSkill = ResolveEvolvedSkill(static_cast<ActionSkillType>(m_config.aiBuff[m_iCurrentBuffIndex]));
         if (iBuffSkill > AT_SKILL_UNDEFINED && !CanEverCastBuff(iBuffSkill))
         {
             m_iCurrentBuffPartyIndex = 0;
@@ -571,7 +583,7 @@ namespace MUHelper
                     m_bTimerActivatedBuffOngoing = true;
                 }
 
-                iBuffResult = BuffTarget(pChar, (ActionSkillType)m_config.aiBuff[m_iCurrentBuffIndex]);
+                iBuffResult = BuffTarget(pChar, iBuffSkill);
             }
 
             m_iCurrentBuffPartyIndex = (m_iCurrentBuffPartyIndex + 1) % PartyNumber;
@@ -601,7 +613,7 @@ namespace MUHelper
                 m_bTimerActivatedBuffOngoing = true;
             }
 
-            if (!BuffTarget(Hero, (ActionSkillType)m_config.aiBuff[m_iCurrentBuffIndex]))
+            if (!BuffTarget(Hero, iBuffSkill))
             {
                 return 0;
             }
@@ -637,6 +649,7 @@ namespace MUHelper
         {
         case AT_SKILL_ATTACK:
         case AT_SKILL_ATTACK_STR:
+        case AT_SKILL_ATTACK_MASTERY:
             return CastIfMissing(g_isCharacterBuff(obj, eBuff_Attack), true, true);
 
         case AT_SKILL_DEFENSE:
@@ -646,7 +659,7 @@ namespace MUHelper
 
         case AT_SKILL_INFINITY_ARROW:
         case AT_SKILL_INFINITY_ARROW_STR:
-            return CastIfMissing(g_isCharacterBuff(obj, eBuff_InfinityArrow), false, false);
+            return CastIfMissing(g_isCharacterBuff(obj, eBuff_InfinityArrow) || g_isCharacterBuff(obj, EFFECT_INFINITY_ARROW_IMPROVED), false, false);
 
         case AT_SKILL_SOUL_BARRIER:
         case AT_SKILL_SOUL_BARRIER_STR:
@@ -660,18 +673,18 @@ namespace MUHelper
             {
                 return 1;
             }
-            return CastIfMissing(g_isCharacterBuff(obj, eBuff_Life), true, false);
+            return CastIfMissing(g_isCharacterBuff(obj, eBuff_Life) || g_isCharacterBuff(obj, EFFECT_GREATER_LIFE_ENHANCED) || g_isCharacterBuff(obj, EFFECT_GREATER_LIFE_MASTERED), true, false);
 
         case AT_SKILL_EXPANSION_OF_WIZARDRY:
         case AT_SKILL_EXPANSION_OF_WIZARDRY_STR:
         case AT_SKILL_EXPANSION_OF_WIZARDRY_MASTERY:
-            return CastIfMissing(g_isCharacterBuff(obj, eBuff_SwellOfMagicPower), false, false);
+            return CastIfMissing(g_isCharacterBuff(obj, eBuff_SwellOfMagicPower) || g_isCharacterBuff(obj, EFFECT_MAGIC_CIRCLE_IMPROVED) || g_isCharacterBuff(obj, EFFECT_MAGIC_CIRCLE_ENHANCED), false, false);
 
         case AT_SKILL_ADD_CRITICAL:
         case AT_SKILL_ADD_CRITICAL_STR1:
         case AT_SKILL_ADD_CRITICAL_STR2:
         case AT_SKILL_ADD_CRITICAL_STR3:
-            return CastIfMissing(g_isCharacterBuff(obj, eBuff_AddCriticalDamage), false, false);
+            return CastIfMissing(g_isCharacterBuff(obj, eBuff_AddCriticalDamage) || g_isCharacterBuff(obj, EFFECT_GREATER_CRITICAL_DAMAGE_MASTERED) || g_isCharacterBuff(obj, EFFECT_GREATER_CRITICAL_DAMAGE_EXTENDED), false, false);
 
         case AT_SKILL_ALICE_BERSERKER:
         case AT_SKILL_ALICE_BERSERKER_STR:
@@ -906,7 +919,7 @@ namespace MUHelper
     {
         if (m_config.bUseCombo)
         {
-            m_iCurrentSkill = static_cast<ActionSkillType>(m_config.aiSkill[m_iComboState]);
+            m_iCurrentSkill = ResolveEvolvedSkill(static_cast<ActionSkillType>(m_config.aiSkill[m_iComboState]));
         }
         else
         {
@@ -972,7 +985,7 @@ namespace MUHelper
                 && m_iSecondsElapsed > 0
                 && m_iSecondsElapsed % m_config.aiSkillInterval[i] == 0)
             {
-                return (ActionSkillType)iSkillId;
+                return ResolveEvolvedSkill((ActionSkillType)iSkillId);
             }
 
             if (m_config.aiSkillCondition[i] & ON_CONDITION)
@@ -996,14 +1009,14 @@ namespace MUHelper
                     || ((m_config.aiSkillCondition[i] & ON_MORE_THAN_FOUR_MOBS)  && iCount >= 4)
                     || ((m_config.aiSkillCondition[i] & ON_MORE_THAN_FIVE_MOBS)  && iCount >= 5))
                 {
-                    return (ActionSkillType)iSkillId;
+                    return ResolveEvolvedSkill((ActionSkillType)iSkillId);
                 }
             }
         }
 
         if (m_config.aiSkill[0] > 0)
         {
-            return (ActionSkillType)m_config.aiSkill[0];
+            return ResolveEvolvedSkill((ActionSkillType)m_config.aiSkill[0]);
         }
 
         return AT_SKILL_UNDEFINED;
@@ -1019,7 +1032,7 @@ namespace MUHelper
             }
         }
 
-        if (SimulateAttack((ActionSkillType)m_config.aiSkill[m_iComboState]))
+        if (SimulateAttack(ResolveEvolvedSkill((ActionSkillType)m_config.aiSkill[m_iComboState])))
         {
             m_iComboState = (m_iComboState + 1) % 3;
         }

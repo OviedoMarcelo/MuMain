@@ -237,6 +237,38 @@ ActionSkillType CSkillManager::MasterSkillToBaseSkillIndex(ActionSkillType maste
     return baseSkill;
 }
 
+// The server replaces a skill in the list when it evolves with master points, so a skill id saved
+// before (a hotkey, the MU Helper) may be gone. This finds the skill, or else what it became, also
+// when the saved one is an intermediate step. -1 when neither is learned.
+int CSkillManager::FindSkillOrEvolutionIndex(ActionSkillType skill)
+{
+    if (skill <= AT_SKILL_UNDEFINED)
+    {
+        return -1;
+    }
+
+    for (int i = 0; i < MAX_SKILLS; ++i)
+    {
+        if (CharacterAttribute->Skill[i] == skill)
+        {
+            return i;
+        }
+    }
+
+    for (int i = 0; i < MAX_SKILLS; ++i)
+    {
+        for (auto search = SKILL_REPLACEMENTS.find(CharacterAttribute->Skill[i]); search != SKILL_REPLACEMENTS.end(); search = SKILL_REPLACEMENTS.find(search->second))
+        {
+            if (search->second == skill)
+            {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
 bool CSkillManager::skillVScharactorCheck(const DemendConditionInfo& basicInfo, const DemendConditionInfo& heroInfo)
 {
     if (basicInfo <= heroInfo)
