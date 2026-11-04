@@ -4108,6 +4108,7 @@ void ReceiveMagicFinish(const BYTE* ReceiveBuffer)
         break;
     case AT_SKILL_ALICE_BERSERKER:
     case AT_SKILL_ALICE_BERSERKER_STR:
+    case AT_SKILL_BerserkerProficiency:
         UnRegisterBuff(eBuff_Berserker, o);
         break;
     }
@@ -5069,6 +5070,7 @@ BOOL ReceiveMagic(const BYTE* ReceiveBuffer, int Size, BOOL bEncrypted)
         break;
     case AT_SKILL_ALICE_BERSERKER:
     case AT_SKILL_ALICE_BERSERKER_STR:
+    case AT_SKILL_BerserkerProficiency:
         sc->AttackTime = 1; // todo: what is this?
 
         SetAttackSpeed();

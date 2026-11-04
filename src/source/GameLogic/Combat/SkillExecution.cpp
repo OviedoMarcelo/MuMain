@@ -100,6 +100,7 @@ bool CanExecuteSkill(CHARACTER* c, ActionSkillType Skill, float Distance)
                 && Skill != AT_SKILL_RECOVER
                 && Skill != AT_SKILL_ALICE_BERSERKER
                 && Skill != AT_SKILL_ALICE_BERSERKER_STR
+                && Skill != AT_SKILL_BerserkerProficiency
                 && Skill != AT_SKILL_IMPROVE_AG
                 && Skill != AT_SKILL_ADD_CRITICAL
                 && Skill != AT_SKILL_ADD_CRITICAL_STR1
@@ -263,6 +264,7 @@ int ExecuteSkill(CHARACTER* c, ActionSkillType Skill, float Distance)
         else if (Skill == AT_SKILL_ALICE_THORNS
             || Skill == AT_SKILL_ALICE_BERSERKER
             || Skill == AT_SKILL_ALICE_BERSERKER_STR
+            || Skill == AT_SKILL_BerserkerProficiency
             || Skill == AT_SKILL_ALICE_SLEEP
             || Skill == AT_SKILL_ALICE_SLEEP_STR
             || Skill == AT_SKILL_ALICE_BLIND || Skill == AT_SKILL_ALICE_WEAKNESS || Skill == AT_SKILL_ALICE_ENERVATION)

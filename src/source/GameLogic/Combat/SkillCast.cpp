@@ -702,6 +702,7 @@ void UseSkillSummon(CHARACTER* pCha, OBJECT* pObj)
     break;
     case AT_SKILL_ALICE_BERSERKER:
     case AT_SKILL_ALICE_BERSERKER_STR:
+    case AT_SKILL_BerserkerProficiency:
         LetHeroStop();
         switch (pCha->Helper.Type)
         {

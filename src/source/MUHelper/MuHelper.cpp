@@ -688,6 +688,7 @@ namespace MUHelper
 
         case AT_SKILL_ALICE_BERSERKER:
         case AT_SKILL_ALICE_BERSERKER_STR:
+        case AT_SKILL_BerserkerProficiency:
             return CastIfMissing(g_isCharacterBuff(obj, eBuff_Berserker), false, false);
 
         case AT_SKILL_ALICE_THORNS:

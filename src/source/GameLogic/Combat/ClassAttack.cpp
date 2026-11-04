@@ -1331,6 +1331,7 @@ void AttackWizard(CHARACTER* c, int Skill, float Distance)
             && Skill != AT_SKILL_REMOVAL_INVISIBLE && Skill != AT_SKILL_PLASMA_STORM_FENRIR
             && Skill != AT_SKILL_ALICE_BERSERKER
             && Skill != AT_SKILL_ALICE_BERSERKER_STR
+            && Skill != AT_SKILL_BerserkerProficiency
             && Skill != AT_SKILL_ALICE_WEAKNESS && Skill != AT_SKILL_ALICE_ENERVATION
             )
             return;
@@ -1619,6 +1620,7 @@ void AttackWizard(CHARACTER* c, int Skill, float Distance)
         break;
         case AT_SKILL_ALICE_BERSERKER:
         case AT_SKILL_ALICE_BERSERKER_STR:
+        case AT_SKILL_BerserkerProficiency:
         case AT_SKILL_ALICE_WEAKNESS:
         case AT_SKILL_ALICE_ENERVATION:
             UseSkillSummon(c, o);

@@ -4718,6 +4718,7 @@ void MoveCharacter(CHARACTER* c, OBJECT* o)
             break;
         case AT_SKILL_ALICE_BERSERKER:
         case AT_SKILL_ALICE_BERSERKER_STR:
+        case AT_SKILL_BerserkerProficiency:
             Vector(1.0f, 0.1f, 0.2f, Light);
             CreateEffect(BITMAP_MAGIC + 1, o->Position, o->Angle, Light, 11, o);
             CreateEffect(MODEL_ALICE_BUFFSKILL_EFFECT, o->Position, o->Angle, Light, 0, o);
@@ -10622,7 +10623,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
             {
                 Vector(0.8f, 0.5f, 0.2f, vLight);
             }
-            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR)
+            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR || iSkillType == AT_SKILL_BerserkerProficiency)
             {
                 Vector(1.0f, 0.1f, 0.2f, vLight);
             }
@@ -10640,6 +10641,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
                 || iSkillType == AT_SKILL_ALICE_THORNS
                 || iSkillType == AT_SKILL_ALICE_BERSERKER
                 || iSkillType == AT_SKILL_ALICE_BERSERKER_STR
+                || iSkillType == AT_SKILL_BerserkerProficiency
                 || iSkillType == AT_SKILL_ALICE_WEAKNESS
                 || iSkillType == AT_SKILL_ALICE_ENERVATION
                 )
@@ -10668,7 +10670,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
             {
                 Vector(0.8f, 0.5f, 0.2f, vLight);
             }
-            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR)
+            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR || iSkillType == AT_SKILL_BerserkerProficiency)
             {
                 Vector(1.0f, 0.1f, 0.2f, vLight);
             }
@@ -10686,6 +10688,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
                 || iSkillType == AT_SKILL_ALICE_THORNS
                 || iSkillType == AT_SKILL_ALICE_BERSERKER
                 || iSkillType == AT_SKILL_ALICE_BERSERKER_STR
+                || iSkillType == AT_SKILL_BerserkerProficiency
                 || iSkillType == AT_SKILL_ALICE_WEAKNESS
                 || iSkillType == AT_SKILL_ALICE_ENERVATION
                 )
@@ -10714,7 +10717,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
             {
                 Vector(0.8f, 0.5f, 0.2f, vLight);
             }
-            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR)
+            else if (iSkillType == AT_SKILL_ALICE_BERSERKER || iSkillType == AT_SKILL_ALICE_BERSERKER_STR || iSkillType == AT_SKILL_BerserkerProficiency)
             {
                 Vector(1.0f, 0.1f, 0.2f, vLight);
             }
@@ -10733,6 +10736,7 @@ void RenderCharacter(CHARACTER* c, OBJECT* o, int Select)
                     || iSkillType == AT_SKILL_ALICE_THORNS
                     || iSkillType == AT_SKILL_ALICE_BERSERKER
                     || iSkillType == AT_SKILL_ALICE_BERSERKER_STR
+                    || iSkillType == AT_SKILL_BerserkerProficiency
                     || iSkillType == AT_SKILL_ALICE_WEAKNESS
                     || iSkillType == AT_SKILL_ALICE_ENERVATION
                     )
