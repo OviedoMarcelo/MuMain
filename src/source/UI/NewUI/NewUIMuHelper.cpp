@@ -1683,7 +1683,7 @@ void CNewUIMuHelper::RenderSkillIcon(int skill, float x, float y, float width, f
         fV = 3 * height / 256.f;
         iKindofSkill = KOS_SKILL2;
     }
-    else if (skill == AT_SKILL_ALICE_BERSERKER || skill == AT_SKILL_ALICE_BERSERKER_STR)
+    else if (skill == AT_SKILL_ALICE_BERSERKER || skill == AT_SKILL_ALICE_BERSERKER_STR || skill == AT_SKILL_BerserkerProficiency)
     {
         fU = 10 * width / 256.f;
         fV = 3 * height / 256.f;
@@ -2261,6 +2261,7 @@ bool CNewUIMuHelperSkillList::IsBuffSkill(int iSkillType)
     // Summoner buffs
     case AT_SKILL_ALICE_BERSERKER:
     case AT_SKILL_ALICE_BERSERKER_STR:
+    case AT_SKILL_BerserkerProficiency:
     case AT_SKILL_ALICE_THORNS:
         return true;
         // RF Buffs
