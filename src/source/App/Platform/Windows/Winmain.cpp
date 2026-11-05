@@ -1524,6 +1524,9 @@ MSG MainLoop()
         // Fire any due timers. Replaces the Win32 SetTimer/WM_TIMER dispatch.
         Core::Time::FrameTimerScheduler::Instance().Tick();
 
+        // The helper's next attack starts in the frame its swing ends, as a held key does.
+        MUHelper::g_MuHelper.OnFrame();
+
         // Serve the control socket, after this frame's packets have been
         // processed so a command sees the newest game state, and before
         // rendering so an act's step is drawn in the same frame. Does nothing
