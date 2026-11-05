@@ -28,7 +28,8 @@
 
 constexpr int MAX_ACTIONABLE_DISTANCE = 10;
 constexpr int DEFAULT_DURABILITY_THRESHOLD = 50;
-constexpr int MANA_POTION_COOLDOWN_LOOPS = 3;  // helper loops (~200 ms each) between two mana potions
+constexpr int MANA_POTION_COOLDOWN_LOOPS = 3;  // timer loops (250 ms each) between two mana potions
+constexpr int LOOPS_PER_SECOND = 4;            // the timer loops every 250 ms
 constexpr int ORIGINAL_POSITION_TOLERANCE = 2; // tiles from the original position which don't count as away
 
 SpinLock _targetsLock;
@@ -132,6 +133,7 @@ namespace MUHelper
 
         m_iLoopCounter = 0;
         m_iManaPotionCooldown = 0;
+        m_bSwingInProgress = false;
 
         m_bActive = true;
         g_ConsoleDebug->Write(MCD_NORMAL, L"[MU Helper] Started");
@@ -159,7 +161,12 @@ namespace MUHelper
 
         Work();
 
-        if (m_iLoopCounter++ == 4)
+        if (m_iManaPotionCooldown > 0)
+        {
+            m_iManaPotionCooldown--;
+        }
+
+        if (++m_iLoopCounter == LOOPS_PER_SECOND)
         {
             m_iSecondsElapsed++;
 
@@ -175,6 +182,21 @@ namespace MUHelper
             }
 
             m_iLoopCounter = 0;
+        }
+    }
+
+    // The timer only comes back every 250 ms: a swing that ends in between waited for it, and the
+    // faster the hero swings, the more attacks were lost. The work goes on as soon as the swing ends.
+    void CMuHelper::OnFrame()
+    {
+        const bool bSwingInProgress = m_bActive && GameLogic::Automation::IsSwingInProgress();
+        const bool bSwingEnded = m_bSwingInProgress && !bSwingInProgress;
+        m_bSwingInProgress = bSwingInProgress;
+
+        // The safe zone is left to the timer, which stops the helper there.
+        if (bSwingEnded && !Hero->SafeZone)
+        {
+            Work();
         }
     }
 
@@ -742,9 +764,9 @@ namespace MUHelper
     void CMuHelper::ConsumeManaPotion()
     {
         // The new mana arrives with the server's answer: wait a moment so one dip doesn't drink several potions.
+        // Counted down by the timer: the work also runs between two of its loops.
         if (m_iManaPotionCooldown > 0)
         {
-            m_iManaPotionCooldown--;
             return;
         }
 

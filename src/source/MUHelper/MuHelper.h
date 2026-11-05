@@ -29,6 +29,7 @@ namespace MUHelper
 		void TriggerStart();
 		void TriggerStop();
 		bool IsActive() { return m_bActive; }
+		void OnFrame();
 		void AddCost(int iCost) { m_iTotalCost += iCost; }
 		int GetTotalCost() { return m_iTotalCost; }
 
@@ -104,6 +105,7 @@ namespace MUHelper
 		bool m_bTargetInReach;
 		int m_iTotalCost;
 		int m_iManaPotionCooldown = 0;
+		bool m_bSwingInProgress = false;
 	};
 
 	extern CMuHelper g_MuHelper;
