@@ -79,6 +79,8 @@ void GameConfig::Load()
 
     m_uiLocale = ReadString(CfgSectionUI, CfgKeyUILocale, CfgDefaultUILocale);
     m_fontSelection = ReadString(CfgSectionUI, CfgKeyFont, CfgDefaultFont);
+    m_partyListX = ReadInt(CfgSectionUI, CfgKeyPartyListX, CfgDefaultPartyListPosition);
+    m_partyListY = ReadInt(CfgSectionUI, CfgKeyPartyListY, CfgDefaultPartyListPosition);
 
     m_zoom = ReadInt(CfgSectionCamera, CfgKeyZoom, CfgDefaultZoom);
     m_sortParticleDraws = ReadBool(CfgSectionRender, CfgKeySortParticleDraws, CfgDefaultSortParticleDraws);
@@ -124,6 +126,8 @@ void GameConfig::Save()
 
     WriteString(CfgSectionUI, CfgKeyUILocale, m_uiLocale);
     WriteString(CfgSectionUI, CfgKeyFont, m_fontSelection);
+    WriteInt(CfgSectionUI, CfgKeyPartyListX, m_partyListX);
+    WriteInt(CfgSectionUI, CfgKeyPartyListY, m_partyListY);
 
     WriteInt(CfgSectionCamera, CfgKeyZoom, m_zoom);
     WriteBool(CfgSectionRender, CfgKeyVSync, m_vsyncEnabled);
@@ -244,6 +248,12 @@ void GameConfig::SetServerIP(const std::wstring& ip)
 void GameConfig::SetServerPort(int port)
 {
     m_serverPort = GameConfigValidation::ValidateServerPort(port, CfgDefaults::CfgDefaultServerPort);
+}
+
+void GameConfig::SetPartyListPosition(int x, int y)
+{
+    m_partyListX = x;
+    m_partyListY = y;
 }
 
 void GameConfig::SetZoom(int zoom)

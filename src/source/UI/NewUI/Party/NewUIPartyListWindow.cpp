@@ -12,6 +12,9 @@
 #include "GameLogic/Skills/SkillManager.h"
 #include "Engine/Object/ZzzInterface.h"
 #include "Camera/CameraProjection.h"
+#include "Data/GameConfig/GameConfig.h"
+
+#include <algorithm>
 
 using namespace SEASON3B;
 
@@ -24,6 +27,11 @@ CNewUIPartyListWindow::CNewUIPartyListWindow()
     m_iLimitUserIDHeight[0] = 48;
     m_iLimitUserIDHeight[1] = 58;
     m_iSelectedCharacter = -1;
+    m_bMovedByPlayer = false;
+    m_bPressed = false;
+    m_bDragging = false;
+    m_PressPos.x = m_PressPos.y = 0;
+    m_DragOffset.x = m_DragOffset.y = 0;
 
     for (int i = 0; i < MAX_PARTYS; i++)
     {
@@ -46,6 +54,15 @@ bool CNewUIPartyListWindow::Create(CNewUIManager* pNewUIMng, int x, int y)
     m_pNewUIMng->AddUIObj(SEASON3B::INTERFACE_PARTY_INFO_WINDOW, this);
 
     SetPos(x, y);
+
+    const int savedX = GameConfig::GetInstance().GetPartyListX();
+    const int savedY = GameConfig::GetInstance().GetPartyListY();
+    if (savedX >= 0 && savedY >= 0)
+    {
+        m_bMovedByPlayer = true;
+        SetPos((std::min)(savedX, REFERENCE_WIDTH - PARTY_LIST_WINDOW_WIDTH),
+            (std::min)(savedY, REFERENCE_HEIGHT - PARTY_LIST_WINDOW_HEIGHT * MAX_PARTYS));
+    }
 
     LoadImages();
 
@@ -87,7 +104,67 @@ void CNewUIPartyListWindow::SetPos(int x, int y)
 
 void CNewUIPartyListWindow::SetPos(int x)
 {
+    // A list which the player moved stays where it was put.
+    if (m_bMovedByPlayer)
+        return;
+
     SetPos(x - (PARTY_LIST_WINDOW_WIDTH + 2), m_Pos.y);
+}
+
+int CNewUIPartyListWindow::GetListHeight() const
+{
+    return (PARTY_LIST_WINDOW_HEIGHT * PartyNumber) + (4 * (PartyNumber - 1));
+}
+
+// Holding the left button on the list and moving the mouse drags it. A click without moving still
+// selects the member, as before. The new place is kept in config.ini.
+bool CNewUIPartyListWindow::UpdateDrag()
+{
+    constexpr int DragThreshold = 3;
+
+    if (m_bPressed)
+    {
+        if (!MouseLButton)
+        {
+            m_bPressed = false;
+            if (m_bDragging)
+            {
+                m_bDragging = false;
+                GameConfig::GetInstance().SetPartyListPosition(m_Pos.x, m_Pos.y);
+                GameConfig::GetInstance().Save();
+                return true;
+            }
+
+            return false;
+        }
+
+        if (!m_bDragging && (std::abs(MouseX - m_PressPos.x) > DragThreshold || std::abs(MouseY - m_PressPos.y) > DragThreshold))
+        {
+            m_bDragging = true;
+            m_bMovedByPlayer = true;
+        }
+
+        if (m_bDragging)
+        {
+            const int x = std::clamp<int>(MouseX - m_DragOffset.x, 0, REFERENCE_WIDTH - PARTY_LIST_WINDOW_WIDTH);
+            const int y = std::clamp<int>(MouseY - m_DragOffset.y, 0, (std::max)(0, REFERENCE_HEIGHT - GetListHeight()));
+            SetPos(x, y);
+            return true;
+        }
+
+        return false;
+    }
+
+    if (MouseLButtonPush && CheckMouseIn(m_Pos.x, m_Pos.y, PARTY_LIST_WINDOW_WIDTH, GetListHeight()))
+    {
+        m_bPressed = true;
+        m_PressPos.x = MouseX;
+        m_PressPos.y = MouseY;
+        m_DragOffset.x = MouseX - m_Pos.x;
+        m_DragOffset.y = MouseY - m_Pos.y;
+    }
+
+    return false;
 }
 
 int CNewUIPartyListWindow::GetSelectedCharacter()
@@ -157,15 +234,20 @@ bool CNewUIPartyListWindow::BtnProcess()
 bool CNewUIPartyListWindow::UpdateMouseEvent()
 {
     if (!m_bActive)
+    {
+        m_bPressed = m_bDragging = false;
         return true;
+    }
+
+    if (UpdateDrag())
+        return false;
 
     if (true == BtnProcess())
         return false;
 
     if (PartyNumber > 0)
     {
-        int iHeight = (PARTY_LIST_WINDOW_HEIGHT * PartyNumber) + (4 * (PartyNumber - 1));
-        if (CheckMouseIn(m_Pos.x, m_Pos.y, PARTY_LIST_WINDOW_WIDTH, iHeight))
+        if (CheckMouseIn(m_Pos.x, m_Pos.y, PARTY_LIST_WINDOW_WIDTH, GetListHeight()))
         {
             return false;
         }

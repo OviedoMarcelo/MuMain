@@ -83,6 +83,11 @@ public:
     }
     void SetChatCommandTemplates(const std::vector<std::wstring>& templates);
 
+    // Where the player put the party list; -1 while it's at its default place.
+    int GetPartyListX() const { return m_partyListX; }
+    int GetPartyListY() const { return m_partyListY; }
+    void SetPartyListPosition(int x, int y);
+
     // Camera
     int GetZoom() const { return m_zoom; }
     void SetZoom(int zoom);
@@ -127,6 +132,8 @@ private:
 
     std::wstring m_uiLocale;
     std::wstring m_fontSelection;
+    int m_partyListX = -1;
+    int m_partyListY = -1;
 
     int m_zoom;
     bool m_sortParticleDraws;

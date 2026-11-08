@@ -37,6 +37,8 @@ namespace CfgKeys
     // UI
     inline constexpr wchar_t CfgKeyUILocale[] = L"Locale";
     inline constexpr wchar_t CfgKeyFont[]     = L"Font";
+    inline constexpr wchar_t CfgKeyPartyListX[] = L"PartyListX";
+    inline constexpr wchar_t CfgKeyPartyListY[] = L"PartyListY";
 
     // Camera
     inline constexpr wchar_t CfgKeyZoom[] = L"Zoom";
@@ -65,6 +67,9 @@ namespace CfgDefaults
 
     inline constexpr wchar_t CfgDefaultServerIP[] = L"localhost";
     inline constexpr int CfgDefaultServerPort = 44405;
+
+    // -1: the party list stays at the right of the free screen, until the player moves it.
+    inline constexpr int CfgDefaultPartyListPosition = -1;
 
     inline constexpr int CfgDefaultZoom = 1735;  // OrbitalCamera DEFAULT_RADIUS — matches Default-cam camera-to-Hero distance
 
