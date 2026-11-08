@@ -56,6 +56,12 @@ namespace SEASON3B
 
         int							m_iSelectedCharacter;
         int							m_iLimitUserIDHeight[2];
+        // The list can be dragged anywhere; once moved, it stays there instead of following the free screen.
+        bool						m_bMovedByPlayer;
+        bool						m_bPressed;
+        bool						m_bDragging;
+        POINT						m_PressPos;
+        POINT						m_DragOffset;
 
     public:
         CNewUIPartyListWindow();
@@ -81,6 +87,8 @@ namespace SEASON3B
 
         int GetSelectedCharacter();
         void SetListBGColor();
+        // Whether the list is at its default place, at the right of the free screen.
+        bool IsDocked() const { return !m_bMovedByPlayer; }
 
     private:
         void LoadImages();
@@ -88,6 +96,8 @@ namespace SEASON3B
 
         bool SelectCharacterInPartyList(PARTY_t* pMember);
         void RenderPartyHPOnHead();
+        bool UpdateDrag();
+        int GetListHeight() const;
     };
 }
 

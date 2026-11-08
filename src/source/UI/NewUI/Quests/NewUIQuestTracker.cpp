@@ -160,8 +160,10 @@ void CNewUIQuestTracker::Release()
 
 int CNewUIQuestTracker::GetLeft() const
 {
-    // Without a party it stays at the right edge, behind the windows which open there.
-    const int right = PartyNumber > 0 ? GetScreenWidth() - PartyListWidth - TRACKER_PARTY_GAP : REFERENCE_WIDTH - 2;
+    // Without a party, or with the party list moved by the player, it stays at the right edge, behind the
+    // windows which open there.
+    const bool partyListAtRight = PartyNumber > 0 && g_pPartyListWindow != nullptr && g_pPartyListWindow->IsDocked();
+    const int right = partyListAtRight ? GetScreenWidth() - PartyListWidth - TRACKER_PARTY_GAP : REFERENCE_WIDTH - 2;
     return right - TRACKER_WIDTH;
 }
 
