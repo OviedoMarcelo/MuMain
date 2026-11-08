@@ -13290,7 +13290,7 @@
     <value>Puntos: %d / %d</value>
   </data>
   <data name="KundunExchangePackD" xml:space="preserve">
-    <value>Pack de Jewel of Creation (10): %d / 1</value>
+    <value>Pack de jewels (10): %d / 1</value>
   </data>
   <data name="KundunExchangeHelpHigh" xml:space="preserve">
     <value>Excelente, nivel de drop 80+: 3 puntos</value>
