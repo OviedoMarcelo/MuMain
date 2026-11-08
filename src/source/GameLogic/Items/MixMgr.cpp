@@ -1241,15 +1241,33 @@ int GetKundunExchangeItemPoints(const CMixItem& item)
     return dropLevel >= 80 ? 3 : dropLevel >= 40 ? 2 : 1;
 }
 
-bool IsPackOfTenCreation(ITEM* pItem)
+// Any packed jewel is accepted; the Packed Gemstone and the packed refine stones aren't jewels.
+bool IsPackedJewel(int type)
 {
-    return pItem->Type == ITEM_PACKED_JEWEL_OF_CREATION && pItem->Level == 0;
+    switch (type)
+    {
+    case ITEM_PACKED_JEWEL_OF_BLESS:
+    case ITEM_PACKED_JEWEL_OF_SOUL:
+    case ITEM_PACKED_JEWEL_OF_LIFE:
+    case ITEM_PACKED_JEWEL_OF_CREATION:
+    case ITEM_PACKED_JEWEL_OF_GUARDIAN:
+    case ITEM_PACKED_JEWEL_OF_HARMONY:
+    case ITEM_PACKED_JEWEL_OF_CHAOS:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool IsPackOfTenJewels(ITEM* pItem)
+{
+    return IsPackedJewel(pItem->Type) && pItem->Level == 0;
 }
 } // namespace
 
 BOOL CMixRecipeMgr::IsKundunExchangeSource(ITEM* pItem)
 {
-    if (IsPackOfTenCreation(pItem))
+    if (IsPackOfTenJewels(pItem))
     {
         return GetKundunExchangePacks() == 0;
     }
@@ -1277,7 +1295,7 @@ int CMixRecipeMgr::GetKundunExchangePacks()
     CMixItem* pItems = m_MixItemInventory.GetMixItems();
     for (int i = 0; i < m_MixItemInventory.GetNumMixItems(); ++i)
     {
-        if (pItems[i].m_sType == ITEM_PACKED_JEWEL_OF_CREATION)
+        if (IsPackedJewel(pItems[i].m_sType))
         {
             packs += pItems[i].m_iCount;
         }
@@ -1304,7 +1322,7 @@ bool CMixRecipeMgr::IsKundunExchangeReady()
             points += itemPoints * pItems[i].m_iCount;
             lowestPoints = lowestPoints == 0 ? itemPoints : (std::min)(lowestPoints, itemPoints);
         }
-        else if (pItems[i].m_sType != ITEM_PACKED_JEWEL_OF_CREATION)
+        else if (!IsPackedJewel(pItems[i].m_sType))
         {
             return false;
         }
