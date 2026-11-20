@@ -94,8 +94,6 @@ private:
 
     void ChangeInputBoxFocus();
 
-    void LoadImages();
-    void UnloadImages();
 
     void InitInputBox();
 

@@ -13304,4 +13304,13 @@
   <data name="KundunExchangeHelpExcluded" xml:space="preserve">
     <value>No se aceptan ancient ni socket</value>
   </data>
+  <data name="CyberShopTitle" xml:space="preserve">
+    <value>TIENDA CYBER</value>
+  </data>
+  <data name="CyberShopBalance" xml:space="preserve">
+    <value>Tus Cyber Coins</value>
+  </data>
+  <data name="CyberShopGetCoins" xml:space="preserve">
+    <value>Conseguí Cyber Coins en</value>
+  </data>
 </root>

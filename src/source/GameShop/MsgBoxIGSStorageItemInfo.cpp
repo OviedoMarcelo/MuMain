@@ -7,6 +7,7 @@
 #include "UI/NewUI/NewUISystem.h"
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 #include "MsgBoxIGSStorageItemInfo.h"
+#include "CyberShopStyle.h"
 
 #include "Audio/DSPlaySound.h"
 #include "MsgBoxIGSUseItemConfirm.h"
@@ -30,8 +31,6 @@ CMsgBoxIGSStorageItemInfo::~CMsgBoxIGSStorageItemInfo()
 
 bool CMsgBoxIGSStorageItemInfo::Create(float fPriority)
 {
-    LoadImages();
-
     SetAddCallbackFunc();
 
     CNewUIMessageBoxBase::Create((IMAGE_IGS_WINDOW_WIDTH / 2) - (IMAGE_IGS_FRAME_WIDTH / 2), (IMAGE_IGS_WINDOW_HEIGHT / 2) - (IMAGE_IGS_FRAME_HEIGHT / 2), IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, fPriority);
@@ -71,8 +70,6 @@ void CMsgBoxIGSStorageItemInfo::Release()
 
     if (g_pNewUI3DRenderMng)
         g_pNewUI3DRenderMng->Remove3DRenderObj(this);
-
-    UnloadImages();
 }
 
 bool CMsgBoxIGSStorageItemInfo::Update()
@@ -164,65 +161,35 @@ void CMsgBoxIGSStorageItemInfo::SetButtonInfo()
 
 void CMsgBoxIGSStorageItemInfo::RenderFrame()
 {
-    if (m_wItemCode == 65535)
-        return;
-
-    RenderImage(IMAGE_IGS_FRAME, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT);
+    namespace Style = GameShop::CyberStyle;
+    const float x = static_cast<float>(GetPos().x);
+    const float y = static_cast<float>(GetPos().y);
+    Style::DrawMessageBox(x, y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, I18N::Game::ItemInfoWindow);
+    Style::DrawInset(x + 20, y + 31, 170, 64);
+    Style::DrawInset(x + 20, y + 118, 170, 38);
+    EndRenderColor();
 }
 
 void CMsgBoxIGSStorageItemInfo::RenderTexts()
 {
     g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     g_pRenderText->SetFont(g_hFontBold);
 
-    g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_TITLE_POS_Y, I18N::Game::ItemInfoWindow, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
-
-    g_pRenderText->SetTextColor(255, 255, 0, 255);
+    g_pRenderText->SetTextColor(255, 233, 168, 255);
     g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_ITEM_NAME_POS_Y, m_szName, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
 
     g_pRenderText->SetFont(g_hFont);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
 
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ITEM_INFO_POS_X, GetPos().y + IGS_TEXT_ITEM_INFO_NUM_POS_Y, m_szNum, IGS_TEXT_ITEM_INFO_WIDTH, 0, RT3_SORT_LEFT);
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ITEM_INFO_POS_X, GetPos().y + IGS_TEXT_ITEM_INFO_PERIOD_POS_Y, m_szPeriod, IGS_TEXT_ITEM_INFO_WIDTH, 0, RT3_SORT_LEFT);
-
-#ifdef FOR_WORK
-    // debug
-    wchar_t szText[256] = { 0, };
-    g_pRenderText->SetTextColor(255, 0, 0, 255);
-    if (m_wItemCode == 65535)
-    {
-        mu_swprintf(szText, L"Bad Item Index");
-    }
-    else
-    {
-        mu_swprintf(szText, L"ItemCode : %d (%d, %d)", m_wItemCode, m_wItemCode / MAX_ITEM_INDEX, m_wItemCode % MAX_ITEM_INDEX);
-    }
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 10, szText, 150, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Storage Seq : %d", m_iStorageSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 20, szText, 150, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Storage ItemSeq : %d", m_iStorageItemSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 30, szText, 150, 0, RT3_SORT_LEFT);
-#endif // FOR_WORK
 }
 
 void CMsgBoxIGSStorageItemInfo::RenderButtons()
 {
-    m_BtnUse.Render();
-    m_BtnCancel.Render();
-}
-
-void CMsgBoxIGSStorageItemInfo::LoadImages()
-{
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_BUTTON, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_Box_List_A.tga", IMAGE_IGS_FRAME, GL_LINEAR);
-}
-
-void CMsgBoxIGSStorageItemInfo::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_BUTTON);
-    DeleteBitmap(IMAGE_IGS_FRAME);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnUse, true);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnCancel, false);
 }
 
 bool CMsgBoxIGSStorageItemInfoLayout::SetLayout()

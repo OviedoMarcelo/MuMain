@@ -17,6 +17,11 @@
 #include "Audio/DSPlaySound.h"
 #include "Camera/CameraProjection.h"
 #include "Render/Renderer/MuRenderer.h"
+#include "Render/Textures/ZzzOpenglUtil.h"
+#include "UI/NewUI/Quests/QuestTrackerShapes.h"
+#include "CyberShopStyle.h"
+
+#include <cmath>
 
 using namespace SEASON3B;
 
@@ -42,12 +47,11 @@ void CNewUIInGameShop::Init()
     m_iSelectedStorageItemIndex = 0;
     m_iStorageCurrentPageReceiveItemCnt = 0;
     m_bRequestCurrentPage = false;
+    m_iZoneTabWidth = IMAGE_IGS_ZONE_BTN_WIDTH;
 }
 
 void CNewUIInGameShop::Release()
 {
-    UnloadImages();
-
     ReleaseBanner();
 
     if (m_pNewUIMng)
@@ -68,7 +72,6 @@ bool CNewUIInGameShop::Create(CNewUIManager* pNewUIMng, int x, int y)
     m_pNewUIMng->AddUIObj(SEASON3B::INTERFACE_INGAMESHOP, this);
 
     SetPos(x, y);
-    LoadImages();
     SetBtnInfo();
     Show(false);	//visible()을 flase로
 
@@ -81,145 +84,382 @@ void CNewUIInGameShop::SetPos(int x, int y)
     m_Pos.y = y;
 }
 
+namespace
+{
+namespace Shapes = UI::Quests::TrackerShapes;
+
+using namespace GameShop::CyberStyle;
+
+constexpr float HeaderLineY = 28.0f;
+
+// The item cards, in a grid of 3 x 3 around the buy buttons and the 3D items.
+constexpr int CardLeft = 101;
+constexpr int CardTop = 35;
+constexpr int CardWidth = 112;
+constexpr int CardHeight = 118;
+constexpr float CardCorner = 6.0f;
+// The same grid as the buy buttons and the 3D items (IGS_NUM_ITEMS_WIDTH, IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_X/Y).
+constexpr int CardsPerRow = 3;
+constexpr int CardDistanceX = 122;
+constexpr int CardDistanceY = 121;
+constexpr float EmptySlotRadius = 12.0f;
+
+// The column at the right: the character and the Cyber Coins, the link to the website and the storage.
+constexpr int AccountLeft = 484;
+constexpr int AccountTop = 34;
+constexpr int AccountWidth = 148;
+constexpr int AccountHeight = 86;
+constexpr int PromoTop = 128;
+constexpr int PromoHeight = 64;
+constexpr int StorageTop = 224;
+constexpr int StorageHeight = 140;
+
+constexpr const wchar_t* WebsiteUrl = L"https://mucyber.tech";
+constexpr const wchar_t* WebsiteName = L"mucyber.tech";
+
+bool IsMouseIn(int x, int y, int width, int height)
+{
+    return SEASON3B::CheckMouseIn(x, y, width, height);
+}
+
+// A tab or a category: gold when it's selected, lighter when the mouse is over it.
+void DrawSelectable(float x, float y, float width, float height, bool isSelected, bool isHovered)
+{
+    const unsigned int fill = isSelected ? ActiveFill : (isHovered ? TabHoverFill : TabFill);
+    Shapes::DrawPanel(x, y, width, height, SmallCorner, fill, isSelected ? ActiveBorder : TabBorder);
+}
+
+// An arrow head which points to the left or to the right.
+void DrawSideChevron(float centerX, float centerY, float size, bool pointsLeft, unsigned int color)
+{
+    const float tipX = pointsLeft ? centerX - size / 2 : centerX + size / 2;
+    const float endX = pointsLeft ? centerX + size / 2 : centerX - size / 2;
+    RenderColorLineARGB(endX, centerY - size, tipX, centerY, 1.5f, color);
+    RenderColorLineARGB(tipX, centerY, endX, centerY + size, 1.5f, color);
+}
+
+// The refresh icon: a circle which is open at the top right, with an arrow head at its end.
+void DrawRefreshIcon(float centerX, float centerY, float radius, unsigned int color)
+{
+    constexpr int Segments = 10;
+    constexpr float StartAngle = 0.35f;
+    constexpr float EndAngle = 5.6f;
+    float lastX = centerX + radius * cosf(StartAngle);
+    float lastY = centerY - radius * sinf(StartAngle);
+    for (int segment = 1; segment <= Segments; ++segment)
+    {
+        const float angle = StartAngle + (EndAngle - StartAngle) * segment / Segments;
+        const float x = centerX + radius * cosf(angle);
+        const float y = centerY - radius * sinf(angle);
+        RenderColorLineARGB(lastX, lastY, x, y, 1.5f, color);
+        lastX = x;
+        lastY = y;
+    }
+
+    const float tipX = centerX + radius * cosf(StartAngle);
+    const float tipY = centerY - radius * sinf(StartAngle);
+    RenderColorLineARGB(tipX, tipY, tipX - 3.0f, tipY - 1.0f, 1.5f, color);
+    RenderColorLineARGB(tipX, tipY, tipX + 1.0f, tipY - 3.5f, 1.5f, color);
+}
+
+void DrawCross(float x, float y, float size, unsigned int color)
+{
+    RenderColorLineARGB(x, y, x + size, y + size, 2.0f, color);
+    RenderColorLineARGB(x + size, y, x, y + size, 2.0f, color);
+}
+
+int CardX(int index)
+{
+    return CardLeft + (index % CardsPerRow) * CardDistanceX;
+}
+
+int CardY(int index)
+{
+    return CardTop + (index / CardsPerRow) * CardDistanceY;
+}
+} // namespace
+
 bool CNewUIInGameShop::Render()
 {
     EnableAlphaTest();
+    g_pRenderText->SetBgColor(0, 0, 0, 0);
+
     RenderFrame();
-    RenderButtons();
+    RenderZoneTabs();
+    RenderCategories();
+    RenderItemCards();
+    RenderAccountPanel();
+    RenderStorage();
+    RenderPagers();
     RenderTexts();
-    RenderBanner();
+    EndRenderColor();
+
     RenderListBox();
     RenderDisplayItems();
+
+    g_pRenderText->SetFont(g_hFont);
     DisableAlphaBlend();
     return true;
 }
 
 void CNewUIInGameShop::RenderFrame()
 {
-    RenderImage(IMAGE_IGS_BACK, m_Pos.x, m_Pos.y, IMAGE_IGS_BACK_WIDTH, IMAGE_IGS_BACK_HEIGHT);
+    const float left = static_cast<float>(m_Pos.x);
+    const float top = static_cast<float>(m_Pos.y);
+    const float right = left + IMAGE_IGS_BACK_WIDTH;
+    const float bottom = top + IMAGE_IGS_BACK_HEIGHT;
 
-    int iSizeCategory = g_InGameShopSystem->GetSizeCategoriesAsSelectedZone();
+    Shapes::DrawPanel(left, top, IMAGE_IGS_BACK_WIDTH, IMAGE_IGS_BACK_HEIGHT, WindowCorner, WindowFill, WindowBorder);
 
-    if (iSizeCategory < 0)
-        return;
-
-    // Category Deco Middle Render
-    POINT CategoryDecoMiddlePos;
-    CategoryDecoMiddlePos.x = m_CategoryButton.GetPos(0).x + (IMAGE_IGS_CATEGORY_BTN_WIDTH / 2) - (IMAGE_IGS_CATEGORY_DECO_MIDDLE_WIDTH / 2);
-
-    for (int i = 0; i < iSizeCategory - 1; i++)
+    // The faint grid of the website.
+    for (float x = left + GridStep; x < right; x += GridStep)
     {
-        CategoryDecoMiddlePos.y = m_CategoryButton.GetPos(i).y + IMAGE_IGS_CATEGORY_BTN_HEIGHT - 1;
-
-        RenderImage(IMAGE_IGS_CATEGORY_DECO_MIDDLE, CategoryDecoMiddlePos.x, CategoryDecoMiddlePos.y, IMAGE_IGS_CATEGORY_DECO_MIDDLE_WIDTH, IMAGE_IGS_CATEGORY_DECO_MIDDLE_HEIGHT);
+        RenderColorLineARGB(x, top + 1, x, bottom - 1, 1.0f, GridLine);
+    }
+    for (float y = top + GridStep; y < bottom; y += GridStep)
+    {
+        RenderColorLineARGB(left + 1, y, right - 1, y, 1.0f, GridLine);
     }
 
-    // Category Deco Down Render
-    RenderImage(IMAGE_IGS_CATEGORY_DECO_DOWN, m_Pos.x, m_CategoryButton.GetPos(iSizeCategory - 1).y - 10, IMAGE_IGS_CATEGORY_DECO_DOWN_WIDTH, IMAGE_IGS_CATEGORY_DECO_DOWN_HEIGHT);
+    // The line under the title and the tabs, with a diamond at each end.
+    const float lineLeft = left + 10;
+    const float lineRight = right - 10;
+    RenderColorLineARGB(lineLeft, top + HeaderLineY, lineRight, top + HeaderLineY, 1.0f, HeaderLine);
+    Shapes::DrawDiamond(lineLeft, top + HeaderLineY, 3.0f, WindowBorder, WindowFill, WindowFill);
+    Shapes::DrawDiamond(lineRight, top + HeaderLineY, 3.0f, WindowBorder, WindowFill, WindowFill);
 
-    for (int cnt = g_InGameShopSystem->GetSizePackageAsDisplayPackage(); cnt < INGAMESHOP_DISPLAY_ITEMLIST_SIZE; cnt++)
+    // The close button.
+    const bool isCloseHovered = IsMouseIn(m_Pos.x + IMAGE_IGS_EXIT_BTN_POS_X, m_Pos.y + IMAGE_IGS_EXIT_BTN_POS_Y,
+                                          IMAGE_IGS_EXIT_BTN_WIDTH, IMAGE_IGS_EXIT_BTN_HEIGHT);
+    DrawCross(left + IMAGE_IGS_EXIT_BTN_POS_X + 5, top + IMAGE_IGS_EXIT_BTN_POS_Y + 5, 10.0f,
+              isCloseHovered ? IconHoverColor : CloseColor);
+}
+
+void CNewUIInGameShop::RenderZoneTabs()
+{
+    const int zoneCount = g_InGameShopSystem->GetSizeZones();
+    const int selected = m_ZoneButton.GetCurButtonIndex();
+    auto name = g_InGameShopSystem->GetZoneName().begin();
+    for (int i = 0; i < zoneCount; ++i, ++name)
     {
-        RenderImage(IMAGE_IGS_ITEMBOX_LOGO, m_Pos.x + IMAGE_IGS_ITEMBOX_LOGO_POS_X + ((cnt % IGS_NUM_ITEMS_WIDTH) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_X), m_Pos.y + IMAGE_IGS_ITEMBOX_LOGO_POS_Y + ((cnt / IGS_NUM_ITEMS_HEIGHT) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_Y), IMAGE_IGS_ITEMBOX_LOGO_SIZE, IMAGE_IGS_ITEMBOX_LOGO_SIZE);
+        const POINT pos = m_ZoneButton.GetPos(i);
+        const int width = m_iZoneTabWidth;
+        const bool isSelected = i == selected;
+        const bool isHovered = IsMouseIn(pos.x, pos.y + 4, width, IMAGE_IGS_ZONE_BTN_HEIGHT - 4);
+        DrawSelectable(static_cast<float>(pos.x), static_cast<float>(pos.y + 5), static_cast<float>(width),
+                       static_cast<float>(IMAGE_IGS_ZONE_BTN_HEIGHT - 5), isSelected, isHovered);
+        if (isSelected)
+        {
+            const float lineY = static_cast<float>(pos.y + IMAGE_IGS_ZONE_BTN_HEIGHT - 1);
+            RenderColorLineARGB(static_cast<float>(pos.x + 4), lineY, static_cast<float>(pos.x + width - 4), lineY,
+                                2.0f, Ember);
+        }
+
+        EndRenderColor();
+        RenderTextAt(pos.x, pos.y + 9, name->c_str(), width, isSelected ? GoldLightText : MutedText, isSelected,
+                     RT3_SORT_CENTER);
+    }
+}
+
+void CNewUIInGameShop::RenderCategories()
+{
+    const int categoryCount = g_InGameShopSystem->GetSizeCategoriesAsSelectedZone();
+    const int selected = m_CategoryButton.GetCurButtonIndex();
+    auto name = g_InGameShopSystem->GetCategoryName().begin();
+    for (int i = 0; i < categoryCount; ++i, ++name)
+    {
+        const POINT pos = m_CategoryButton.GetPos(i);
+        const bool isSelected = i == selected;
+        const bool isHovered = IsMouseIn(pos.x, pos.y, IMAGE_IGS_CATEGORY_BTN_WIDTH, IMAGE_IGS_CATEGORY_BTN_HEIGHT);
+        const float x = static_cast<float>(pos.x);
+        const float y = static_cast<float>(pos.y);
+        DrawSelectable(x, y, IMAGE_IGS_CATEGORY_BTN_WIDTH, IMAGE_IGS_CATEGORY_BTN_HEIGHT, isSelected, isHovered);
+
+        const float markerY = y + IMAGE_IGS_CATEGORY_BTN_HEIGHT / 2.0f;
+        if (isSelected)
+        {
+            Shapes::DrawOpenQuestMarker(x + 9, markerY, 4.5f);
+        }
+        else
+        {
+            Shapes::DrawFoldedQuestMarker(x + 9, markerY, 3.5f);
+        }
+
+        EndRenderColor();
+        RenderTextAt(pos.x + 17, pos.y + 8, name->c_str(), IMAGE_IGS_CATEGORY_BTN_WIDTH - 19,
+                     isSelected ? GoldLightText : MutedText, isSelected, RT3_SORT_LEFT);
+    }
+}
+
+void CNewUIInGameShop::RenderItemCards()
+{
+    const int packageCount = g_InGameShopSystem->GetSizePackageAsDisplayPackage();
+    for (int i = 0; i < INGAMESHOP_DISPLAY_ITEMLIST_SIZE; ++i)
+    {
+        const int x = m_Pos.x + CardX(i);
+        const int y = m_Pos.y + CardY(i);
+        const bool hasPackage = i < packageCount;
+        const bool isHovered = hasPackage && IsMouseIn(x, y, CardWidth, CardHeight);
+        Shapes::DrawPanel(static_cast<float>(x), static_cast<float>(y), CardWidth, CardHeight, CardCorner, CardFill,
+                          isHovered ? CardHoverBorder : CardBorder);
+
+        if (!hasPackage)
+        {
+            Shapes::DrawDiamond(x + CardWidth / 2.0f, y + CardHeight / 2.0f, EmptySlotRadius, EmptySlotMark, CardFill,
+                                CardFill);
+            continue;
+        }
+
+        const POINT& buttonPos = m_ViewDetailButton[i].GetPos();
+        const bool isButtonHovered =
+            IsMouseIn(buttonPos.x, buttonPos.y, IMAGE_IGS_VIEWDETAIL_BTN_WIDTH, IMAGE_IGS_VIEWDETAIL_BTN_HEIGHT);
+        DrawActionButton(static_cast<float>(buttonPos.x - 6), static_cast<float>(buttonPos.y + 3),
+                         IMAGE_IGS_VIEWDETAIL_BTN_WIDTH + 12, IMAGE_IGS_VIEWDETAIL_BTN_HEIGHT - 6, isButtonHovered);
+
+        EndRenderColor();
+        RenderTextAt(buttonPos.x - 6, buttonPos.y + 8, I18N::Game::Buy1124, IMAGE_IGS_VIEWDETAIL_BTN_WIDTH + 12,
+                     GoldLightText, true, RT3_SORT_CENTER);
+    }
+}
+
+void CNewUIInGameShop::RenderAccountPanel()
+{
+    const int left = m_Pos.x + AccountLeft;
+    const int top = m_Pos.y + AccountTop;
+    Shapes::DrawPanel(static_cast<float>(left), static_cast<float>(top), AccountWidth, AccountHeight, SmallCorner,
+                      PanelFill, PanelBorder);
+    RenderColorLineARGB(static_cast<float>(left + 12), static_cast<float>(top + 22),
+                        static_cast<float>(left + AccountWidth - 12), static_cast<float>(top + 22), 1.0f, Separator);
+    DrawCoin(static_cast<float>(left + 16), static_cast<float>(top + 66), 6.0f);
+
+    const int refreshX = m_Pos.x + IMAGE_IGS_REFRESH_BTN_POS_X;
+    const int refreshY = m_Pos.y + IMAGE_IGS_ICON_BTN_POS_Y;
+    const bool isRefreshHovered = IsMouseIn(refreshX, refreshY, IMAGE_IGS_ICON_BTN_WIDTH, IMAGE_IGS_ICON_BTN_HEIGHT);
+    Shapes::DrawPanel(static_cast<float>(refreshX), static_cast<float>(refreshY), IMAGE_IGS_ICON_BTN_WIDTH,
+                      IMAGE_IGS_ICON_BTN_HEIGHT, SmallCorner, IconFill, isRefreshHovered ? ActiveBorder : IconBorder);
+    DrawRefreshIcon(refreshX + IMAGE_IGS_ICON_BTN_WIDTH / 2.0f, refreshY + IMAGE_IGS_ICON_BTN_HEIGHT / 2.0f, 5.5f,
+                    isRefreshHovered ? IconHoverColor : IconColor);
+
+    // Where to get Cyber Coins, in the place of Webzen's banner. A click opens the website.
+    const int promoTop = m_Pos.y + PromoTop;
+    const bool isPromoHovered = IsMouseIn(left, promoTop, AccountWidth, PromoHeight);
+    Shapes::DrawPanel(static_cast<float>(left), static_cast<float>(promoTop), AccountWidth, PromoHeight, SmallCorner,
+                      isPromoHovered ? TabHoverFill : TabFill, isPromoHovered ? ActiveBorder : TabBorder);
+    DrawCoin(static_cast<float>(left + AccountWidth / 2), static_cast<float>(promoTop + 12), 4.0f);
+}
+
+void CNewUIInGameShop::RenderStorage()
+{
+    const int selected = m_ListBoxTabButton.GetCurButtonIndex();
+    for (int i = 0; i < IGS_TOTAL_LISTBOX; ++i)
+    {
+        const POINT pos = m_ListBoxTabButton.GetPos(i);
+        const bool isHovered = IsMouseIn(pos.x, pos.y, IMAGE_IGS_TAB_BTN_WIDTH, IMAGE_IGS_TAB_BTN_HEIGHT);
+        DrawSelectable(static_cast<float>(pos.x), static_cast<float>(pos.y), IMAGE_IGS_TAB_BTN_WIDTH,
+                       IMAGE_IGS_TAB_BTN_HEIGHT, i == selected, isHovered);
     }
 
-    RenderImage(IMAGE_IGS_STORAGE_PAGE, m_Pos.x + IMAGE_IGS_STORAGE_PAGE_POS_X, m_Pos.y + IMAGE_IGS_STORAGE_PAGE_POS_Y, IMGAE_IGS_STORAGE_PAGE_WIDTH, IMGAE_IGS_STORAGE_PAGE_HEIGHT);
+    const int left = m_Pos.x + AccountLeft;
+    const int top = m_Pos.y + StorageTop;
+    Shapes::DrawPanel(static_cast<float>(left), static_cast<float>(top), AccountWidth, StorageHeight, SmallCorner,
+                      ListFill, ListBorder);
+    RenderColorLineARGB(static_cast<float>(left + 6), static_cast<float>(top + 20),
+                        static_cast<float>(left + AccountWidth - 6), static_cast<float>(top + 20), 1.0f, Separator);
+
+    const POINT& usePos = m_UseButton.GetPos();
+    DrawActionButton(static_cast<float>(usePos.x), static_cast<float>(usePos.y + 2), IMAGE_IGS_VIEWDETAIL_BTN_WIDTH,
+                     IMAGE_IGS_VIEWDETAIL_BTN_HEIGHT - 4,
+                     IsMouseIn(usePos.x, usePos.y, IMAGE_IGS_VIEWDETAIL_BTN_WIDTH, IMAGE_IGS_VIEWDETAIL_BTN_HEIGHT));
+}
+
+void CNewUIInGameShop::RenderPagers()
+{
+    CNewUIButton* buttons[] = {&m_PrevButton, &m_NextButton, &m_StoragePrevButton, &m_StorageNextButton};
+    for (int i = 0; i < 4; ++i)
+    {
+        const POINT& pos = buttons[i]->GetPos();
+        const POINT& size = buttons[i]->GetSize();
+        const bool isHovered = IsMouseIn(pos.x, pos.y, size.x, size.y);
+        DrawSideChevron(pos.x + size.x / 2.0f, pos.y + size.y / 2.0f, 5.0f, i % 2 == 0,
+                        isHovered ? IconHoverColor : IconColor);
+    }
 }
 
 void CNewUIInGameShop::RenderTexts()
 {
+    EndRenderColor();
+
     wchar_t szText[256] = { 0, };
     wchar_t szValue[256] = { 0, };
 
-    g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
-    g_pRenderText->SetFont(g_hFontBold);
-    mu_swprintf(szText, Hero->ID);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CHAR_NAME_POS_X, m_Pos.y + TEXT_IGS_CHAR_NAME_POS_Y, szText, TEXT_IGS_CHAR_NAME_WIDTH, 0, RT3_SORT_CENTER);
-    g_pRenderText->SetFont(g_hFont);
+    RenderTextAt(m_Pos.x + 8, m_Pos.y + 10, I18N::Game::CyberShopTitle, IMAGE_IGS_ZONE_BTN_POS_X - 12, GoldText, true,
+                 RT3_SORT_CENTER);
 
-    // Display Item
+    // The name and the price of each item.
     for (int i = 0; i < g_InGameShopSystem->GetSizePackageAsDisplayPackage(); i++)
     {
         CShopPackage* pPackage = g_InGameShopSystem->GetDisplayPackage(i);
-        // Package
-        g_pRenderText->SetTextColor(255, 255, 255, 255);
-        g_pRenderText->RenderText(m_Pos.x + IGS_PACKAGE_NAME_POS_X + ((i % IGS_NUM_ITEMS_WIDTH) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_X), m_Pos.y + IGS_PACKAGE_NAME_POS_Y + ((i / IGS_NUM_ITEMS_HEIGHT) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_Y), pPackage->PackageProductName, IGS_PACKAGE_NAME_WIDTH, 0, RT3_SORT_CENTER);
-        // Package
+        const int x = m_Pos.x + CardX(i);
+        const int y = m_Pos.y + CardY(i);
+        RenderTextAt(x + 4, y + 6, pPackage->PackageProductName, CardWidth - 8, WhiteText, true, RT3_SORT_CENTER);
+
         ConvertGold(pPackage->Price, szValue);
         mu_swprintf(szText, L"%ls %ls", szValue, pPackage->PricUnitName);
-        g_pRenderText->SetTextColor(255, 238, 161, 255);
-        g_pRenderText->RenderText(m_Pos.x + IGS_PACKAGE_NAME_POS_X + ((i % IGS_NUM_ITEMS_WIDTH) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_X), m_Pos.y + IGS_PACKAGE_PRICE_POS_Y + 53 + ((i / IGS_NUM_ITEMS_HEIGHT) * IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_Y), szText, IGS_PACKAGE_NAME_WIDTH, 0, RT3_SORT_CENTER);
+        g_pRenderText->SetFont(g_hFont);
+        const int priceWidth = MeasureText(szText) + 10;
+        const int priceX = x + (CardWidth - priceWidth) / 2;
+        DrawCoin(static_cast<float>(priceX + 3), static_cast<float>(y + 82), 3.5f);
+        EndRenderColor();
+        RenderTextAt(priceX + 10, y + 78, szText, priceWidth, GoldText, false, RT3_SORT_LEFT);
     }
-    g_pRenderText->SetTextColor(255, 238, 161, 255);
 
-    // MU Cyber has one currency, the Cyber Coins, which the server sends as the "credit card cash".
-    // The prepaid cash (W Coin(P)) and the Goblin Points don't exist, so they aren't shown.
+    // The character and the Cyber Coins. MU Cyber has one currency, which the server sends as the "credit card
+    // cash"; the prepaid cash and the Goblin Points don't exist, so they aren't shown.
+    const int panelX = m_Pos.x + AccountLeft;
+    const int panelY = m_Pos.y + AccountTop;
+    RenderTextAt(panelX, panelY + 7, Hero->ID, AccountWidth, GoldText, true, RT3_SORT_CENTER);
+    RenderTextAt(panelX + 10, panelY + 32, I18N::Game::CyberShopBalance, AccountWidth - 20, MutedText, false,
+                 RT3_SORT_LEFT);
     ConvertGold(g_InGameShopSystem->GetCashCreditCard(), szValue);
-    mu_swprintf(szText, I18N::Game::MyWCoinS, L"");
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X, m_Pos.y + TEXT_IGS_CASH_POS_Y, szText, TEXT_IGS_CASH_WIDTH, 0, RT3_SORT_LEFT);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X + 50, m_Pos.y + TEXT_IGS_CASH_POS_Y, szValue, TEXT_IGS_CASH_WIDTH - 56, 0, RT3_SORT_RIGHT);
+    RenderTextAt(panelX + 28, panelY + 61, szValue, AccountWidth - 60, GoldLightText, true, RT3_SORT_LEFT);
 
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
-    g_pRenderText->SetFont(g_hFontBold);
+    const int promoY = m_Pos.y + PromoTop;
+    RenderTextAt(panelX, promoY + 23, I18N::Game::CyberShopGetCoins, AccountWidth, MutedText, false, RT3_SORT_CENTER);
+    RenderTextAt(panelX, promoY + 38, WebsiteName, AccountWidth, EmberText, true, RT3_SORT_CENTER);
 
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_STORAGE_NAME_POS_X, m_Pos.y + TEXT_IGS_STORAGE_NAME_POS_Y, I18N::Game::ItemName, TEXT_IGS_STORAGE_NAME_WIDTH, 0, RT3_SORT_CENTER);
-
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_STORAGE_TIME_POS_X, m_Pos.y + TEXT_IGS_STORAGE_NAME_POS_Y, I18N::Game::Duration, TEXT_IGS_STORAGE_TIME_WIDTH, 0, RT3_SORT_CENTER);
-
-    // Page Info
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_PAGE_POS_X + 23, m_Pos.y + TEXT_IGS_PAGE_POS_Y, L"/", 10, 0, RT3_SORT_CENTER);
-
-    mu_swprintf(szText, L"%d", g_InGameShopSystem->GetSelectPage());
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_PAGE_POS_X + 5, m_Pos.y + TEXT_IGS_PAGE_POS_Y, szText, 15, 0, RT3_SORT_RIGHT);
-
-    mu_swprintf(szText, L"%d", g_InGameShopSystem->GetTotalPages());
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_PAGE_POS_X + 36, m_Pos.y + TEXT_IGS_PAGE_POS_Y, szText, 15, 0, RT3_SORT_LEFT);
-
-    // Storage Page Info
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_STORAGE_PAGE_INFO_POS_X + 35, m_Pos.y + TEXT_IGS_STORAGE_PAGE_INFO_POS_Y, L"/", 10, 0, RT3_SORT_CENTER);
-    mu_swprintf(szText, L"%d", m_iStorageCurrentPage);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_STORAGE_PAGE_INFO_POS_X + 12, m_Pos.y + TEXT_IGS_STORAGE_PAGE_INFO_POS_Y, szText, 20, 0, RT3_SORT_RIGHT);
-    mu_swprintf(szText, L"%d", m_iStorageTotalPage);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_STORAGE_PAGE_INFO_POS_X + 48, m_Pos.y + TEXT_IGS_STORAGE_PAGE_INFO_POS_Y, szText, 20, 0, RT3_SORT_LEFT);
-
-#ifdef KJH_MOD_SHOP_SCRIPT_DOWNLOAD
-#ifdef FOR_WORK
-    g_pRenderText->SetTextColor(210, 180, 230, 255);
-    g_pRenderText->SetFont(g_hFont);
-
-    // Script Version Info
-    CListVersionInfo ScriptVer;
-    ScriptVer = g_InGameShopSystem->GetCurrentScriptVer();
-    mu_swprintf(szText, L"Script Ver. %d.%d.%d", ScriptVer.Zone, ScriptVer.year, ScriptVer.yearId);
-    g_pRenderText->RenderText(m_Pos.x + 12, m_Pos.y + 396, szText, 150, 0, RT3_SORT_LEFT);
-
-    ScriptVer = g_InGameShopSystem->GetCurrentBannerVer();
-    mu_swprintf(szText, L"Banner Ver. %d.%d.%d", ScriptVer.Zone, ScriptVer.year, ScriptVer.yearId);
-    g_pRenderText->RenderText(m_Pos.x + 12, m_Pos.y + 408, szText, 150, 0, RT3_SORT_LEFT);
-#endif // FOR_WORK
-#endif //KJH_MOD_SHOP_SCRIPT_DOWNLOAD
-}
-
-void CNewUIInGameShop::RenderButtons()
-{
-    m_ZoneButton.Render();
-    m_CategoryButton.Render();
-    m_ListBoxTabButton.Render();
-
-    for (int i = 0; i < g_InGameShopSystem->GetSizePackageAsDisplayPackage(); i++)
+    // The storage: its tabs, the titles of the list, the use button and the pages.
+    const int selectedTab = m_ListBoxTabButton.GetCurButtonIndex();
+    const wchar_t* tabNames[IGS_TOTAL_LISTBOX] = {I18N::Game::Storage, I18N::Game::GiftInventory};
+    for (int i = 0; i < IGS_TOTAL_LISTBOX; ++i)
     {
-        m_ViewDetailButton[i].Render();
+        const POINT pos = m_ListBoxTabButton.GetPos(i);
+        RenderTextAt(pos.x, pos.y + 5, tabNames[i], IMAGE_IGS_TAB_BTN_WIDTH,
+                     i == selectedTab ? GoldLightText : MutedText, i == selectedTab, RT3_SORT_CENTER);
     }
 
-    m_CashGiftButton.Render();
-    m_CashChargeButton.Render();
-    m_CashRefreshButton.Render();
-    m_UseButton.Render();
-    m_PrevButton.Render();
-    m_NextButton.Render();
-    m_StoragePrevButton.Render();
-    m_StorageNextButton.Render();
-    m_CloseButton.Render();
+    const int storageY = m_Pos.y + StorageTop;
+    RenderTextAt(panelX + 8, storageY + 6, I18N::Game::ItemName, 96, MutedText, false, RT3_SORT_LEFT);
+    RenderTextAt(panelX + AccountWidth - 58, storageY + 6, I18N::Game::Duration, 50, MutedText, false,
+                 RT3_SORT_RIGHT);
+
+    const POINT& usePos = m_UseButton.GetPos();
+    RenderTextAt(usePos.x, usePos.y + 8, I18N::Game::Use, IMAGE_IGS_VIEWDETAIL_BTN_WIDTH, GoldLightText, true,
+                 RT3_SORT_CENTER);
+
+    mu_swprintf(szText, L"%d / %d", g_InGameShopSystem->GetSelectPage(), g_InGameShopSystem->GetTotalPages());
+    const POINT& prevPos = m_PrevButton.GetPos();
+    const POINT& nextPos = m_NextButton.GetPos();
+    RenderTextAt(prevPos.x + IMAGE_IGS_PAGE_BTN_WIDTH, prevPos.y + 6, szText,
+                 nextPos.x - prevPos.x - IMAGE_IGS_PAGE_BTN_WIDTH, WhiteText, true, RT3_SORT_CENTER);
+
+    mu_swprintf(szText, L"%d / %d", m_iStorageCurrentPage, m_iStorageTotalPage);
+    const POINT& storagePrevPos = m_StoragePrevButton.GetPos();
+    const POINT& storageNextPos = m_StorageNextButton.GetPos();
+    RenderTextAt(storagePrevPos.x + IMGAE_IGS_STORAGE_PAGE_BTN_WIDTH, storagePrevPos.y + 6, szText,
+                 storageNextPos.x - storagePrevPos.x - IMGAE_IGS_STORAGE_PAGE_BTN_WIDTH, WhiteText, true,
+                 RT3_SORT_CENTER);
+
+    g_pRenderText->SetFont(g_hFont);
 }
 
 void CNewUIInGameShop::RenderListBox()
@@ -392,22 +632,6 @@ bool CNewUIInGameShop::BtnProcess()
         }
     }
 
-    if (m_CashGiftButton.UpdateMouseEvent() == true)
-    {
-        CMsgBoxIGSCommon* pMsgBox = NULL;
-        CreateMessageBox(MSGBOX_LAYOUT_CLASS(CMsgBoxIGSCommonLayout), &pMsgBox);
-        pMsgBox->Initialize(I18N::Game::RestrictedFunction, I18N::Game::ThisFunctionIsNotSupportedIn);
-        return true;
-    }
-
-    if (m_CashChargeButton.UpdateMouseEvent() == true)
-    {
-        CMsgBoxIGSCommon* pMsgBox = NULL;
-        CreateMessageBox(MSGBOX_LAYOUT_CLASS(CMsgBoxIGSCommonLayout), &pMsgBox);
-        pMsgBox->Initialize(I18N::Game::RestrictedFunction, I18N::Game::ThisFunctionIsNotSupportedIn);
-        return true;
-    }
-
     if (m_CashRefreshButton.UpdateMouseEvent() == true)
     {
         SocketClient->ToGameServer()->SendCashShopPointInfoRequest();
@@ -520,13 +744,8 @@ void CNewUIInGameShop::SetBtnInfo()
         m_ViewDetailButton[i].ChangeText(&I18N::Game::Buy1124);
     }
 
-    m_CashGiftButton.ChangeButtonImgState(true, IMAGE_IGS_ITEMGIFT_BTN, true);
-    m_CashGiftButton.ChangeButtonInfo(m_Pos.x + IMAGE_IGS_ITEMGIFT_BTN_POS_X, m_Pos.y + IMAGE_IGS_ICON_BTN_POS_Y, IMAGE_IGS_ICON_BTN_WIDTH, IMAGE_IGS_ICON_BTN_HEIGHT);
-    m_CashGiftButton.ChangeToolTipText(&I18N::Game::SendWCoin);
-    m_CashChargeButton.ChangeButtonImgState(true, IMAGE_IGS_CASHGIFT_BTN, true);
-    m_CashChargeButton.ChangeButtonInfo(m_Pos.x + IMAGE_IGS_CASHGIFT_BTN_POS_X, m_Pos.y + IMAGE_IGS_ICON_BTN_POS_Y, IMAGE_IGS_ICON_BTN_WIDTH, IMAGE_IGS_ICON_BTN_HEIGHT);
-    m_CashChargeButton.ChangeToolTipText(&I18N::Game::RechargeWCoin);
-
+    // Sending and recharging W Coins don't exist in MU Cyber: the Cyber Coins are bought on the website, which the
+    // panel under the Cyber Coins links to.
     m_CashRefreshButton.ChangeButtonImgState(true, IMAGE_IGS_REFRESH_BTN, true);
     m_CashRefreshButton.ChangeButtonInfo(m_Pos.x + IMAGE_IGS_REFRESH_BTN_POS_X, m_Pos.y + IMAGE_IGS_ICON_BTN_POS_Y, IMAGE_IGS_ICON_BTN_WIDTH, IMAGE_IGS_ICON_BTN_HEIGHT);
     m_CashRefreshButton.ChangeToolTipText(&I18N::Game::UpdateInformation);
@@ -667,25 +886,17 @@ void CNewUIInGameShop::InitBanner(wchar_t* pszFileName, wchar_t* pszBannerURL)
     }
 }
 
-void CNewUIInGameShop::RenderBanner()
-{
-    if (m_bLoadBanner == false)
-        return;
-
-    RenderImage(IMAGE_IGS_BANNER, IMAGE_IGS_BANNER_POS_X, IMAGE_IGS_BANNER_POS_Y, IMAGE_IGS_BANNER_WIDTH, IMAGE_IGS_BANNER_HEIGHT);
-}
-
+// MU Cyber has no banners. In their place there is a panel which tells where to get Cyber Coins, and a click on it
+// opens the website.
 bool CNewUIInGameShop::UpdateBanner()
 {
-    if (m_bLoadBanner == false || m_bBannerLink == false)
-        return false;
-
-    if ((SEASON3B::IsPress(VK_LBUTTON))
-        && (SEASON3B::CheckMouseIn(IMAGE_IGS_BANNER_POS_X, IMAGE_IGS_BANNER_POS_Y, IMAGE_IGS_BANNER_WIDTH, IMAGE_IGS_BANNER_HEIGHT)))
+    if (SEASON3B::IsPress(VK_LBUTTON) && SEASON3B::CheckMouseIn(m_Pos.x + AccountLeft, m_Pos.y + PromoTop, AccountWidth, PromoHeight))
     {
-        leaf::OpenExplorer(m_szBannerURL);
+        PlayBuffer(SOUND_CLICK01);
+        leaf::OpenExplorer(WebsiteUrl);
         return true;
     }
+
     return false;
 }
 
@@ -728,11 +939,12 @@ void CNewUIInGameShop::InitZoneBtn()
     m_ZoneButton.UnRegisterRadioButton();
     m_ZoneButton.CreateRadioGroup(g_InGameShopSystem->GetSizeZones(), IMAGE_IGS_ZONE_BTN);
 
-    // Up to 7 tabs fit with their image size. With more (MU Cyber has one per class plus the extras), they get
-    // narrower and their image is stretched, so that all fit in the window.
+    // Up to 7 tabs fit with their full width. With more (MU Cyber has one per class plus the extras), they get
+    // narrower, so that all fit between the title and the close button.
     const int zoneCount = g_InGameShopSystem->GetSizeZones();
-    const int freeWidth = IMAGE_IGS_BACK_WIDTH - IMAGE_IGS_ZONE_BTN_POS_X - 4;
+    const int freeWidth = IMAGE_IGS_EXIT_BTN_POS_X - IMAGE_IGS_ZONE_BTN_POS_X - 4;
     const int zoneWidth = std::min<int>(IMAGE_IGS_ZONE_BTN_WIDTH, freeWidth / zoneCount - 1);
+    m_iZoneTabWidth = zoneWidth;
     m_ZoneButton.ChangeRadioButtonInfo(true, m_Pos.x + IMAGE_IGS_ZONE_BTN_POS_X, m_Pos.y + IMAGE_IGS_ZONE_BTN_POS_Y, zoneWidth, IMAGE_IGS_ZONE_BTN_HEIGHT);
     m_ZoneButton.SetImageSize(IMAGE_IGS_ZONE_BTN_WIDTH, IMAGE_IGS_ZONE_BTN_HEIGHT);
     m_ZoneButton.SetFont(g_hFontBold);
@@ -995,50 +1207,6 @@ void CNewUIInGameShop::UpdateStorageItemList()
         m_iSelectedStorageItemIndex = iSelectLineIndex;
         SocketClient->ToGameServer()->SendCashShopStorageListRequest(m_iStorageCurrentPage, szCode);
     }
-}
-
-void CNewUIInGameShop::LoadImages()
-{
-    LoadBitmap(L"Interface\\newui_exit_00.tga", IMAGE_IGS_EXIT_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_shopback.jpg", IMAGE_IGS_BACK, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt01.tga", IMAGE_IGS_CATEGORY_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Deco_Center.tga", IMAGE_IGS_CATEGORY_DECO_MIDDLE, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Deco_Dn.tga", IMAGE_IGS_CATEGORY_DECO_DOWN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_Tab01.tga", IMAGE_IGS_LEFT_TAB, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_Tab02.tga", IMAGE_IGS_RIGHT_TAB, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Tab_Up.tga", IMAGE_IGS_ZONE_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt_Gift.tga", IMAGE_IGS_ITEMGIFT_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt_Cash.tga", IMAGE_IGS_CASHGIFT_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt_Reset.tga", IMAGE_IGS_REFRESH_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_VIEWDETAIL_BTN, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Itembox_logo.tga", IMAGE_IGS_ITEMBOX_LOGO, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_Bt_page_L.tga", IMAGE_IGS_PAGE_LEFT, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_Bt_page_R.tga", IMAGE_IGS_PAGE_RIGHT, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\IGS_Storage_Page.tga", IMAGE_IGS_STORAGE_PAGE, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\IGS_Storage_Page_Left.tga", IMAGE_IGS_STORAGE_PAGE_LEFT, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\IGS_Storage_Page_Right.tga", IMAGE_IGS_STORAGE_PAGE_RIGHT, GL_LINEAR);
-}
-
-void CNewUIInGameShop::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_EXIT_BTN);
-    DeleteBitmap(IMAGE_IGS_BACK);
-    DeleteBitmap(IMAGE_IGS_CATEGORY_BTN);
-    DeleteBitmap(IMAGE_IGS_CATEGORY_DECO_MIDDLE);
-    DeleteBitmap(IMAGE_IGS_CATEGORY_DECO_DOWN);
-    DeleteBitmap(IMAGE_IGS_LEFT_TAB);
-    DeleteBitmap(IMAGE_IGS_RIGHT_TAB);
-    DeleteBitmap(IMAGE_IGS_ZONE_BTN);
-    DeleteBitmap(IMAGE_IGS_ITEMGIFT_BTN);
-    DeleteBitmap(IMAGE_IGS_CASHGIFT_BTN);
-    DeleteBitmap(IMAGE_IGS_REFRESH_BTN);
-    DeleteBitmap(IMAGE_IGS_VIEWDETAIL_BTN);
-    DeleteBitmap(IMAGE_IGS_ITEMBOX_LOGO);
-    DeleteBitmap(IMAGE_IGS_PAGE_LEFT);
-    DeleteBitmap(IMAGE_IGS_PAGE_RIGHT);
-    DeleteBitmap(IMAGE_IGS_STORAGE_PAGE);
-    DeleteBitmap(IMAGE_IGS_STORAGE_PAGE_LEFT);
-    DeleteBitmap(IMAGE_IGS_STORAGE_PAGE_RIGHT);
 }
 
 #endif //PBG_ADD_INGAMESHOP_UI_ITEMSHOP

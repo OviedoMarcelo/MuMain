@@ -7,6 +7,7 @@
 #include "Engine/Object/ZzzCharacter.h"
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 #include "MsgBoxIGSSendGift.h"
+#include "CyberShopStyle.h"
 #include "Audio/DSPlaySound.h"
 
 #include "MsgBoxIGSCommon.h"
@@ -42,7 +43,6 @@ CMsgBoxIGSSendGift::~CMsgBoxIGSSendGift()
 
 bool CMsgBoxIGSSendGift::Create(float fPriority)
 {
-    LoadImages();
     SetAddCallbackFunc();
 
     CNewUIMessageBoxBase::Create((IMAGE_IGS_WINDOW_WIDTH / 2) - (IMAGE_IGS_FRAME_WIDTH / 2),
@@ -61,8 +61,8 @@ void CMsgBoxIGSSendGift::InitInputBox()
 {
     m_IDInputBox.Init(g_hWnd, IGS_ID_INPUT_TEXT_WIDTH, IGS_ID_INPUT_TEXT_HEIGHT, MAX_USERNAME_SIZE);
     m_IDInputBox.SetPosition(GetPos().x + IGS_ID_INPUT_TEXT_POS_X, GetPos().y + IGS_ID_INPUT_TEXT_POS_Y);
-    m_IDInputBox.SetTextColor(255, 0, 0, 0);
-    m_IDInputBox.SetBackColor(255, 255, 255, 255);
+    m_IDInputBox.SetTextColor(255, 241, 233, 238);
+    m_IDInputBox.SetBackColor(0, 0, 0, 0);
     m_IDInputBox.SetFont(g_hFont);
     m_IDInputBox.SetTextLimit(MAX_USERNAME_SIZE);
     m_IDInputBox.SetState(UISTATE_NORMAL);
@@ -75,7 +75,7 @@ void CMsgBoxIGSSendGift::InitInputBox()
     m_MessageInputBox.SetFont(g_hFont);
     m_MessageInputBox.SetBackColor(0, 0, 0, 0);
     m_MessageInputBox.SetState(UISTATE_NORMAL);
-    m_MessageInputBox.SetTextColor(255, 0, 0, 0);
+    m_MessageInputBox.SetTextColor(255, 241, 233, 238);
 
     m_IDInputBox.GiveFocus();
 }
@@ -98,7 +98,6 @@ void CMsgBoxIGSSendGift::Initialize(int iPackageSeq, int iDisplaySeq, int iPrice
 void CMsgBoxIGSSendGift::Release()
 {
     CNewUIMessageBoxBase::Release();
-    UnloadImages();
 }
 
 bool CMsgBoxIGSSendGift::Update()
@@ -216,58 +215,47 @@ void CMsgBoxIGSSendGift::SetButtonInfo()
 
 void CMsgBoxIGSSendGift::RenderFrame()
 {
-    RenderImage(IMAGE_IGS_FRAME, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT);
-    RenderImage(IMAGE_IGS_DECO, GetPos().x + IMAGE_IGS_DECO_POS_X, GetPos().y + IMAGE_IGS_DECO_POS_Y, IMAGE_IGS_DECO_WIDTH, IMAGE_IGS_DECO_HEIGHT);
-    RenderImage(IMAGE_IGS_INPUTTEXT, GetPos().x + IMAGE_IGS_ID_INPUT_BOX_POS_X, GetPos().y + IMAGE_IGS_ID_INPUT_BOX_POS_Y, IMAGE_IGS_ID_INPUT_BOX_WIDTH, IMAGE_IGS_ID_INPUT_BOX_HEIGHT);
+    namespace Style = GameShop::CyberStyle;
+    const float x = static_cast<float>(GetPos().x);
+    const float y = static_cast<float>(GetPos().y);
+    Style::DrawMessageBox(x, y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, I18N::Game::SendGiftItems);
+    Style::DrawInset(x + 15, y + 33, 180, 42);
+    Style::DrawInset(x + IMAGE_IGS_ID_INPUT_BOX_POS_X - 2, y + IMAGE_IGS_ID_INPUT_BOX_POS_Y, IMAGE_IGS_ID_INPUT_BOX_WIDTH + 4, IMAGE_IGS_ID_INPUT_BOX_HEIGHT + 1);
+    Style::DrawInset(x + 16, y + 122, 178, 74);
+    Style::DrawCoin(x + 19, y + 91, 4.0f);
+    EndRenderColor();
 }
 
 void CMsgBoxIGSSendGift::RenderTexts()
 {
     g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     g_pRenderText->SetFont(g_hFontBold);
-
-    g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_TITLE_POS_Y, I18N::Game::SendGiftItems, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
 
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ID_TITLE_POS_X, GetPos().y + IGS_TEXT_ID_TITLE_POS_Y, I18N::Game::RecipientSCharacterName, IGS_TEXT_ID_TITLE_WIDTH, 0, RT3_SORT_LEFT);
 
-    g_pRenderText->SetTextColor(0, 0, 0, 255);
+    g_pRenderText->SetTextColor(242, 199, 106, 255);
     g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_MESSAGE_TITLE_POS_Y, I18N::Game::MessageToTheRecipient, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
 
     g_pRenderText->SetFont(g_hFont);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
 
-    g_pRenderText->SetTextColor(247, 186, 0, 255);
+    g_pRenderText->SetTextColor(255, 233, 168, 255);
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ITEM_INFO_POS_X, GetPos().y + IGS_TEXT_ITEM_INFO_NAME_POS_Y, m_szName, IGS_TEXT_ITEM_INFO_WIDTH, 0, RT3_SORT_LEFT);
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ITEM_INFO_POS_X, GetPos().y + IGS_TEXT_ITEM_INFO_PRICE_POS_Y, m_szPrice, IGS_TEXT_ITEM_INFO_WIDTH, 0, RT3_SORT_LEFT);
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_ITEM_INFO_POS_X, GetPos().y + IGS_TEXT_ITEM_INFO_PERIOD_POS_Y, m_szPeriod, IGS_TEXT_ITEM_INFO_WIDTH, 0, RT3_SORT_LEFT);
 
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     for (int i = 0; i < m_iNumNoticeLine; i++)
     {
         g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_NOTICE_POS_Y + i * 10, m_szNotice[i], IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
     }
-
-#ifdef FOR_WORK
-    wchar_t szText[256] = { 0, };
-    g_pRenderText->SetTextColor(255, 0, 0, 255);
-    mu_swprintf(szText, L"Package Seq : %d", m_iPackageSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 10, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Display Seq : %d", m_iDisplaySeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 20, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Price Seq : %d", m_iPriceSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 30, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"ItemCode : %d", m_wItemCode);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 40, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"CashType : %d", m_iCashType);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 50, szText, 200, 0, RT3_SORT_LEFT);
-#endif // FOR_WORK
 }
 
 void CMsgBoxIGSSendGift::RenderButtons()
 {
-    m_BtnOk.Render();
-    m_BtnCancel.Render();
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnOk, true);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnCancel, false);
 }
 
 void CMsgBoxIGSSendGift::ChangeInputBoxFocus()
@@ -284,22 +272,6 @@ void CMsgBoxIGSSendGift::ChangeInputBoxFocus()
     {
         m_IDInputBox.GiveFocus();
     }
-}
-
-void CMsgBoxIGSSendGift::LoadImages()
-{
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_BUTTON, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_gift_back01.tga", IMAGE_IGS_FRAME, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_gift_icon.tga", IMAGE_IGS_DECO, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\ingame_gift_namebox.tga", IMAGE_IGS_INPUTTEXT, GL_LINEAR);
-}
-
-void CMsgBoxIGSSendGift::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_BUTTON);
-    DeleteBitmap(IMAGE_IGS_FRAME);
-    DeleteBitmap(IMAGE_IGS_DECO);
-    DeleteBitmap(IMAGE_IGS_INPUTTEXT);
 }
 
 bool CMsgBoxIGSSendGiftLayout::SetLayout()

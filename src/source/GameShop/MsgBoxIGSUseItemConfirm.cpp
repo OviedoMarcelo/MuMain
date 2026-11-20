@@ -10,6 +10,7 @@
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 
 #include "MsgBoxIGSUseItemConfirm.h"
+#include "CyberShopStyle.h"
 
 
 #include "Audio/DSPlaySound.h"
@@ -42,8 +43,6 @@ CMsgBoxIGSUseItemConfirm::~CMsgBoxIGSUseItemConfirm()
 // Create
 bool CMsgBoxIGSUseItemConfirm::Create(float fPriority)
 {
-    LoadImages();
-
     SetAddCallbackFunc();
 
     CNewUIMessageBoxBase::Create((IMAGE_IGS_WINDOW_WIDTH / 2) - (IMAGE_IGS_FRAME_WIDTH / 2),
@@ -81,8 +80,6 @@ void CMsgBoxIGSUseItemConfirm::Initialize(int iStorageSeq, int iStorageItemSeq, 
 void CMsgBoxIGSUseItemConfirm::Release()
 {
     CNewUIMessageBoxBase::Release();
-
-    UnloadImages();
 }
 
 //--------------------------------------------
@@ -210,22 +207,10 @@ void CMsgBoxIGSUseItemConfirm::SetButtonInfo()
 // RenderFrame
 void CMsgBoxIGSUseItemConfirm::RenderFrame()
 {
-    int iY;
-
-    RenderImage(IMAGE_IGS_BACK, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT);
-    RenderImage(IMAGE_IGS_UP, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_UP_HEIGHT);
-
-    iY = GetPos().y + IMAGE_IGS_UP_HEIGHT;
-
-    for (int i = 0; i < m_iMiddleCount; ++i)
-    {
-        RenderImage(IMAGE_IGS_LEFTLINE, GetPos().x, iY, IMAGE_IGS_LINE_WIDTH, IMAGE_IGS_LINE_HEIGHT);
-        RenderImage(IMAGE_IGS_RIGHTLINE, GetPos().x + IMAGE_IGS_FRAME_WIDTH - IMAGE_IGS_LINE_WIDTH, iY,
-            IMAGE_IGS_LINE_WIDTH, IMAGE_IGS_LINE_HEIGHT);
-        iY += IMAGE_IGS_LINE_HEIGHT;
-    }
-
-    RenderImage(IMAGE_IGS_DOWN, GetPos().x, iY, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_DOWN_HEIGHT);
+    namespace Style = GameShop::CyberStyle;
+    const float x = static_cast<float>(GetPos().x);
+    const float y = static_cast<float>(GetPos().y);
+    Style::DrawMessageBox(x, y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, I18N::Game::UseConfirmation);
 }
 
 //--------------------------------------------
@@ -233,11 +218,8 @@ void CMsgBoxIGSUseItemConfirm::RenderFrame()
 void CMsgBoxIGSUseItemConfirm::RenderTexts()
 {
     g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     g_pRenderText->SetFont(g_hFontBold);
-
-    // Title - "��� Ȯ��"
-    g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_TITLE_Y, I18N::Game::UseConfirmation, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
 
     g_pRenderText->SetFont(g_hFont);
 
@@ -247,51 +229,14 @@ void CMsgBoxIGSUseItemConfirm::RenderTexts()
         g_pRenderText->RenderText(GetPos().x + IGS_TEXT_DESCRIPTION_POS_X, GetPos().y + IGS_TEXT_DESCRIPTION_POS_Y + (i * IGS_TEXT_DESCRIPTION_INTERVAL),
             m_szDescription[i], IGS_TEXT_DESCRIPTION_WIDTH, 0, RT3_SORT_LEFT);
     }
-
-#ifdef FOR_WORK
-    wchar_t szText[256] = { 0, };
-    g_pRenderText->SetTextColor(255, 0, 0, 255);
-    mu_swprintf(szText, L"m_iStorageSeq : %d", m_iStorageSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 10, szText, 150, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"m_iStorageItemSeq : %d", m_iStorageItemSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 20, szText, 150, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"m_wItemCode : %d", m_wItemCode);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 30, szText, 150, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"m_szItemType : %c", m_szItemType);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 40, szText, 150, 0, RT3_SORT_LEFT);
-#endif // FOR_WORK
 }
 
 //--------------------------------------------
 // RenderButtons
 void CMsgBoxIGSUseItemConfirm::RenderButtons()
 {
-    m_BtnOk.Render();
-    m_BtnCancel.Render();
-}
-
-//--------------------------------------------
-// LoadImages
-void CMsgBoxIGSUseItemConfirm::LoadImages()
-{
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_BUTTON, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_msgbox_back.jpg", IMAGE_IGS_BACK, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_item_back03.tga", IMAGE_IGS_DOWN, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_top.tga", IMAGE_IGS_UP, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_back06(L).tga", IMAGE_IGS_LEFTLINE, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_back06(R).tga", IMAGE_IGS_RIGHTLINE, GL_LINEAR);
-}
-
-//--------------------------------------------
-// UnloadImages
-void CMsgBoxIGSUseItemConfirm::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_BUTTON);
-    DeleteBitmap(IMAGE_IGS_BACK);
-    DeleteBitmap(IMAGE_IGS_DOWN);
-    DeleteBitmap(IMAGE_IGS_UP);
-    DeleteBitmap(IMAGE_IGS_LEFTLINE);
-    DeleteBitmap(IMAGE_IGS_RIGHTLINE);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnOk, true);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnCancel, false);
 }
 
 ////////////////////////////////////////////////////////////////////

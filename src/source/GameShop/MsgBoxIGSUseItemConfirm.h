@@ -83,8 +83,6 @@ private:
     void RenderTexts();
     void RenderButtons();
 
-    void LoadImages();
-    void UnloadImages();
 
 private:
     // buttons

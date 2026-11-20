@@ -6,6 +6,7 @@
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 
 #include "MsgBoxIGSCommon.h"
+#include "CyberShopStyle.h"
 
 #include "Audio/DSPlaySound.h"
 
@@ -26,8 +27,6 @@ CMsgBoxIGSCommon::~CMsgBoxIGSCommon()
 
 bool CMsgBoxIGSCommon::Create(float fPriority)
 {
-    LoadImages();
-
     SetAddCallbackFunc();
 
     CNewUIMessageBoxBase::Create((IMAGE_IGS_WINDOW_WIDTH / 2) - (IMAGE_IGS_FRAME_WIDTH / 2),
@@ -62,8 +61,6 @@ void CMsgBoxIGSCommon::Initialize(const wchar_t* pszTitle, const wchar_t* pszTex
 void CMsgBoxIGSCommon::Release()
 {
     CNewUIMessageBoxBase::Release();
-
-    UnloadImages();
 }
 
 bool CMsgBoxIGSCommon::Update()
@@ -124,29 +121,17 @@ void CMsgBoxIGSCommon::SetButtonInfo()
 
 void CMsgBoxIGSCommon::RenderFrame()
 {
-    int iY = GetPos().y;
-
-    RenderImage(IMAGE_IGS_BACK, GetPos().x, GetPos().y, m_iMsgBoxWidth, m_iMsgBoxHeight);
-    RenderImage(IMAGE_IGS_UP, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_UP_HEIGHT);
-    iY += IMAGE_IGS_UP_HEIGHT;
-    for (int i = 0; i < m_iMiddleCount; ++i)
-    {
-        RenderImage(IMAGE_IGS_LEFTLINE, GetPos().x, iY, IMAGE_IGS_LINE_WIDTH, IMAGE_IGS_LINE_HEIGHT);
-        RenderImage(IMAGE_IGS_RIGHTLINE, GetPos().x + IMAGE_IGS_FRAME_WIDTH - IMAGE_IGS_LINE_WIDTH, iY,
-            IMAGE_IGS_LINE_WIDTH, IMAGE_IGS_LINE_HEIGHT);
-        iY += IMAGE_IGS_LINE_HEIGHT;
-    }
-    RenderImage(IMAGE_IGS_DOWN, GetPos().x, iY, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_DOWN_HEIGHT);
+    namespace Style = GameShop::CyberStyle;
+    const float x = static_cast<float>(GetPos().x);
+    const float y = static_cast<float>(GetPos().y);
+    Style::DrawMessageBox(x, y, static_cast<float>(m_iMsgBoxWidth), static_cast<float>(m_iMsgBoxHeight), m_szTitle);
 }
 
 void CMsgBoxIGSCommon::RenderTexts()
 {
     g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     g_pRenderText->SetFont(g_hFontBold);
-
-    // Title
-    g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_TITLE_POS_Y, m_szTitle, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
 
     g_pRenderText->SetFont(g_hFont);
 
@@ -165,27 +150,7 @@ void CMsgBoxIGSCommon::RenderTexts()
 
 void CMsgBoxIGSCommon::RenderButtons()
 {
-    m_BtnOk.Render();
-}
-
-void CMsgBoxIGSCommon::LoadImages()
-{
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_BUTTON, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_msgbox_back.jpg", IMAGE_IGS_BACK, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_item_back03.tga", IMAGE_IGS_DOWN, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_top.tga", IMAGE_IGS_UP, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_back06(L).tga", IMAGE_IGS_LEFTLINE, GL_LINEAR);
-    LoadBitmap(L"Interface\\newui_option_back06(R).tga", IMAGE_IGS_RIGHTLINE, GL_LINEAR);
-}
-
-void CMsgBoxIGSCommon::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_BUTTON);
-    DeleteBitmap(IMAGE_IGS_BACK);
-    DeleteBitmap(IMAGE_IGS_DOWN);
-    DeleteBitmap(IMAGE_IGS_UP);
-    DeleteBitmap(IMAGE_IGS_LEFTLINE);
-    DeleteBitmap(IMAGE_IGS_RIGHTLINE);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnOk, true);
 }
 
 bool CMsgBoxIGSCommonLayout::SetLayout()
