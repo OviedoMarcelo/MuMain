@@ -7,6 +7,7 @@
 #include "InGameShopSystem.h"
 #include "Engine/Object/ZzzInventory.h"
 #include "MsgBoxIGSCommon.h"
+#include "Data/GameConfig/GameConfig.h"
 
 #ifdef CONSOLE_DEBUG
 
@@ -100,22 +101,15 @@ bool CInGameShopSystem::ScriptDownload()
 
     ::GetCurrentDirectory(255, m_szScriptLocalPath);
 
-    wchar_t szScriptRemotePathforDMZ[MAX_TEXT_LENGTH];
     mu_swprintf(m_szScriptLocalPath, L"%ls%ls", m_szScriptLocalPath, L"\\data\\InGameShopScript");
-    wcscpy(m_szScriptIPAddress, L"image.webzen.com");
-    wcscpy(m_szScriptRemotePath, L"/Global/Payment/ProductTransfer");
-    wcscpy(szScriptRemotePathforDMZ, L"/Global/Payment/DevScriptGB/ProductTransfer");
 
-#ifdef FOR_WORK
-    if (std::filesystem::exists("dmz.ini"))
-    {
-        wcscpy(m_szScriptRemotePath, szScriptRemotePathforDMZ);
-    }
-#endif // FOR_WORK
-    m_ShopManager.SetListManagerInfo(HTTP, m_szScriptIPAddress,
+    // The catalog comes from our website (e.g. https://mucyber.tech/api/cash-shop/777.1068.345/IBSProduct.txt)
+    // instead of Webzen's server. The whole base URL goes as the server, the downloader takes it as it is.
+    const std::wstring catalogUrl = GameConfig::GetInstance().GetShopCatalogUrl();
+    m_ShopManager.SetListManagerInfo(HTTP, catalogUrl.c_str(),
         L"",
         L"",
-        m_szScriptRemotePath,
+        L"",
         m_szScriptLocalPath,
         m_ScriptVerInfo,
         10000);
@@ -245,12 +239,8 @@ bool CInGameShopSystem::IsScriptDownload()
 
 bool CInGameShopSystem::IsBannerDownload()
 {
-    if (((m_BannerVerInfo.year == m_CurrentBannerVerInfo.year) && (m_BannerVerInfo.yearId == m_CurrentBannerVerInfo.yearId) && (m_BannerVerInfo.Zone == m_CurrentBannerVerInfo.Zone)) && (m_bFirstBannerDownloaded == true))
-    {
-        return false;
-    }
-
-    return true;
+    // MU Cyber has no banners: Webzen's banner server is gone, and asking it only showed a download error.
+    return false;
 }
 #endif // KJH_MOD_SHOP_SCRIPT_DOWNLOAD
 

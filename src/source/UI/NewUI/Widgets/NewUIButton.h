@@ -285,6 +285,9 @@ namespace SEASON3B
         void ChangeRadioButtonImgState(int imgindex, bool isDown = false);
 #endif // KJH_ADD_INGAMESHOP_UI_SYSTEM
         void ChangeRadioButtonInfo(int x, int y, int sx, int sy);
+        // The size of one state in the image, when the button is drawn smaller or bigger than its image
+        // (the image is stretched then). 0: the image has the size of the button.
+        void SetImageSize(int sx, int sy);
         void ChangeFrame(BUTTON_STATE eventstate);
 
     public:
@@ -330,6 +333,7 @@ namespace SEASON3B
         DWORD					m_ImgWidth;
         DWORD					m_ImgHeight;
         DWORD					m_CurImgColor;
+        POINT					m_ImageSize = { 0, 0 };
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
         HFONT					m_hTextFont;
         bool					m_bClickEffect;
@@ -380,6 +384,8 @@ namespace SEASON3B
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
         void CreateRadioGroup(int radiocount, int imgindex, bool bClickEffect = false);
         void ChangeRadioButtonInfo(bool iswidth, int x, int y, int sx, int sy, int iDistance = 1);
+        // See CNewUIRadioButton::SetImageSize.
+        void SetImageSize(int sx, int sy);
         void MoveTextPos(int iX, int iY);
 #else // KJH_ADD_INGAMESHOP_UI_SYSTEM
         void CreateRadioGroup(int radiocount, int imgindex);

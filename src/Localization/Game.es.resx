@@ -10050,7 +10050,7 @@
     <comment>legacy_id=2882</comment>
   </data>
   <data name="My W Coin : %s" xml:space="preserve">
-    <value>Mi moneda W: %s</value>
+    <value>Cyber Coins: %s</value>
     <comment>legacy_id=2883</comment>
   </data>
   <data name="Goblin Points : %s" xml:space="preserve">
@@ -10106,7 +10106,7 @@
     <comment>legacy_id=2902</comment>
   </data>
   <data name="You do not have enough W Coin or points." xml:space="preserve">
-    <value>No tienes suficientes W Coin o puntos.</value>
+    <value>No tienes suficientes Cyber Coins.</value>
     <comment>legacy_id=2903</comment>
   </data>
   <data name="You do not have enough space in storage." xml:space="preserve">
@@ -10242,11 +10242,11 @@
     <comment>legacy_id=2938</comment>
   </data>
   <data name="Send W Coin" xml:space="preserve">
-    <value>Enviar moneda W</value>
+    <value>Enviar Cyber Coins</value>
     <comment>legacy_id=2939</comment>
   </data>
   <data name="Recharge W Coin" xml:space="preserve">
-    <value>Recargar moneda W</value>
+    <value>Conseguir Cyber Coins</value>
     <comment>legacy_id=2940</comment>
   </data>
   <data name="Update Information" xml:space="preserve">
@@ -10614,11 +10614,11 @@
     <comment>legacy_id=3042,3650</comment>
   </data>
   <data name="%s W Coin" xml:space="preserve">
-    <value>Moneda %s W</value>
+    <value>%s Cyber Coins</value>
     <comment>legacy_id=3043</comment>
   </data>
   <data name="%d W Coin" xml:space="preserve">
-    <value>Moneda %d W</value>
+    <value>%d Cyber Coins</value>
     <comment>legacy_id=3044</comment>
   </data>
   <data name="Quantity: %d / Duration: %s" xml:space="preserve">
@@ -10642,7 +10642,7 @@
     <comment>legacy_id=3049</comment>
   </data>
   <data name="W Coin: %s Coins" xml:space="preserve">
-    <value>Moneda W: Monedas %s</value>
+    <value>Cyber Coins: %s</value>
     <comment>legacy_id=3050</comment>
   </data>
   <data name="You can only open MU Item Shop in a town or safe zone." xml:space="preserve">

@@ -97,6 +97,10 @@ public:
     bool GetVSyncEnabled() const { return m_vsyncEnabled; }
     void SetVSyncEnabled(bool enabled);
 
+    // Shop - the base URL of the catalog of the in-game shop. It's only read, so it's never written to
+    // config.ini; whoever needs another one adds it there.
+    std::wstring GetShopCatalogUrl() const { return m_shopCatalogUrl; }
+
     // Helpers
     static std::wstring BinaryToHex(const BYTE* data, DWORD size);
     static std::vector<BYTE> HexToBinary(const std::wstring& hex);
@@ -138,6 +142,8 @@ private:
     int m_zoom;
     bool m_sortParticleDraws;
     bool m_vsyncEnabled;
+
+    std::wstring m_shopCatalogUrl;
 
     int ReadInt(const wchar_t* section, const wchar_t* key, int defaultValue);
     void WriteInt(const wchar_t* section, const wchar_t* key, int value);
