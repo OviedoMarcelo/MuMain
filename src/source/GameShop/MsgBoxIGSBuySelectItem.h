@@ -82,8 +82,6 @@ private:
     void RenderFrame();
     void RenderTexts();
     void RenderButtons();
-    void LoadImages();
-    void UnloadImages();
     void CreateListBox();
     void RenderListBox();
     void ReleaseListBox();

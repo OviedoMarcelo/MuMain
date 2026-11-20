@@ -10,6 +10,7 @@
 #include "UIWindows.h"
 #include "Render/Renderer/MuRenderer.h"
 #include "Render/Textures/ZzzOpenglUtil.h"
+#include "GameShop/CyberShopStyle.h"
 #include "Render/Textures/ZzzTexture.h"
 #include "Engine/Object/ZzzInventory.h"
 #include "Render/Models/ZzzBMD.h"
@@ -5830,7 +5831,8 @@ BOOL CUIInGameShopListBox::RenderDataLine(int iLineNumber)
 
     if (SLGetSelectLineNum() == m_iCurrentRenderEndLine + iLineNumber + 1)
     {
-        RenderColor(m_iPos_x, GetRenderLinePos_y(iLineNumber) - 3, m_iWidth - m_fScrollBarWidth + 4, 13);
+        RenderColorQuadARGB(m_iPos_x, GetRenderLinePos_y(iLineNumber) - 3, m_iWidth - m_fScrollBarWidth + 4, 13,
+                            GameShop::CyberStyle::SelectedLineFill);
         mu::GetRenderer().SetTexture2D(true);
     }
 
@@ -5974,7 +5976,8 @@ BOOL CUIBuyingListBox::RenderDataLine(int iLineNumber)
 
     if (SLGetSelectLineNum() == m_iCurrentRenderEndLine + iLineNumber + 1 && GetLineColorRender())
     {
-        RenderColor(m_iPos_x, GetRenderLinePos_y(iLineNumber) - 3, m_iWidth - m_fScrollBarWidth + 1, 13);
+        RenderColorQuadARGB(m_iPos_x, GetRenderLinePos_y(iLineNumber) - 3, m_iWidth - m_fScrollBarWidth + 1, 13,
+                            GameShop::CyberStyle::SelectedLineFill);
         mu::GetRenderer().SetTexture2D(true);
     }
 
@@ -6118,7 +6121,8 @@ BOOL CUIPackCheckBuyingListBox::RenderDataLine(int nLine)
 
     if (SLGetSelectLineNum() == m_iCurrentRenderEndLine + nLine + 1)
     {
-        RenderColor(m_iPos_x + 3, GetRenderLinePos_y(nLine) + 1, m_iWidth - m_fScrollBarWidth + 1, TEXT_HEIGHTSIZE - 6);
+        RenderColorQuadARGB(m_iPos_x + 3, GetRenderLinePos_y(nLine) + 1, m_iWidth - m_fScrollBarWidth + 1,
+                            TEXT_HEIGHTSIZE - 6, GameShop::CyberStyle::SelectedLineFill);
         mu::GetRenderer().SetTexture2D(true);
     }
 
@@ -6138,7 +6142,8 @@ BOOL CUIPackCheckBuyingListBox::RenderDataLine(int nLine)
             m_TextListIter->m_RadioBtn.UpdateActionCheck(false);
 
         m_TextListIter->m_RadioBtn.SetRadioBtnRect(iPos_x + 1, iPos_y + TEXT_HEIGHTSIZE * 0.2f);
-        m_TextListIter->m_RadioBtn.RadiobuttonBoxRender();
+        GameShop::CyberStyle::DrawCheckMark(iPos_x + 1, iPos_y + TEXT_HEIGHTSIZE * 0.2f, 14.0f,
+                                            m_TextListIter->m_RadioBtn.GetCheckBtn());
 
         g_pRenderText->SetFont(g_hFontBold);
         mu_swprintf(Text, L"%ls", m_TextListIter->m_szItemName);

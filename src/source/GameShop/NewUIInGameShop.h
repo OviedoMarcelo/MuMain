@@ -76,16 +76,16 @@ private:
 
     enum INGAMESHOP_IMAGES_POS
     {
-        IMAGE_IGS_EXIT_BTN_POS_X = 484, // Exit Button
-        IMAGE_IGS_EXIT_BTN_POS_Y = 392,
+        IMAGE_IGS_EXIT_BTN_POS_X = 614, // Exit Button: the X at the top right corner
+        IMAGE_IGS_EXIT_BTN_POS_Y = 4,
         IMAGE_IGS_BACK_POS_X = 0, // InGameShop Back
         IMAGE_IGS_BACK_POS_Y = 0,
         IMAGE_IGS_CATEGORY_BTN_POS_X = 13, // Category Button
         IMAGE_IGS_CATEGORY_BTN_POS_Y = 31,
         IMAGE_IGS_CATEGORY_BTN_DISTANCE = 6,
         IMAGE_IGS_TAB_BTN_POS_X = 486, // Tab Button
-        IMAGE_IGS_TAB_BTN_POS_Y = 208,
-        IMAGE_IGS_TAB_BTN_DISTANCE = -2,
+        IMAGE_IGS_TAB_BTN_POS_Y = 202,
+        IMAGE_IGS_TAB_BTN_DISTANCE = 2,
         IMAGE_IGS_ZONE_BTN_POS_X = 95, // Zone Button
         IMAGE_IGS_ZONE_BTN_POS_Y = 0,
         IMAGE_IGS_VIEWDETAIL_BTN_POS_X = 162, // View Detail Button
@@ -94,8 +94,8 @@ private:
         IMAGE_IGS_VIEWDETAIL_BTN_DISTANCE_Y = 121,
         IMAGE_IGS_ITEMGIFT_BTN_POS_X = 519, // Item Gift Button
         IMAGE_IGS_CASHGIFT_BTN_POS_X = 546, // Cash Gift Button
-        IMAGE_IGS_REFRESH_BTN_POS_X = 573,  // Refresh Button
-        IMAGE_IGS_ICON_BTN_POS_Y = 94,
+        IMAGE_IGS_REFRESH_BTN_POS_X = 604,  // Refresh Button, next to the Cyber Coins
+        IMAGE_IGS_ICON_BTN_POS_Y = 92,
         IMAGE_IGS_USE_BTN_POS_X = 572,
         IMAGE_IGS_USE_BTN_POS_Y = 396,
         IMAGE_IGS_ITEMBOX_LOGO_POS_X = 128,
@@ -114,8 +114,8 @@ private:
 
     enum INGAMESHOP_IMAGES_SIZE
     {
-        IMAGE_IGS_EXIT_BTN_WIDTH = 36, // Exit Button
-        IMAGE_IGS_EXIT_BTN_HEIGHT = 29,
+        IMAGE_IGS_EXIT_BTN_WIDTH = 20, // Exit Button
+        IMAGE_IGS_EXIT_BTN_HEIGHT = 20,
         IMAGE_IGS_BACK_WIDTH = 640, // InGameShop Back
         IMAGE_IGS_BACK_HEIGHT = 429,
         IMAGE_IGS_CATEGORY_BTN_WIDTH = 73, // Category Button
@@ -124,14 +124,14 @@ private:
         IMAGE_IGS_CATEGORY_DECO_MIDDLE_HEIGHT = 8,
         IMAGE_IGS_CATEGORY_DECO_DOWN_WIDTH = 47, // Category Deco Down
         IMAGE_IGS_CATEGORY_DECO_DOWN_HEIGHT = 100,
-        IMAGE_IGS_TAB_BTN_WIDTH = 49, // Tab Button
+        IMAGE_IGS_TAB_BTN_WIDTH = 72, // Tab Button
         IMAGE_IGS_TAB_BTN_HEIGHT = 20,
         IMAGE_IGS_ZONE_BTN_WIDTH = 76, // Zone Button
         IMAGE_IGS_ZONE_BTN_HEIGHT = 23,
         IMAGE_IGS_VIEWDETAIL_BTN_WIDTH = 52, // View Detail Button
         IMAGE_IGS_VIEWDETAIL_BTN_HEIGHT = 26,
-        IMAGE_IGS_ICON_BTN_WIDTH = 25,
-        IMAGE_IGS_ICON_BTN_HEIGHT = 25,
+        IMAGE_IGS_ICON_BTN_WIDTH = 20,
+        IMAGE_IGS_ICON_BTN_HEIGHT = 20,
         IMAGE_IGS_ITEMBOX_LOGO_SIZE = 57,
         IMAGE_IGS_PAGE_BTN_WIDTH = 20, // Page
         IMAGE_IGS_PAGE_BTN_HEIGHT = 23,
@@ -182,7 +182,9 @@ public:
     void SetBtnInfo();
     float GetLayerDepth()
     {
-        return 10.08f;
+        // Above the main frame (10.6f), so that the HUD at the bottom doesn't cover the shop, and below the
+        // message boxes (10.7f), which the shop opens.
+        return 10.65f;
     }
 
     bool GetItemRotation()
@@ -243,28 +245,30 @@ private:
 
 private:
     void Init();
-    void LoadImages();
-    void UnloadImages();
     void RenderFrame();
     void RenderTexts();
-    void RenderButtons();
     void RenderListBox();
     void RenderDisplayItems();
 
-    void RenderBanner();
     bool UpdateBanner();
+
+    void RenderZoneTabs();
+    void RenderCategories();
+    void RenderItemCards();
+    void RenderAccountPanel();
+    void RenderStorage();
+    void RenderPagers();
 
 private:
     CNewUIManager* m_pNewUIMng;
     POINT m_Pos;
     bool m_ItemAngle;
+    int m_iZoneTabWidth;
 
     CNewUIRadioGroupButton m_ZoneButton;
     CNewUIRadioGroupButton m_CategoryButton;
     CNewUIRadioGroupButton m_ListBoxTabButton;
     CNewUIButton m_ViewDetailButton[INGAMESHOP_DISPLAY_ITEMLIST_SIZE];
-    CNewUIButton m_CashGiftButton;
-    CNewUIButton m_CashChargeButton;
     CNewUIButton m_CashRefreshButton;
     CNewUIButton m_UseButton;
     CNewUIButton m_PrevButton;

@@ -76,8 +76,6 @@ private:
     void RenderFrame();
     void RenderTexts();
     void RenderButtons();
-    void LoadImages();
-    void UnloadImages();
 
 private:
     CNewUIMessageBoxButton m_BtnUse;

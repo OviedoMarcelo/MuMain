@@ -103,6 +103,8 @@ namespace SEASON3B
         void AddBlank(int iAddLine);
 
         void SetEnable(bool bEnable) { m_bEnable = bEnable; }
+        bool IsEnabled() const { return m_bEnable; }
+        const std::wstring& GetText() const { return m_strText; }
 
         void SetPos(float x, float y) { m_x = x; m_y = y; }
         float GetPosX() { return m_x; }

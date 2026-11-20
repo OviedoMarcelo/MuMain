@@ -6,6 +6,7 @@
 
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 #include "MsgBoxIGSBuySelectItem.h"
+#include "CyberShopStyle.h"
 #include "Audio/DSPlaySound.h"
 #include "UI/NewUI/NewUISystem.h"
 #include "MsgBoxIGSBuyConfirm.h"
@@ -37,8 +38,6 @@ CMsgBoxIGSBuySelectItem::~CMsgBoxIGSBuySelectItem()
 // Create
 bool CMsgBoxIGSBuySelectItem::Create(float fPriority)
 {
-    LoadImages();
-
     SetAddCallbackFunc();
 
     CNewUIMessageBoxBase::Create((IMAGE_IGS_WINDOW_WIDTH / 2) - (IMAGE_IGS_FRAME_WIDTH / 2), (IMAGE_IGS_WINDOW_HEIGHT / 2) - (IMAGE_IGS_FRAME_HEIGHT / 2), IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, fPriority);
@@ -100,8 +99,6 @@ void CMsgBoxIGSBuySelectItem::Release()
         g_pNewUI3DRenderMng->Remove3DRenderObj(this);
 
     ReleaseListBox();
-
-    UnloadImages();
 }
 
 bool CMsgBoxIGSBuySelectItem::Update()
@@ -127,19 +124,26 @@ bool CMsgBoxIGSBuySelectItem::Render()
 
 void CMsgBoxIGSBuySelectItem::RenderFrame()
 {
-    RenderImage(IMAGE_IGS_MGSBOX_BACK, GetPos().x, GetPos().y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT);
+    namespace Style = GameShop::CyberStyle;
+    const float x = static_cast<float>(GetPos().x);
+    const float y = static_cast<float>(GetPos().y);
+    Style::DrawMessageBox(x, y, IMAGE_IGS_FRAME_WIDTH, IMAGE_IGS_FRAME_HEIGHT, I18N::Game::Shop);
+    Style::DrawInset(x + 17, y + 31, 181, 64);
+    Style::DrawInset(x + 13, y + 174, 189, 106);
+    Style::DrawInset(x + 106, y + 284, 96, 17);
+    Style::DrawCoin(x + 115, y + 292.5f, 4.0f);
+    EndRenderColor();
 }
 
 void CMsgBoxIGSBuySelectItem::RenderTexts()
 {
     g_pRenderText->SetBgColor(0, 0, 0, 0);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
     g_pRenderText->SetFont(g_hFontBold);
-    g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_TITLE_POS_Y, I18N::Game::Shop, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
-    g_pRenderText->SetTextColor(255, 255, 0, 255);
+    g_pRenderText->SetTextColor(255, 233, 168, 255);
     g_pRenderText->RenderText(GetPos().x, GetPos().y + IGS_TEXT_NAME_POS_Y, m_szPackageName, IMAGE_IGS_FRAME_WIDTH, 0, RT3_SORT_CENTER);
     g_pRenderText->SetFont(g_hFont);
-    g_pRenderText->SetTextColor(255, 255, 255, 255);
+    g_pRenderText->SetTextColor(241, 233, 238, 255);
 
     for (int i = 0; i < m_iDescriptionLine; i++)
     {
@@ -147,36 +151,13 @@ void CMsgBoxIGSBuySelectItem::RenderTexts()
     }
 
     g_pRenderText->RenderText(GetPos().x + IGS_TEXT_PRICE_POS_X, GetPos().y + IGS_TEXT_PRICE_POX_Y, m_szPrice, IGS_TEXT_PRICE_WIDTH, 0, RT3_SORT_RIGHT);
-
-#ifdef FOR_WORK
-    // debug
-    wchar_t szText[256] = { 0, };
-    g_pRenderText->SetTextColor(255, 0, 0, 255);
-    if (m_wItemCode == 65535)
-    {
-        mu_swprintf(szText, L"Bad item index.");
-    }
-    else
-    {
-        mu_swprintf(szText, L"ItemCode : %d (%d, %d)", m_wItemCode, m_wItemCode / MAX_ITEM_INDEX, m_wItemCode % MAX_ITEM_INDEX);
-    }
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 10, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Package Seq : %d", m_iPackageSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 20, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Display Seq : %d", m_iDisplaySeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 30, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Price Seq : %d", m_SelectBuyListBox.GetSelectedText()->m_iPriceSeq);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 40, szText, 200, 0, RT3_SORT_LEFT);
-    mu_swprintf(szText, L"Cash Type : %d", m_SelectBuyListBox.GetSelectedText()->m_iCashType);
-    g_pRenderText->RenderText(GetPos().x + IMAGE_IGS_FRAME_WIDTH, GetPos().y + 50, szText, 200, 0, RT3_SORT_LEFT);
-#endif // FOR_WORK
 }
 
 void CMsgBoxIGSBuySelectItem::RenderButtons()
 {
-    m_BtnPresent.Render();
-    m_BtnBuy.Render();
-    m_BtnCancel.Render();
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnBuy, true);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnPresent, false);
+    GameShop::CyberStyle::RenderMessageBoxButton(m_BtnCancel, false);
 }
 
 void CMsgBoxIGSBuySelectItem::Render3D()
@@ -276,20 +257,6 @@ void CMsgBoxIGSBuySelectItem::SetButtonInfo()
     m_BtnCancel.SetInfo(IMAGE_IGS_BUTTON, GetPos().x + IGS_BTN_CANCEL_POS_X, GetPos().y + IGS_BTN_POS_Y, IMAGE_IGS_BTN_WIDTH, IMAGE_IGS_BTN_HEIGHT, CNewUIMessageBoxButton::MSGBOX_BTN_CUSTOM, true);
     m_BtnCancel.MoveTextPos(-1, -1);
     m_BtnCancel.SetText(I18N::Game::Cancel);
-}
-
-//--------------------------------------------
-// LoadImages
-void CMsgBoxIGSBuySelectItem::LoadImages()
-{
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_pack_back03.tga", IMAGE_IGS_MGSBOX_BACK, GL_LINEAR);
-    LoadBitmap(L"Interface\\InGameShop\\Ingame_Bt03.tga", IMAGE_IGS_BUTTON, GL_LINEAR);
-}
-
-void CMsgBoxIGSBuySelectItem::UnloadImages()
-{
-    DeleteBitmap(IMAGE_IGS_MGSBOX_BACK);
-    DeleteBitmap(IMAGE_IGS_BUTTON);
 }
 
 void CMsgBoxIGSBuySelectItem::CreateListBox()

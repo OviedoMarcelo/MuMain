@@ -13387,4 +13387,13 @@
   <data name="KundunExchangeHelpExcluded" xml:space="preserve">
     <value>Ancient and socket items aren't accepted</value>
   </data>
+  <data name="CyberShopTitle" xml:space="preserve">
+    <value>CYBER SHOP</value>
+  </data>
+  <data name="CyberShopBalance" xml:space="preserve">
+    <value>Your Cyber Coins</value>
+  </data>
+  <data name="CyberShopGetCoins" xml:space="preserve">
+    <value>Get Cyber Coins at</value>
+  </data>
 </root>

@@ -93,8 +93,6 @@ private:
     bool Add_WarningMsgBuyItem(int _nItemIndex);
 #endif // LEM_FIX_WARNINGMSG_BUYITEM
 
-    void LoadImages();
-    void UnloadImages();
 
 private:
     CNewUIMessageBoxButton m_BtnBuy;
