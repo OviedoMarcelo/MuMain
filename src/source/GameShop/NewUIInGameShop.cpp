@@ -152,22 +152,12 @@ void CNewUIInGameShop::RenderTexts()
     }
     g_pRenderText->SetTextColor(255, 238, 161, 255);
 
-    //CreditCard
+    // MU Cyber has one currency, the Cyber Coins, which the server sends as the "credit card cash".
+    // The prepaid cash (W Coin(P)) and the Goblin Points don't exist, so they aren't shown.
     ConvertGold(g_InGameShopSystem->GetCashCreditCard(), szValue);
     mu_swprintf(szText, I18N::Game::MyWCoinS, L"");
     g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X, m_Pos.y + TEXT_IGS_CASH_POS_Y, szText, TEXT_IGS_CASH_WIDTH, 0, RT3_SORT_LEFT);
     g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X + 50, m_Pos.y + TEXT_IGS_CASH_POS_Y, szValue, TEXT_IGS_CASH_WIDTH - 56, 0, RT3_SORT_RIGHT);
-
-    //Prepaid
-    ConvertGold(g_InGameShopSystem->GetCashPrepaid(), szValue);
-    mu_swprintf(szText, I18N::Game::MyWCoinPS, L"");
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X, m_Pos.y + TEXT_IGS_MILEAGE_POS_Y, szText, TEXT_IGS_CASH_WIDTH, 0, RT3_SORT_LEFT);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X + 50, m_Pos.y + TEXT_IGS_MILEAGE_POS_Y, szValue, TEXT_IGS_CASH_WIDTH - 56, 0, RT3_SORT_RIGHT);
-
-    ConvertGold(g_InGameShopSystem->GetTotalMileage(), szValue, 1);
-    mu_swprintf(szText, I18N::Game::GoblinPointsS, L"");
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X, m_Pos.y + TEXT_IGS_POINT_POS_Y, szText, TEXT_IGS_CASH_WIDTH, 0, RT3_SORT_LEFT);
-    g_pRenderText->RenderText(m_Pos.x + TEXT_IGS_CASH_POS_X + 50, m_Pos.y + TEXT_IGS_POINT_POS_Y, szValue, TEXT_IGS_CASH_WIDTH - 56, 0, RT3_SORT_RIGHT);
 
     g_pRenderText->SetTextColor(255, 255, 255, 255);
     g_pRenderText->SetFont(g_hFontBold);
@@ -737,7 +727,14 @@ void CNewUIInGameShop::InitZoneBtn()
 
     m_ZoneButton.UnRegisterRadioButton();
     m_ZoneButton.CreateRadioGroup(g_InGameShopSystem->GetSizeZones(), IMAGE_IGS_ZONE_BTN);
-    m_ZoneButton.ChangeRadioButtonInfo(true, m_Pos.x + IMAGE_IGS_ZONE_BTN_POS_X, m_Pos.y + IMAGE_IGS_ZONE_BTN_POS_Y, IMAGE_IGS_ZONE_BTN_WIDTH, IMAGE_IGS_ZONE_BTN_HEIGHT);
+
+    // Up to 7 tabs fit with their image size. With more (MU Cyber has one per class plus the extras), they get
+    // narrower and their image is stretched, so that all fit in the window.
+    const int zoneCount = g_InGameShopSystem->GetSizeZones();
+    const int freeWidth = IMAGE_IGS_BACK_WIDTH - IMAGE_IGS_ZONE_BTN_POS_X - 4;
+    const int zoneWidth = std::min<int>(IMAGE_IGS_ZONE_BTN_WIDTH, freeWidth / zoneCount - 1);
+    m_ZoneButton.ChangeRadioButtonInfo(true, m_Pos.x + IMAGE_IGS_ZONE_BTN_POS_X, m_Pos.y + IMAGE_IGS_ZONE_BTN_POS_Y, zoneWidth, IMAGE_IGS_ZONE_BTN_HEIGHT);
+    m_ZoneButton.SetImageSize(IMAGE_IGS_ZONE_BTN_WIDTH, IMAGE_IGS_ZONE_BTN_HEIGHT);
     m_ZoneButton.SetFont(g_hFontBold);
     m_ZoneButton.ChangeRadioText(g_InGameShopSystem->GetZoneName());
     m_ZoneButton.ChangeFrame(0);

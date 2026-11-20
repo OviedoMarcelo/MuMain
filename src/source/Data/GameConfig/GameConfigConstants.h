@@ -10,6 +10,7 @@ namespace CfgSections
     inline constexpr wchar_t CfgSectionConnectionSettings[] = L"CONNECTION SETTINGS";
     inline constexpr wchar_t CfgSectionCamera[] = L"Camera";
     inline constexpr wchar_t CfgSectionRender[] = L"Render";
+    inline constexpr wchar_t CfgSectionShop[] = L"Shop";
 }
 
 namespace CfgKeys
@@ -48,6 +49,9 @@ namespace CfgKeys
     inline constexpr wchar_t CfgKeyCoreProfile[] = L"CoreProfile";
     inline constexpr wchar_t CfgKeySortParticleDraws[] = L"SortParticleDraws";
     inline constexpr wchar_t CfgKeyVSync[] = L"VSync";
+
+    // Shop
+    inline constexpr wchar_t CfgKeyCatalogUrl[] = L"CatalogUrl";
 }
 
 namespace CfgDefaults
@@ -87,4 +91,8 @@ namespace CfgDefaults
     // Opt-in until real effects have been visually checked on target hardware.
     inline constexpr bool CfgDefaultSortParticleDraws = false;
     inline constexpr bool CfgDefaultVSync = true;
+
+    // Where the in-game shop downloads its catalog: <url>/<version>/IBSProduct.txt etc.
+    // The website serves it from the game server; a local test sets e.g. http://127.0.0.1:3000/api/cash-shop.
+    inline constexpr wchar_t CfgDefaultCatalogUrl[] = L"https://mucyber.tech/api/cash-shop";
 }

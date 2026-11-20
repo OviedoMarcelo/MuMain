@@ -20,7 +20,7 @@
 
 namespace
 {
-std::wstring BuildFtpUrl(const std::wstring& host, unsigned short port, const std::wstring& remotePath)
+std::wstring BuildUrl(DownloaderType type, const std::wstring& host, unsigned short port, const std::wstring& remotePath)
 {
     // WinINet's FtpOpenFile treated the remote path as relative to the login
     // directory; libcurl's ftp://host/path does the same with a single leading
@@ -39,7 +39,21 @@ std::wstring BuildFtpUrl(const std::wstring& host, unsigned short port, const st
         path.erase(path.begin());
     }
 
-    return L"ftp://" + host + L":" + std::to_wstring(port) + L"/" + path;
+    // A whole base URL (e.g. https://mucyber.tech/api/cash-shop) is taken as it is, with its scheme and port.
+    if (host.find(L"://") != std::wstring::npos)
+    {
+        std::wstring base = host;
+        while (!base.empty() && base.back() == L'/')
+        {
+            base.pop_back();
+        }
+
+        return base + L"/" + path;
+    }
+
+    // HTTP used to get an ftp:// URL as well, so the download from a plain host always timed out.
+    const std::wstring scheme = type == HTTP ? L"http://" : L"ftp://";
+    return scheme + host + L":" + std::to_wstring(port) + L"/" + path;
 }
 } // namespace
 
@@ -77,7 +91,7 @@ WZResult CFTPFileDownLoader::DownLoadFiles(DownloaderType type,
     for (std::vector<std::wstring>::iterator it = vScriptFiles.begin(); it != vScriptFiles.end(); ++it)
     {
         const std::wstring localPath = localBase + (*it);
-        const std::wstring url = BuildFtpUrl(strServerIP, PortNum, remoteBase + (*it));
+        const std::wstring url = BuildUrl(type, strServerIP, PortNum, remoteBase + (*it));
 
         result = CurlFileDownloader::DownloadFile(url, localPath, strUserName, strPWD, bPassiveMode, &this->m_Break);
 

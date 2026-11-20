@@ -610,6 +610,12 @@ void CNewUIRadioButton::ChangeRadioButtonInfo(int x, int y, int sx, int sy)
     SetSize(sx, sy);
 }
 
+void CNewUIRadioButton::SetImageSize(int sx, int sy)
+{
+    m_ImageSize.x = sx;
+    m_ImageSize.y = sy;
+}
+
 void CNewUIRadioButton::RegisterButtonState(BUTTON_STATE eventstate, int imgindex, int btstate)
 {
     ButtonInfo btinfo;
@@ -782,7 +788,11 @@ bool CNewUIRadioButton::Render()
     if (m_RadioButtonInfo.size() != 0)
     {
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
-        if (m_CurImgIndex != BITMAP_UNKNOWN)
+        if (m_CurImgIndex != BITMAP_UNKNOWN && m_ImageSize.x > 0 && m_ImageSize.y > 0)
+        {
+            RenderImageStretch(m_CurImgIndex, m_Pos.x, m_Pos.y, m_Size.x, m_Size.y, 0.0f, m_CurImgState * m_ImageSize.y, m_ImageSize.x, m_ImageSize.y, m_CurImgColor);
+        }
+        else if (m_CurImgIndex != BITMAP_UNKNOWN)
         {
             RenderImage(m_CurImgIndex, m_Pos.x, m_Pos.y, m_Size.x, m_Size.y, 0.0f, m_CurImgState * m_Size.y, m_CurImgColor);
         }
@@ -929,6 +939,17 @@ void CNewUIRadioGroupButton::ChangeRadioButtonInfo(bool iswidth, int x, int y, i
         }
 
         ++i;
+    }
+}
+
+void CNewUIRadioGroupButton::SetImageSize(int sx, int sy)
+{
+    for (CNewUIRadioButton* button : m_RadioList)
+    {
+        if (button)
+        {
+            button->SetImageSize(sx, sy);
+        }
     }
 }
 
