@@ -103,6 +103,7 @@
 
 #include "MUHelper/MuHelper.h"
 #include "GameLogic/Items/ItemCategories.h"
+#include "World/MapInfra/ChristmasLorencia.h"
 
 #define MAX_DEBUG_MAX 10
 
@@ -8667,6 +8668,10 @@ void ReceiveServerCommand(const BYTE* ReceiveBuffer)
         }
     }
     break;
+    case 200:
+        // MU Cyber: the Christmas version of Lorencia, applied the next time Lorencia is loaded.
+        World::ChristmasLorencia::SetEnabled(Data->Cmd2 != 0);
+        break;
     case 59:
     {
         vec3_t Position, Angle, Light;

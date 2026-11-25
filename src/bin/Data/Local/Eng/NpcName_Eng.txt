@@ -686,4 +686,5 @@
 708	1	"Vault Guardian"
 709	1	"Guardian of Icarus"
 710	1	"Excellent Collector"
+711	1	"Santa's Elf"
 end			

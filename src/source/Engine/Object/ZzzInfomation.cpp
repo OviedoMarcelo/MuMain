@@ -1762,6 +1762,11 @@ int64_t ItemValue(ITEM* ip, int goldType)
     {
         Gold = 200000;
     }
+    else if (ip->Type == ITEM_INVITATION_TO_SANTA_VILLAGE)
+    {
+        // The price of the Duende de Santa in Lorencia. It has to be the same as in ItemPriceCalculator of the server.
+        Gold = 3000000;
+    }
     else if (ip->Type == ITEM_FIRECRACKER)
     {
         Gold = 200000;

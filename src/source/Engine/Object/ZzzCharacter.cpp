@@ -13091,6 +13091,7 @@ namespace
         case static_cast<int>(MONSTER_WANDERING_MERCHANT_ZYRO):
         case static_cast<int>(MONSTER_VAULT_GUARDIAN):
         case static_cast<int>(MONSTER_KUNDUN_COLLECTOR):
+        case static_cast<int>(MONSTER_SANTA_ELF):
             return true;
         default:
             return false;
@@ -13329,6 +13330,25 @@ CHARACTER* CreateMonster(EMonsterType Type, int PositionX, int PositionY, int Ke
         c->Weapon[0].Type = -1;
         c->Weapon[1].Type = -1;
         break;
+    case MONSTER_SANTA_ELF:
+    {
+        // The Duende de Santa looks like the green Little Santa of Santa Village.
+        const int modelIndex = MODEL_LITTLESANTA + (MONSTER_LITTLE_SANTA_GREEN - MONSTER_LITTLE_SANTA_YELLOW);
+        OpenNpc(modelIndex);
+        c = CreateCharacter(Key, modelIndex, PositionX, PositionY);
+        c->NotRotateOnMagicHit = true;
+        c->Object.Scale = 0.43f;
+        c->Weapon[0].Type = -1;
+        c->Weapon[1].Type = -1;
+
+        // The same speed of the animations as the Little Santas.
+        for (int i = 0; i < 5; i++)
+        {
+            Models[modelIndex].Actions[i].PlaySpeed = (i < 2 || i == 4) ? 0.4f : 0.5f;
+        }
+
+        break;
+    }
 #ifdef ADD_ELF_SUMMON
     case 276:
         OpenMonsterModel(MONSTER_MODEL_GOLDEN_TITAN);

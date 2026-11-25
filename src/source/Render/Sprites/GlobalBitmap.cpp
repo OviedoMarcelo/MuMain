@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "World/MapInfra/ChristmasLorencia.h"
 
 namespace mu
 {
@@ -500,8 +501,11 @@ void CGlobalBitmap::Init()
     m_dwUsedTextureMemory = 0;
 }
 
-GLuint CGlobalBitmap::LoadImage(const std::wstring& filename, GLuint uiFilter, GLuint uiWrapMode)
+GLuint CGlobalBitmap::LoadImage(const std::wstring& requestedFilename, GLuint uiFilter, GLuint uiWrapMode)
 {
+    // The Christmas version of Lorencia replaces some of its textures.
+    const std::wstring filename = World::ChristmasLorencia::Resolve(requestedFilename);
+
     BITMAP_t* pBitmap = FindTexture(filename);
     if (pBitmap)
     {
@@ -527,8 +531,10 @@ GLuint CGlobalBitmap::LoadImage(const std::wstring& filename, GLuint uiFilter, G
     }
     return BITMAP_UNKNOWN;
 }
-bool CGlobalBitmap::LoadImage(GLuint uiBitmapIndex, const std::wstring& filename, GLuint uiFilter, GLuint uiWrapMode)
+bool CGlobalBitmap::LoadImage(GLuint uiBitmapIndex, const std::wstring& requestedFilename, GLuint uiFilter, GLuint uiWrapMode)
 {
+    const std::wstring filename = World::ChristmasLorencia::Resolve(requestedFilename);
+
     unsigned int UICLAMP = GL_CLAMP_TO_EDGE;
     unsigned int UIREPEAT = GL_REPEAT;
 

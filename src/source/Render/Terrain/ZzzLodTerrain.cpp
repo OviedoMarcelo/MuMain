@@ -39,6 +39,7 @@
 #include "Camera/ConvexHull2D.h"
 #include "Engine/Object/CullingConstants.h"
 #include "UI/Scaling/UITransform.h"
+#include "World/MapInfra/ChristmasLorencia.h"
 
 // DevEditor function declarations
 #ifdef _EDITOR
@@ -118,7 +119,7 @@ void ExitProgram()
 
 int OpenTerrainAttribute(wchar_t* FileName)
 {
-    FILE* fp = _wfopen(FileName, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (fp == NULL)
     {
         wchar_t Text[256];
@@ -309,7 +310,7 @@ void SetTerrainWaterState(std::list<int>& terrainIndex, int state)
 
 int OpenTerrainMapping(wchar_t* FileName) {
     InitTerrainMappingLayer();
-    FILE* fp = _wfopen(FileName, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (fp == NULL) {
         return -1;
     }
@@ -652,7 +653,7 @@ bool OpenTerrainHeight(wchar_t* filename)
     wcscat_s(FileName, L"OZB");
 
     FILE* fp;
-    errno_t err = _wfopen_s(&fp, FileName, L"rb");
+    errno_t err = _wfopen_s(&fp, World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (err != 0 || fp == NULL)
     {
         wchar_t Text[256];
@@ -811,7 +812,7 @@ bool OpenTerrainHeightNew(const wchar_t* strFilename)
     wcscat(FileName, NewFileName);
     wcscat(FileName, L"OZB");
 
-    FILE* fp = _wfopen(FileName, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (!fp)
     {
         wchar_t Text[256];
