@@ -5240,7 +5240,10 @@ enum EMonsterType : int
     // An NPC which exchanges excellent items and jewels for a Box of Kundun, in the town of Elbeland.
     MONSTER_KUNDUN_COLLECTOR = 710,
 
-    MONSTER_END = MONSTER_KUNDUN_COLLECTOR
+    // The Duende de Santa, which sells the Invitation to Santa Village in Lorencia during the Christmas event.
+    MONSTER_SANTA_ELF = 711,
+
+    MONSTER_END = MONSTER_SANTA_ELF
 };
 
 enum

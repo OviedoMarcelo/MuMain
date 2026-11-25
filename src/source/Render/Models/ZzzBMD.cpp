@@ -30,6 +30,7 @@
 #include "Render/Renderer/MuRenderer.h"
 #include "Render/Renderer/RenderUtils.h"
 #include "Core/Utilities/FrameProfiler.h"
+#include "World/MapInfra/ChristmasLorencia.h"
 
 using mu::PackABGR;
 
@@ -3153,7 +3154,7 @@ bool BMD::Open2(const wchar_t* DirName, const wchar_t* ModelFileName, bool bReAl
     wchar_t ModelPath[260] = {};
     _snwprintf(ModelPath, std::size(ModelPath), L"%ls%ls", DirName, ModelFileName);
 
-    FILE* fp = _wfopen(ModelPath, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(ModelPath).c_str(), L"rb");
     if (!fp)
     {
         //// wprintf(L"[Open2] ERROR: Unable to open file: %ls\n", ModelPath);

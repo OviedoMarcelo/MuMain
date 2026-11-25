@@ -48,6 +48,7 @@
 #include "Render/Items/ItemGlow.h"
 #include "Render/Items/ItemEffects.h"
 #include "Render/Items/ItemRenderStyles.h"
+#include "World/MapInfra/ChristmasLorencia.h"
 
 // DevEditor function declarations
 #ifdef _EDITOR
@@ -4959,7 +4960,7 @@ void DeleteObjectTile(int x, int y)
 
 int OpenObjects(wchar_t* FileName)
 {
-    FILE* fp = _wfopen(FileName, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (fp == NULL)
     {
         wchar_t Text[256];
@@ -5010,7 +5011,7 @@ int OpenObjects(wchar_t* FileName)
 
 int OpenObjectsEnc(wchar_t* FileName)
 {
-    FILE* fp = _wfopen(FileName, L"rb");
+    FILE* fp = _wfopen(World::ChristmasLorencia::Resolve(FileName).c_str(), L"rb");
     if (fp == NULL)
     {
         wchar_t Text[256];

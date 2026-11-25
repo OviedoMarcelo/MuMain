@@ -686,4 +686,5 @@
 708	1	"Guardián del Baúl"
 709	1	"Guardiana de Icarus"
 710	1	"Coleccionista de Excelentes"
+711	1	"Duende de Santa"
 end		

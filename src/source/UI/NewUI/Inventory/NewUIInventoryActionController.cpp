@@ -978,6 +978,9 @@ bool CNewUIInventoryActionController::TryConsumeItem(CNewUIInventoryCtrl* target
     {
         g_pMyInventory->SetStandbyItemKey(pItem->Key);
         CreateMessageBox(MSGBOX_LAYOUT_CLASS(SEASON3B::CUseSantaInvitationMsgBoxLayout));
+
+        // Handled: otherwise the right click goes on to TryDropItem and the invitation falls to the ground.
+        return true;
     }
 
     return false;
